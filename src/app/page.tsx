@@ -171,65 +171,33 @@ function HologramLogo() {
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
       className="relative flex items-center justify-center"
-      style={{ perspective: "900px", width: 420, height: 420 }}
+      style={{ perspective: "900px", width: 340, height: 340 }}
     >
-      {/* outer pulsing ring — ajustado a nuevo tamaño */}
+      {/* anillo exterior giratorio */}
       <div
-        className="absolute inset-0 rounded-full border border-[var(--gold)]/20"
+        className="absolute inset-0 rounded-full border border-[var(--gold)]/25"
         style={{ animation: "ring-spin 12s linear infinite" }}
         aria-hidden
       >
-        {[0, 72, 144, 216, 288].map((deg) => (
+        {[0, 90, 180, 270].map((deg) => (
           <div
             key={deg}
-            className="absolute h-2 w-2 rounded-full bg-[var(--gold)]"
+            className="absolute h-1.5 w-1.5 rounded-full bg-[var(--gold)]"
             style={{
               top: "50%", left: "50%",
-              transform: `rotate(${deg}deg) translateX(208px) translateY(-50%)`,
-              boxShadow: "0 0 8px var(--gold)",
+              transform: `rotate(${deg}deg) translateX(168px) translateY(-50%)`,
+              boxShadow: "0 0 6px var(--gold)",
             }}
           />
         ))}
       </div>
 
-      {/* inner spinning dashed ring */}
+      {/* anillo interior punteado */}
       <div
-        className="absolute rounded-full border border-dashed border-[var(--gold)]/30"
-        style={{
-          inset: 24,
-          animation: "ring-spin-rev 8s linear infinite",
-        }}
+        className="absolute rounded-full border border-dashed border-[var(--gold)]/20"
+        style={{ inset: 20, animation: "ring-spin-rev 9s linear infinite" }}
         aria-hidden
       />
-
-      {/* segundo anillo medio */}
-      <div
-        className="absolute rounded-full border border-[var(--gold)]/10"
-        style={{
-          inset: 56,
-          animation: "ring-spin 20s linear infinite",
-        }}
-        aria-hidden
-      />
-
-      {/* hex grid overlay */}
-      <svg
-        className="pointer-events-none absolute inset-0 opacity-10"
-        width="420" height="420"
-        aria-hidden
-      >
-        <defs>
-          <pattern id="hex" width="28" height="24" patternUnits="userSpaceOnUse">
-            <polygon
-              points="14,2 24,8 24,16 14,22 4,16 4,8"
-              fill="none"
-              stroke="rgba(201,162,39,1)"
-              strokeWidth="0.5"
-            />
-          </pattern>
-        </defs>
-        <circle cx="210" cy="210" r="185" fill="url(#hex)" />
-      </svg>
 
       {/* 3D tilt container */}
       <motion.div
@@ -238,59 +206,40 @@ function HologramLogo() {
       >
         {/* bottom glow shadow */}
         <div
-          className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-5 w-52 rounded-full blur-2xl"
-          style={{ background: "rgba(201,162,39,.50)" }}
+          className="absolute -bottom-6 left-1/2 -translate-x-1/2 h-4 w-40 rounded-full blur-xl"
+          style={{ background: "rgba(201,162,39,.40)" }}
           aria-hidden
         />
 
-        {/* logo frame — círculo */}
+        {/* logo frame — círculo limpio */}
         <div
           className="holo-sheen relative overflow-hidden rounded-full"
           style={{
-            width: 260,
-            height: 260,
-            background: "radial-gradient(circle at 40% 30%, rgba(201,162,39,.12) 0%, rgba(10,26,51,.95) 60%)",
+            width: 240,
+            height: 240,
             boxShadow: `
-              0 0 0 1.5px rgba(201,162,39,.5),
-              0 0 40px rgba(201,162,39,.25),
-              0 0 80px rgba(201,162,39,.10),
-              inset 0 0 40px rgba(201,162,39,.06)
+              0 0 0 2px rgba(201,162,39,.6),
+              0 0 32px rgba(201,162,39,.30),
+              0 0 70px rgba(201,162,39,.12),
+              inset 0 0 30px rgba(201,162,39,.08)
             `,
           }}
         >
-          {/* scan line */}
+          {/* scan line sutil */}
           <div
-            className="pointer-events-none absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent z-20"
-            style={{ animation: "scan-v 2.8s linear infinite" }}
+            className="pointer-events-none absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/70 to-transparent z-20"
+            style={{ animation: "scan-v 3.5s linear infinite" }}
             aria-hidden
           />
 
-          {/* glitch layer */}
-          <div
-            className="pointer-events-none absolute inset-0 z-10"
-            style={{
-              backgroundImage: "url(/logo-panther.webp)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              mixBlendMode: "screen",
-              opacity: 0.15,
-              filter: "hue-rotate(200deg) saturate(4)",
-              animation: "glitch-2 7s step-end infinite",
-            }}
-            aria-hidden
-          />
-
-          {/* main image */}
+          {/* imagen principal — sin glitch */}
           <Image
             src="/logo-panther.webp"
             alt="FYV Box Pantera"
-            width={260}
-            height={260}
+            width={240}
+            height={240}
             className="h-full w-full object-cover"
-            style={{
-              filter: "brightness(1.1) contrast(1.05)",
-              animation: "glitch-1 9s step-end infinite",
-            }}
+            style={{ filter: "brightness(1.05) contrast(1.1)" }}
             priority
           />
         </div>
@@ -552,7 +501,7 @@ export default function LandingPage() {
               Stellar Testnet · Sin fondos reales
             </div>
 
-            <h1 className="font-playfair text-5xl font-bold leading-[1.1] text-[var(--cream)] sm:text-6xl">
+            <h1 className="font-playfair text-4xl font-bold leading-[1.15] text-[var(--cream)] lg:text-5xl">
               Aprende a no caer<br />
               <span
                 className="bg-clip-text text-transparent"
