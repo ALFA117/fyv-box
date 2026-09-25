@@ -151,30 +151,36 @@ function ParticleCanvas() {
 function HologramLogo() {
   return (
     <div className="relative flex w-full items-center justify-center px-8">
-      {/* glow de fondo */}
-      <div
+      {/* glow de fondo pulsante */}
+      <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
+        animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.08, 1] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         style={{
-          background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(201,162,39,.18) 0%, transparent 70%)",
-          animation: "pulse-glow 3s ease-in-out infinite",
+          background: "radial-gradient(ellipse 80% 65% at 50% 50%, rgba(201,162,39,.28) 0%, rgba(201,162,39,.08) 50%, transparent 70%)",
         }}
       />
 
-      {/* imagen completa sin recorte */}
-      <Image
-        src="/logo-panther.webp"
-        alt="FYV Box Pantera"
-        width={420}
-        height={164}
+      {/* logo con movimiento flotante */}
+      <motion.div
         className="relative z-10 w-full max-w-[420px]"
-        style={{
-          filter: "brightness(1.4) contrast(1.2) drop-shadow(0 0 18px rgba(201,162,39,.7)) drop-shadow(0 0 40px rgba(201,162,39,.4))",
-          height: "auto",
-        }}
-        priority
-      />
-
+        animate={{ y: [0, -14, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Image
+          src="/logo-panther.webp"
+          alt="FYV Box Pantera"
+          width={420}
+          height={164}
+          className="w-full"
+          style={{
+            filter: "brightness(1.4) contrast(1.2) drop-shadow(0 0 22px rgba(201,162,39,.85)) drop-shadow(0 0 55px rgba(201,162,39,.5))",
+            height: "auto",
+          }}
+          priority
+        />
+      </motion.div>
     </div>
   );
 }
@@ -354,11 +360,20 @@ export default function LandingPage() {
       {/* Particle canvas */}
       <ParticleCanvas />
 
-      {/* Ambient blobs (behind everything) */}
+      {/* Background profesional: gradiente profundo + blobs */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute left-1/3 top-1/4 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--gold)]/5 blur-[140px]" />
-        <div className="absolute right-0 bottom-1/3 h-96 w-96 rounded-full bg-blue-700/5 blur-[100px]" />
-        <div className="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-purple-700/4 blur-[100px]" />
+        {/* base radial oscuro — da profundidad tipo deep space */}
+        <div className="absolute inset-0"
+          style={{ background: "radial-gradient(ellipse 120% 80% at 50% -10%, rgba(14,30,60,.95) 0%, var(--navy) 60%)" }} />
+        {/* glow dorado central — reflejo del logo */}
+        <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/4 -translate-y-1/2 rounded-full bg-[var(--gold)]/8 blur-[120px]" />
+        {/* acento azul profundo derecha */}
+        <div className="absolute right-0 top-1/2 h-[500px] w-[500px] -translate-y-1/3 rounded-full bg-blue-900/25 blur-[130px]" />
+        {/* acento verde esmeralda abajo */}
+        <div className="absolute bottom-0 left-1/4 h-80 w-[500px] rounded-full bg-emerald-900/15 blur-[110px]" />
+        {/* líneas de cuadrícula sutil (grid profesional) */}
+        <div className="absolute inset-0 opacity-[0.035]"
+          style={{ backgroundImage: "linear-gradient(rgba(201,162,39,1) 1px, transparent 1px), linear-gradient(90deg, rgba(201,162,39,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
       </div>
 
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
@@ -384,10 +399,6 @@ export default function LandingPage() {
               {["Quiénes somos","Faucets"][i]}
             </a>
           ))}
-          <a href="#auth"
-            className="hidden rounded-xl border border-[var(--border-gold)] bg-[var(--gold-subtle)] px-4 py-1.5 text-xs font-semibold text-[var(--gold)] transition-colors hover:bg-[var(--gold)]/20 sm:block">
-            Iniciar →
-          </a>
           <button
             onClick={toggle}
             aria-label="Cambiar tema"
@@ -501,6 +512,44 @@ export default function LandingPage() {
             <ChevronDown className="h-5 w-5" />
           </motion.div>
         </motion.a>
+      </section>
+
+      {/* ══ AUTH CTA — justo debajo del hero ═══════════════════════════ */}
+      <section id="auth" className="px-4 py-20 sm:px-8">
+        <div className="mx-auto max-w-md">
+          <Reveal className="mb-8 text-center">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
+              Comienza ahora
+            </p>
+            <h2 className="font-playfair text-3xl font-bold text-[var(--cream)]">
+              ¿Listo para entrenar?
+            </h2>
+            <p className="mt-3 text-sm text-[var(--cream-muted)]">
+              Ingresa tu correo. Tu billetera de prueba se genera automáticamente.
+            </p>
+          </Reveal>
+
+          <Reveal>
+            <GlassCard className="p-6 shadow-[var(--shadow-lg)]" gold>
+              <AuthForm />
+            </GlassCard>
+          </Reveal>
+
+          <Reveal className="mt-5" delay={0.1}>
+            <div className="flex flex-wrap justify-center gap-5">
+              {[
+                { icon: Shield,       text: "Sin fondos reales" },
+                { icon: CheckCircle,  text: "Open source" },
+                { icon: Globe,        text: "Stellar testnet" },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-center gap-1.5 text-xs text-[var(--cream-muted)]">
+                  <Icon className="h-3.5 w-3.5 text-[var(--gold)]" strokeWidth={2} />
+                  {text}
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
       </section>
 
       {/* ══ QUIÉNES SOMOS ═══════════════════════════════════════════════ */}
@@ -685,44 +734,6 @@ export default function LandingPage() {
               </Reveal>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ══ AUTH CTA ════════════════════════════════════════════════════ */}
-      <section id="auth" className="px-4 py-24 sm:px-8">
-        <div className="mx-auto max-w-md">
-          <Reveal className="mb-8 text-center">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
-              Comienza ahora
-            </p>
-            <h2 className="font-playfair text-3xl font-bold text-[var(--cream)]">
-              ¿Listo para entrenar?
-            </h2>
-            <p className="mt-3 text-sm text-[var(--cream-muted)]">
-              Ingresa tu correo. Tu billetera de prueba se genera automáticamente.
-            </p>
-          </Reveal>
-
-          <Reveal>
-            <GlassCard className="p-6 shadow-[var(--shadow-lg)]" gold>
-              <AuthForm />
-            </GlassCard>
-          </Reveal>
-
-          <Reveal className="mt-5" delay={0.1}>
-            <div className="flex flex-wrap justify-center gap-5">
-              {[
-                { icon: Shield,       text: "Sin fondos reales" },
-                { icon: CheckCircle,  text: "Open source" },
-                { icon: Globe,        text: "Stellar testnet" },
-              ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-1.5 text-xs text-[var(--cream-muted)]">
-                  <Icon className="h-3.5 w-3.5 text-[var(--gold)]" strokeWidth={2} />
-                  {text}
-                </div>
-              ))}
-            </div>
-          </Reveal>
         </div>
       </section>
 
