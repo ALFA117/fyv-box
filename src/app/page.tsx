@@ -211,34 +211,20 @@ function HologramLogo() {
           aria-hidden
         />
 
-        {/* logo frame — círculo limpio */}
-        <div
-          className="holo-sheen relative overflow-hidden rounded-full"
-          style={{
-            width: 240,
-            height: 240,
-            boxShadow: `
-              0 0 0 2px rgba(201,162,39,.6),
-              0 0 32px rgba(201,162,39,.30),
-              0 0 70px rgba(201,162,39,.12),
-              inset 0 0 30px rgba(201,162,39,.08)
-            `,
-          }}
-        >
-          {/* scan line sutil */}
+        {/* imagen completa — sin recorte */}
+        <div className="relative">
+          {/* glow detrás */}
           <div
-            className="pointer-events-none absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/70 to-transparent z-20"
-            style={{ animation: "scan-v 3.5s linear infinite" }}
+            className="pointer-events-none absolute inset-0 -z-10 blur-2xl"
+            style={{ background: "radial-gradient(circle, rgba(201,162,39,.30) 0%, transparent 70%)" }}
             aria-hidden
           />
-
-          {/* imagen principal — sin glitch */}
           <Image
             src="/logo-panther.webp"
             alt="FYV Box Pantera"
-            width={240}
-            height={240}
-            className="h-full w-full object-cover"
+            width={260}
+            height={260}
+            className="relative z-10 drop-shadow-[0_0_24px_rgba(201,162,39,.5)]"
             style={{ filter: "brightness(1.05) contrast(1.1)" }}
             priority
           />
