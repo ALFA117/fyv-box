@@ -171,21 +171,21 @@ function HologramLogo() {
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
       className="relative flex items-center justify-center"
-      style={{ perspective: "900px", width: 320, height: 320 }}
+      style={{ perspective: "900px", width: 420, height: 420 }}
     >
-      {/* outer pulsing ring */}
+      {/* outer pulsing ring — ajustado a nuevo tamaño */}
       <div
         className="absolute inset-0 rounded-full border border-[var(--gold)]/20"
         style={{ animation: "ring-spin 12s linear infinite" }}
         aria-hidden
       >
-        {[0, 90, 180, 270].map((deg) => (
+        {[0, 72, 144, 216, 288].map((deg) => (
           <div
             key={deg}
             className="absolute h-2 w-2 rounded-full bg-[var(--gold)]"
             style={{
               top: "50%", left: "50%",
-              transform: `rotate(${deg}deg) translateX(158px) translateY(-50%)`,
+              transform: `rotate(${deg}deg) translateX(208px) translateY(-50%)`,
               boxShadow: "0 0 8px var(--gold)",
             }}
           />
@@ -196,8 +196,18 @@ function HologramLogo() {
       <div
         className="absolute rounded-full border border-dashed border-[var(--gold)]/30"
         style={{
-          inset: 20,
+          inset: 24,
           animation: "ring-spin-rev 8s linear infinite",
+        }}
+        aria-hidden
+      />
+
+      {/* segundo anillo medio */}
+      <div
+        className="absolute rounded-full border border-[var(--gold)]/10"
+        style={{
+          inset: 56,
+          animation: "ring-spin 20s linear infinite",
         }}
         aria-hidden
       />
@@ -205,7 +215,7 @@ function HologramLogo() {
       {/* hex grid overlay */}
       <svg
         className="pointer-events-none absolute inset-0 opacity-10"
-        width="320" height="320"
+        width="420" height="420"
         aria-hidden
       >
         <defs>
@@ -218,7 +228,7 @@ function HologramLogo() {
             />
           </pattern>
         </defs>
-        <circle cx="160" cy="160" r="140" fill="url(#hex)" />
+        <circle cx="210" cy="210" r="185" fill="url(#hex)" />
       </svg>
 
       {/* 3D tilt container */}
@@ -228,23 +238,24 @@ function HologramLogo() {
       >
         {/* bottom glow shadow */}
         <div
-          className="absolute -bottom-8 left-1/2 -translate-x-1/2 h-4 w-40 rounded-full blur-xl"
-          style={{ background: "rgba(201,162,39,.45)" }}
+          className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-5 w-52 rounded-full blur-2xl"
+          style={{ background: "rgba(201,162,39,.50)" }}
           aria-hidden
         />
 
-        {/* logo frame */}
+        {/* logo frame — sin rounded-full para mostrar la imagen completa */}
         <div
-          className="holo-sheen relative overflow-hidden rounded-full"
+          className="holo-sheen relative overflow-hidden"
           style={{
-            width: 220,
-            height: 220,
-            background: "radial-gradient(circle at 40% 30%, rgba(201,162,39,.12) 0%, rgba(10,26,51,.95) 60%)",
+            width: 290,
+            height: 290,
+            borderRadius: 24,
+            background: "radial-gradient(circle at 40% 30%, rgba(201,162,39,.10) 0%, rgba(10,26,51,.92) 60%)",
             boxShadow: `
-              0 0 0 1.5px rgba(201,162,39,.5),
-              0 0 40px rgba(201,162,39,.25),
-              0 0 80px rgba(201,162,39,.10),
-              inset 0 0 40px rgba(201,162,39,.06)
+              0 0 0 1.5px rgba(201,162,39,.55),
+              0 0 50px rgba(201,162,39,.28),
+              0 0 100px rgba(201,162,39,.10),
+              inset 0 0 50px rgba(201,162,39,.05)
             `,
           }}
         >
@@ -255,7 +266,7 @@ function HologramLogo() {
             aria-hidden
           />
 
-          {/* glitch layer 1 */}
+          {/* glitch layer */}
           <div
             className="pointer-events-none absolute inset-0 z-10"
             style={{
@@ -270,13 +281,13 @@ function HologramLogo() {
             aria-hidden
           />
 
-          {/* main image */}
+          {/* main image — object-contain para no recortar */}
           <Image
             src="/logo-panther.webp"
             alt="FYV Box Pantera"
-            width={220}
-            height={220}
-            className="h-full w-full object-cover"
+            width={290}
+            height={290}
+            className="h-full w-full object-contain"
             style={{
               filter: "brightness(1.1) contrast(1.05)",
               animation: "glitch-1 9s step-end infinite",
@@ -286,7 +297,7 @@ function HologramLogo() {
         </div>
       </motion.div>
 
-      {/* ambient glow blobs */}
+      {/* ambient glow */}
       <div
         className="pointer-events-none absolute inset-0 -z-10 rounded-full"
         style={{
@@ -526,25 +537,35 @@ export default function LandingPage() {
         </div>
       </motion.nav>
 
-      {/* ══ HERO ══════════════════════════════════════════════════════════ */}
-      <section className="relative flex min-h-dvh flex-col items-center justify-center gap-12 px-4 pb-16 pt-24 text-center lg:flex-row lg:gap-16 lg:text-left">
+      {/* ══ HERO — split 50/50 ════════════════════════════════════════════ */}
+      <section className="relative flex min-h-dvh flex-col pt-16 lg:flex-row">
 
-        {/* Left: logo */}
+        {/* ── Mitad izquierda: Logo ───────────────────────────────────────── */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.8, x: -30 }}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="shrink-0"
+          className="flex w-full items-center justify-center py-16 lg:w-1/2 lg:min-h-[calc(100dvh-4rem)]"
         >
           <HologramLogo />
         </motion.div>
 
-        {/* Right: copy */}
-        <div className="max-w-lg">
+        {/* divisor vertical — solo desktop */}
+        <div
+          aria-hidden
+          className="pointer-events-none hidden lg:block absolute left-1/2 top-16 bottom-0 w-px"
+          style={{
+            background: "linear-gradient(to bottom, transparent, rgba(201,162,39,.3) 20%, rgba(201,162,39,.3) 80%, transparent)",
+          }}
+        />
+
+        {/* ── Mitad derecha: Copy ─────────────────────────────────────────── */}
+        <div className="flex w-full items-center justify-center px-8 py-16 lg:w-1/2 lg:min-h-[calc(100dvh-4rem)] lg:px-16">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-lg"
           >
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--amber-border)] bg-[var(--amber-subtle)] px-3.5 py-1.5 text-xs font-semibold text-[var(--amber)]">
               <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -587,6 +608,20 @@ export default function LandingPage() {
                 <ChevronDown className="h-4 w-4" />
               </a>
             </div>
+
+            {/* mini stats en hero */}
+            <div className="mt-10 flex gap-8 border-t border-[var(--border)] pt-6">
+              {[
+                { n: "7+", label: "tipos de estafa" },
+                { n: "100%", label: "gratis" },
+                { n: "0 XLM", label: "riesgo" },
+              ].map(({ n, label }) => (
+                <div key={label}>
+                  <p className="font-playfair text-2xl font-bold text-[var(--gold)]">{n}</p>
+                  <p className="text-xs text-[var(--cream-muted)]">{label}</p>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </div>
 
@@ -596,7 +631,7 @@ export default function LandingPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.4 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-xs text-[var(--cream-muted)] hover:text-[var(--gold)] transition-colors"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-xs text-[var(--cream-muted)] hover:text-[var(--gold)] transition-colors"
         >
           <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
             <ChevronDown className="h-5 w-5" />
