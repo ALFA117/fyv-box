@@ -1,0 +1,22 @@
+{
+  "id": "social-eng-002",
+  "track": "social-engineering",
+  "title": "El Influencer y el Giveaway",
+  "narrative": "Un influencer crypto muy seguido publica en X (Twitter): 'GIVEAWAY: Envía 5 XLM a esta dirección y yo te devuelvo 50 XLM en 30 minutos. Solo las primeras 100 personas. ¡Verificado!'\n\nEl post tiene miles de likes y comentarios de personas diciendo que ya recibieron sus 50 XLM. La cuenta tiene un tick azul.",
+  "action": "identify_phishing_domain",
+  "actionParams": {
+    "attackType": "giveaway-scam",
+    "fakeSocialProof": true,
+    "testnetTx": null
+  },
+  "options": [
+    { "id": "a", "label": "Envío 5 XLM — hay miles de comentarios positivos, debe ser real", "isCorrect": false },
+    { "id": "b", "label": "Envío solo 1 XLM para probar si es real", "isCorrect": false },
+    { "id": "c", "label": "No envío nada — los giveaways de 'envía X para recibir 10X' son siempre estafas", "isCorrect": true },
+    { "id": "d", "label": "Verifico en blockchain si las personas en los comentarios realmente recibieron fondos", "isCorrect": false }
+  ],
+  "explanation": "El esquema 'send X get 10X' es una de las estafas más antiguas en crypto. Los comentarios positivos son bots o cuentas compradas. Los ticks azules pueden comprarse o ser cuentas hackeadas. Nadie en el mundo distribuye dinero gratis en redes sociales — si lo hiciera, estaría abrumado por millones de personas en segundos, no publicaría un 'giveaway' limitado. Regla: si tienes que enviar dinero para 'ganar' dinero, es una estafa.",
+  "comingSoon": false,
+  "difficulty": "beginner",
+  "xp": 100
+}

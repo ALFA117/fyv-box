@@ -1,0 +1,23 @@
+{
+  "id": "social-eng-001",
+  "track": "social-engineering",
+  "title": "El Soporte Oficial",
+  "narrative": "En el Discord del proyecto XYZ, un usuario llamado 'Soporte_Oficial_XYZ' (con badge azul de verificado) te escribe por DM:\n\n'Detectamos actividad sospechosa en tu cuenta. Para proteger tus fondos necesitamos verificar tu identidad. Por favor comparte tu frase de recuperación de 12 palabras de forma privada.'\n\nEl mensaje llega de alguien con el mismo nombre que el soporte oficial.",
+  "action": "refuse_seed_phrase",
+  "actionParams": {
+    "attackerName": "Soporte_Oficial_XYZ",
+    "socialContext": "Discord DM",
+    "urgency": "alta",
+    "testnetTx": null
+  },
+  "options": [
+    { "id": "a", "label": "Comparto las 12 palabras — tiene badge de verificación", "isCorrect": false },
+    { "id": "b", "label": "Pido más verificación antes de compartir: le pregunto datos sobre mi cuenta", "isCorrect": false },
+    { "id": "c", "label": "No comparto nada — ningún soporte legítimo pide jamás la frase de recuperación", "isCorrect": true },
+    { "id": "d", "label": "Comparto solo las primeras 6 palabras para 'verificar'", "isCorrect": false }
+  ],
+  "explanation": "Tu frase de recuperación (seed phrase) es tu billetera completa — quien la tenga, tiene todos tus fondos para siempre. Ningún soporte legítimo, ningún exchange, ninguna wallet la necesita jamás. Los badges de verificación en Discord se falsifican trivialmente con caracteres Unicode similares. La urgencia y el miedo son las armas del atacante. Regla absoluta: la frase de recuperación solo existe en papel, en tu cabeza, o en hardware frío — nunca en una pantalla.",
+  "comingSoon": false,
+  "difficulty": "beginner",
+  "xp": 100
+}

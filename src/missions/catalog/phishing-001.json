@@ -1,0 +1,22 @@
+{
+  "id": "phishing-001",
+  "track": "phishing",
+  "title": "El Login de Lumena",
+  "narrative": "Recibes un correo urgente: '¡Tu cuenta Lumena Wallet está en riesgo! Inicia sesión ahora para protegerla.' El link te lleva a: https://lumena-wallet-secure.io/login\n\nLa página se ve idéntica a la oficial. ¿Qué haces?",
+  "action": "identify_phishing_domain",
+  "actionParams": {
+    "fakeDomain": "lumena-wallet-secure.io",
+    "realDomainHint": "las wallets legítimas nunca envían correos de 'urgencia' con links",
+    "testnetTx": null
+  },
+  "options": [
+    { "id": "a", "label": "Ingreso mis datos — el diseño se ve exactamente igual", "isCorrect": false },
+    { "id": "b", "label": "Cierro la página y verifico la URL oficial directamente en mis favoritos", "isCorrect": true },
+    { "id": "c", "label": "Ingreso pero cambio mi contraseña inmediatamente después", "isCorrect": false },
+    { "id": "d", "label": "Le pregunto al 'soporte' si el link es legítimo", "isCorrect": false }
+  ],
+  "explanation": "El dominio 'lumena-wallet-secure.io' no es el dominio oficial. Los atacantes clonan el diseño pixel por pixel — la única forma segura de verificar es ir directamente al dominio que ya conoces. La urgencia es una táctica de presión: si el mensaje te hace sentir que debes actuar en segundos, probablemente es una estafa.",
+  "comingSoon": false,
+  "difficulty": "beginner",
+  "xp": 100
+}

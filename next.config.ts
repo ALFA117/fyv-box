@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Stellar SDK uses Node.js crypto — keep it out of the browser bundle
+  serverExternalPackages: ["@stellar/stellar-sdk"],
 };
 
 export default nextConfig;

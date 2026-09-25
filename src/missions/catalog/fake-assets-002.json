@@ -1,0 +1,23 @@
+{
+  "id": "fake-assets-002",
+  "track": "fake-assets",
+  "title": "El USDC que No es USDC",
+  "narrative": "Alguien en Discord te ofrece USDC a precio con descuento. Te manda 50 USDC en Stellar testnet. Al revisar el token, el código es 'USDC' pero el emisor no es Circle (GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVV).\n\nEl token en tu wallet se llama igual que el real. ¿Qué haces?",
+  "action": "check_asset_domain",
+  "actionParams": {
+    "assetCode": "USDC",
+    "fakeIssuer": "GCFAKE000XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "realIssuer": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVV",
+    "testnetTx": true
+  },
+  "options": [
+    { "id": "a", "label": "Lo acepto — tiene el mismo código 'USDC', debe ser legítimo", "isCorrect": false },
+    { "id": "b", "label": "Verifico la dirección del emisor contra la oficial de Circle y los rechazo por ser distintos", "isCorrect": true },
+    { "id": "c", "label": "Intento venderlo en un DEX para convertirlo en XLM real", "isCorrect": false },
+    { "id": "d", "label": "Contacto al vendedor para que me explique por qué el emisor es diferente", "isCorrect": false }
+  ],
+  "explanation": "En Stellar, el código de un token (como 'USDC') no es único — cualquiera puede emitir un token llamado USDC. Lo que lo autentica es el par (código + emisor). El USDC legítimo de Circle tiene un emisor específico y público. Un token con el mismo nombre pero distinto emisor vale exactamente $0 y probablemente es un vector de estafa. Siempre verifica el emisor, no solo el nombre.",
+  "comingSoon": false,
+  "difficulty": "intermediate",
+  "xp": 150
+}

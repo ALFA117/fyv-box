@@ -1,0 +1,24 @@
+{
+  "id": "phishing-003",
+  "track": "phishing",
+  "title": "El Memo Trampa",
+  "narrative": "Revisas tu historial en Stellar Expert y ves que alguien te envió 0.0000001 XLM con el memo: 'Reclama tus 500 XLM en novastellar-drop.com'. La transacción es real y aparece en la blockchain.\n\n¿Qué haces?",
+  "action": "receive_payment",
+  "actionParams": {
+    "amount": "0.0000001",
+    "asset": "XLM",
+    "memo": "Reclama tus 500 XLM en novastellar-drop.com",
+    "fakeSite": "novastellar-drop.com",
+    "testnetTx": true
+  },
+  "options": [
+    { "id": "a", "label": "Visito el sitio — la transacción es real, entonces la oferta también lo es", "isCorrect": false },
+    { "id": "b", "label": "Ignoro el memo — recibir XLM no implica que el remitente sea confiable", "isCorrect": true },
+    { "id": "c", "label": "Reporto la dirección remitente en el grupo de Telegram del proyecto", "isCorrect": false },
+    { "id": "d", "label": "Envío 1 XLM de vuelta para 'desactivar el spam'", "isCorrect": false }
+  ],
+  "explanation": "Este ataque se llama 'dusting': enviar cantidades microscópicas con memos que dirigen a sitios falsos. Que la transacción sea real no valida el memo — cualquiera puede enviar XLM a tu dirección. El sitio al que apunta pedirá tu clave secreta o intentará instalar malware. La regla: ignora cualquier instrucción que llegue en un memo de una dirección desconocida.",
+  "comingSoon": false,
+  "difficulty": "intermediate",
+  "xp": 150
+}

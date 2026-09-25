@@ -1,0 +1,24 @@
+{
+  "id": "fake-assets-001",
+  "track": "fake-assets",
+  "title": "El Airdrop Misterioso",
+  "narrative": "FYV Box te ha enviado un Claimable Balance en testnet: 1,000,000 LUNACOIN emitido por una dirección desconocida. El token no aparece en ningún exchange, pero en Telegram dicen que 'pronto valdrá mucho'.\n\nEl balance ya está en tu historial de Stellar testnet. ¿Lo reclamas?",
+  "action": "receive_claimable_balance",
+  "actionParams": {
+    "assetCode": "LUNACOIN",
+    "amount": "1000000",
+    "claimableBalanceId": "FYVSIM-FAKE-001",
+    "issuerIsFyvBox": true,
+    "testnetTx": true
+  },
+  "options": [
+    { "id": "a", "label": "Lo reclamo — 1 millón de tokens podría valer algo", "isCorrect": false },
+    { "id": "b", "label": "No lo reclamo — primero verifico quién emitió el token y si tiene dominio stellar.toml", "isCorrect": true },
+    { "id": "c", "label": "Lo reclamo y lo guardo en una wallet diferente por si acaso", "isCorrect": false },
+    { "id": "d", "label": "Pregunto en el grupo de Telegram si es legítimo antes de reclamar", "isCorrect": false }
+  ],
+  "explanation": "Reclamar un token falso tiene consecuencias: al establecer el trustline necesario para recibirlo, pagas comisiones (mínimas en Stellar, pero reales), y el token podría estar diseñado para drenar automáticamente fondos via scripts al interactuar con él. La regla de oro: cualquier token legítimo tiene un archivo stellar.toml en el dominio del emisor que lo valida. Sin stellar.toml verificado = no confíes.",
+  "comingSoon": false,
+  "difficulty": "beginner",
+  "xp": 100
+}
