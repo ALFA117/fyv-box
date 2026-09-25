@@ -74,6 +74,33 @@
   --dur-slow:  400ms;
 }
 
+/* ─── Light mode overrides ──────────────────────────────────────────────── */
+[data-theme="light"] {
+  --navy:          #F0EDE4;
+  --surface:       #FFFFFF;
+  --surface-2:     #F5F2EA;
+  --surface-card:  #FAFAF7;
+
+  --cream:         #1A1208;
+  --cream-muted:   #4A4535;
+  --cream-dim:     rgba(26,18,8,.40);
+
+  --border:        rgba(0,0,0,.08);
+  --border-strong: rgba(0,0,0,.15);
+  --border-gold:   rgba(150,100,10,.25);
+
+  --gold:          #A07010;
+  --gold-hover:    #C9A227;
+  --gold-muted:    #7A5508;
+  --gold-subtle:   rgba(160,112,16,.10);
+  --gold-ring:     rgba(160,112,16,.35);
+
+  --shadow-sm:     0 1px 3px rgba(0,0,0,.10);
+  --shadow-md:     0 4px 16px rgba(0,0,0,.12);
+  --shadow-lg:     0 8px 32px rgba(0,0,0,.18);
+  --shadow-gold:   0 0 24px rgba(160,112,16,.18);
+}
+
 /* ─── Reset & base ──────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -93,6 +120,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100dvh;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ─── Typography ────────────────────────────────────────────────────────── */
@@ -117,6 +145,27 @@ code, pre, .mono, .font-mono {
   outline: 2px solid var(--gold);
   outline-offset: 3px;
   border-radius: 4px;
+}
+
+/* ─── Logo 3D / glow animations ────────────────────────────────────────── */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 30px rgba(201,162,39,.25), 0 0 60px rgba(201,162,39,.10); }
+  50%       { box-shadow: 0 0 50px rgba(201,162,39,.45), 0 0 100px rgba(201,162,39,.20); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotateX(0deg); }
+  50%       { transform: translateY(-8px) rotateX(2deg); }
+}
+@keyframes circuit-dash {
+  0%   { stroke-dashoffset: 200; opacity: 0.3; }
+  50%  { opacity: 1; }
+  100% { stroke-dashoffset: 0;   opacity: 0.3; }
+}
+@keyframes scan-line {
+  0%   { top: 0%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
 }
 
 /* ─── Shimmer animation ─────────────────────────────────────────────────── */
@@ -146,6 +195,11 @@ code, pre, .mono, .font-mono {
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
   border-radius: var(--radius-md);
+}
+
+/* ─── Tailwind v4 custom utilities ─────────────────────────────────────── */
+@utility font-playfair {
+  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
 }
 
 /* ─── Reduced motion ────────────────────────────────────────────────────── */
