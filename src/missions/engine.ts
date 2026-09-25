@@ -1,20 +1,24 @@
-import { readdirSync, readFileSync } from "fs";
-import { join } from "path";
 import { MissionSchema, type Mission } from "./schema";
+
+// Importados con require() para que Turbopack/Webpack los incluya en el bundle
+// y sean accesibles en Vercel sin depender de fs.readdirSync en runtime.
+const CATALOG_MODULES: Record<string, unknown> = {
+  "phishing-001": require("./catalog/phishing-001.json"),
+  "phishing-002": require("./catalog/phishing-002.json"),
+  "phishing-003": require("./catalog/phishing-003.json"),
+  "fake-assets-001": require("./catalog/fake-assets-001.json"),
+  "fake-assets-002": require("./catalog/fake-assets-002.json"),
+  "social-eng-001": require("./catalog/social-eng-001.json"),
+  "social-eng-002": require("./catalog/social-eng-002.json"),
+};
 
 let _catalog: Mission[] | null = null;
 
 export function loadCatalog(): Mission[] {
   if (_catalog) return _catalog;
 
-  const dir = join(process.cwd(), "src/missions/catalog");
-  const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
-
-  _catalog = files
-    .map((f) => {
-      const raw = JSON.parse(readFileSync(join(dir, f), "utf-8"));
-      return MissionSchema.parse(raw);
-    })
+  _catalog = Object.values(CATALOG_MODULES)
+    .map((raw) => MissionSchema.parse(raw))
     .sort((a, b) => a.id.localeCompare(b.id));
 
   return _catalog;
