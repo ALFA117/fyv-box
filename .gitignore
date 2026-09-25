@@ -20,3 +20,5 @@ contracts/*/target/
 # Misc
 .DS_Store
 *.pem
+
+.vercel

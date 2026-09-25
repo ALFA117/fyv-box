@@ -195,6 +195,60 @@ stellar contract invoke \
 
 ---
 
+## DESIGN_NOTES — Sistema de Diseño v1
+
+### Tokens de color (CSS custom properties)
+Definidos centralmente en `src/app/globals.css`. **Nunca usar hex directamente en componentes.**
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--navy` | `#0A1A33` | Fondo de página y navbar |
+| `--surface` | `#11284D` | Cards principales |
+| `--surface-2` | `#162F58` | Cards elevadas |
+| `--surface-card` | `#132248` | Fondo de badges de credencial |
+| `--gold` | `#C9A227` | Acento primario, CTAs, iconos de track |
+| `--gold-hover` | `#E0C35A` | Estado hover de elementos dorados |
+| `--cream` | `#F5F1E6` | Texto principal |
+| `--cream-muted` | `#B8C2D6` | Texto secundario / labels |
+| `--success` | `#3DB882` | Correcto, certificado, completado |
+| `--danger` | `#E05252` | Trampa activada, error, phishing |
+| `--amber` | `#F59E0B` | Advertencia, billetera testnet, dificultad media |
+
+### Tipografía
+- **Playfair Display** — títulos (`font-playfair`); da autoridad académica/institucional
+- **Inter** — cuerpo, labels, UI general (variable `--font-inter`)
+- **IBM Plex Mono** — direcciones Stellar, hashes, código (variable `--font-mono`)
+- Regla: **todas las direcciones siempre en mono + mid-truncadas** (`GABC…XYZ9`)
+
+### Componentes clave
+| Componente | Propósito |
+|-----------|-----------|
+| `AppNav` | Header sticky con blur backdrop; acepta `back` (string o `{href,label}`), `wallet`, `showStats`, `showLogout` |
+| `Toast / ToastProvider` | Sistema de notificaciones: success/error/warning/info, auto-dismiss 4s, `aria-live` |
+| `TrackIcon / TrackIconBadge` | SVG Lucide por track; reemplaza todos los emojis del catálogo |
+| `MissionCard` | Card de misión con estado completed/locked/available, badges de dificultad semánticos |
+| `CredentialBadge` | Certificado premium con glow dorado, shine overlay, dirección mono |
+| `ProgressBar` | Barra animada con variantes gold/success/danger/amber y tamaños sm/md |
+| `DashboardSkeleton` | Shimmer loading state del dashboard |
+| `Button` | size sm/md/lg, variant primary/ghost/secondary/danger, `loading` con Loader2 |
+| `Card` | variant default/elevated/gold/success/danger, padding sm/md/lg |
+
+### Animaciones (framer-motion)
+- **Entradas**: `opacity 0→1 + y 16→0`, spring `stiffness:280 damping:26`
+- **Press feedback**: `whileTap scale:0.98`, spring `stiffness:400 damping:20`
+- **Stagger lists**: `staggerChildren: 0.07s` via `variants`
+- **Credentials reveal**: spring `stiffness:260 damping:20` con delay escalonado
+- `prefers-reduced-motion` desactiva todas las animaciones vía CSS media query
+
+### Pendientes visuales (no tocan lógica)
+- [ ] Modo portrait/landscape en mobile (iOS safe-area en graduation)
+- [ ] Dark/light toggle (actualmente siempre dark, `data-theme="dark"`)
+- [ ] Animación de confetti al recibir primer certificado
+- [ ] Skeleton específico para MissionCard mientras carga
+- [ ] Página 404 con branding FYV Box
+
+---
+
 ## Estructura del Proyecto
 
 ```
@@ -226,3 +280,4 @@ fyv-box/
         ├── Cargo.toml
         └── src/lib.rs          # ReadinessRegistry con tests
 ```
+
