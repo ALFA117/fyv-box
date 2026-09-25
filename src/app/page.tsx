@@ -540,29 +540,10 @@ export default function LandingPage() {
       {/* ══ HERO — split 50/50 ════════════════════════════════════════════ */}
       <section className="relative flex min-h-dvh flex-col pt-16 lg:flex-row">
 
-        {/* ── Mitad izquierda: Logo ───────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="flex w-full items-center justify-center py-16 lg:w-1/2 lg:min-h-[calc(100dvh-4rem)]"
-        >
-          <HologramLogo />
-        </motion.div>
-
-        {/* divisor vertical — solo desktop */}
-        <div
-          aria-hidden
-          className="pointer-events-none hidden lg:block absolute left-1/2 top-16 bottom-0 w-px"
-          style={{
-            background: "linear-gradient(to bottom, transparent, rgba(201,162,39,.3) 20%, rgba(201,162,39,.3) 80%, transparent)",
-          }}
-        />
-
-        {/* ── Mitad derecha: Copy ─────────────────────────────────────────── */}
+        {/* ── Mitad izquierda: Copy ───────────────────────────────────────── */}
         <div className="flex w-full items-center justify-center px-8 py-16 lg:w-1/2 lg:min-h-[calc(100dvh-4rem)] lg:px-16">
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
+            initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="w-full max-w-lg"
@@ -624,6 +605,25 @@ export default function LandingPage() {
             </div>
           </motion.div>
         </div>
+
+        {/* divisor vertical — solo desktop */}
+        <div
+          aria-hidden
+          className="pointer-events-none hidden lg:block absolute left-1/2 top-16 bottom-0 w-px"
+          style={{
+            background: "linear-gradient(to bottom, transparent, rgba(201,162,39,.3) 20%, rgba(201,162,39,.3) 80%, transparent)",
+          }}
+        />
+
+        {/* ── Mitad derecha: Logo ─────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="flex w-full items-center justify-center py-16 lg:w-1/2 lg:min-h-[calc(100dvh-4rem)]"
+        >
+          <HologramLogo />
+        </motion.div>
 
         {/* Scroll hint */}
         <motion.a
