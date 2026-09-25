@@ -8,615 +8,690 @@ const HTML = `<!DOCTYPE html>
 <title>FYV Box — Pitch</title>
 <meta name="description" content="Simulador anti-fraude crypto sobre Stellar Testnet. Certifícate on-chain."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --n0:#02080F;--n1:#060E1F;--n2:#0A1830;--n3:#112040;--n4:#1A2E50;
-  --g1:#C9A227;--g2:#E8C84A;--g3:#F0D870;
-  --gd:rgba(201,162,39,.18);--gr:rgba(201,162,39,.35);
-  --c0:#F5F0E0;--c1:#C4B898;--c2:#8A7A60;--c3:#4A3C28;
-  --red:#ef4444;--green:#22c55e;--blue:#3b82f6;
-  color-scheme:dark;
-}
-html,body{height:100%;background:var(--n0);color:var(--c0);font-family:'Inter',sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#050A14;color:#F0EBD8;font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent}
 
-/* ──────── CANVAS ──────── */
-#cvs{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0;transition:opacity 1s}
-#cvs.vis{opacity:1}
+/* ── canvas ── */
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none}
 
-/* ──────── DECK ──────── */
+/* ── deck & slides ── */
 .deck{position:fixed;inset:0;z-index:1}
+
 .s{
   position:absolute;inset:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:40px 5vw 80px;
-  opacity:0;pointer-events:none;
-  transition:opacity .5s cubic-bezier(.22,1,.36,1);
+  display:flex;flex-direction:column;
+  padding:0 6vw;
+  /* default: hidden right */
+  opacity:0;
+  transform:translateX(48px);
+  pointer-events:none;
+  transition:opacity .46s cubic-bezier(.16,1,.3,1), transform .46s cubic-bezier(.16,1,.3,1);
 }
-.s.on{opacity:1;pointer-events:auto}
+.s.on{opacity:1;transform:translateX(0);pointer-events:auto}
+.s.left{opacity:0;transform:translateX(-48px)}
 
-/* stagger entrance */
-.s.on .a1{animation:up .55s .08s both cubic-bezier(.22,1,.36,1)}
-.s.on .a2{animation:up .55s .18s both cubic-bezier(.22,1,.36,1)}
-.s.on .a3{animation:up .55s .28s both cubic-bezier(.22,1,.36,1)}
-.s.on .a4{animation:up .55s .38s both cubic-bezier(.22,1,.36,1)}
-.s.on .a5{animation:up .55s .48s both cubic-bezier(.22,1,.36,1)}
-.s.on .af{animation:fade .6s .1s both}
-@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
-@keyframes fade{from{opacity:0}to{opacity:1}}
+/* per-element entrance (only fires when parent has .on) */
+.s.on .e1{animation:rise .55s .06s both cubic-bezier(.22,1,.36,1)}
+.s.on .e2{animation:rise .55s .14s both cubic-bezier(.22,1,.36,1)}
+.s.on .e3{animation:rise .55s .22s both cubic-bezier(.22,1,.36,1)}
+.s.on .e4{animation:rise .55s .30s both cubic-bezier(.22,1,.36,1)}
+.s.on .e5{animation:rise .55s .38s both cubic-bezier(.22,1,.36,1)}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 
-/* ──────── BG layers ──────── */
-.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,162,39,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(201,162,39,.035) 1px,transparent 1px);background-size:72px 72px;pointer-events:none}
-.bg-glow{position:absolute;border-radius:50%;filter:blur(110px);pointer-events:none}
-
-/* ──────── TYPE ──────── */
-.eye{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--g1)}
-.h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,68px);line-height:1.0;letter-spacing:-.03em;text-wrap:balance;text-align:center}
-.h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(26px,4vw,50px);line-height:1.1;letter-spacing:-.025em;text-wrap:balance}
-.h3{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(18px,2.5vw,28px);line-height:1.2;letter-spacing:-.02em}
-.body{font-size:clamp(13px,1.4vw,16px);line-height:1.7;color:var(--c1)}
-.gold{color:var(--g1)}
-.dim{color:var(--c2)}
-.mono{font-family:'IBM Plex Mono',monospace}
-
-/* ──────── NAV ──────── */
+/* ── navigation ── */
 .nav{
-  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
-  display:flex;align-items:center;gap:18px;
-  background:rgba(10,24,48,.8);border:1px solid rgba(201,162,39,.25);
-  border-radius:99px;padding:9px 20px;backdrop-filter:blur(16px);
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
   z-index:100;
+  display:flex;align-items:center;gap:14px;
+  padding:9px 22px;
+  background:rgba(5,10,20,.75);
+  border:1px solid rgba(201,162,39,.22);
+  border-radius:99px;
+  backdrop-filter:blur(20px);
 }
 .dots{display:flex;gap:6px;align-items:center}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--c3);cursor:pointer;transition:all .25s}
-.dot.on{background:var(--g1);width:20px;border-radius:99px}
-.arr{background:none;border:none;color:var(--c2);cursor:pointer;font-size:17px;padding:0 4px;transition:color .15s;display:flex;align-items:center}
-.arr:hover{color:var(--g1)}
-.arr:disabled{opacity:.2;pointer-events:none}
-.sn{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--c3);min-width:36px;text-align:center;letter-spacing:.06em}
+.dot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(201,162,39,.25);cursor:pointer;
+  transition:all .25s cubic-bezier(.22,1,.36,1);
+}
+.dot.on{background:#C9A227;width:22px;border-radius:99px}
+.arr{
+  background:none;border:none;
+  color:rgba(201,162,39,.45);cursor:pointer;font-size:16px;
+  padding:0 2px;line-height:1;
+  transition:color .15s;display:flex;align-items:center
+}
+.arr:hover{color:#C9A227}
+.arr:disabled{opacity:.18;pointer-events:none}
+.snum{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(201,162,39,.4);min-width:32px;text-align:center;letter-spacing:.08em}
 
-/* ──────── COMPONENTS ──────── */
-/* pill */
-.pill{display:inline-flex;align-items:center;gap:5px;background:var(--gd);border:1px solid var(--gr);border-radius:99px;padding:4px 12px;font-size:12px;color:var(--g1);font-family:'IBM Plex Mono',monospace;letter-spacing:.04em}
+/* ── slide progress bar top ── */
+.prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,#C9A227,#E8C84A);z-index:200;transition:width .4s cubic-bezier(.22,1,.36,1)}
 
-/* card */
-.card{background:linear-gradient(135deg,rgba(17,32,64,.9),rgba(10,20,40,.9));border:1px solid rgba(240,235,216,.08);border-radius:18px;padding:22px}
+/* ── shared tokens ── */
+.tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;
+  border:1px solid rgba(201,162,39,.3);
+  border-radius:99px;
+  font-size:12px;color:#C9A227;
+  font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;
+  background:rgba(201,162,39,.08);
+}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;
+  border:1px solid rgba(240,235,216,.1);
+  border-radius:99px;
+  font-size:12px;color:rgba(240,235,216,.55);
+  background:rgba(240,235,216,.04);
+}
+.eye{
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:#C9A227;margin-bottom:12px;
+}
 
-/* glow border card */
-.gcard{position:relative;border-radius:18px;padding:1px;background:linear-gradient(135deg,rgba(201,162,39,.35),rgba(201,162,39,.08),rgba(201,162,39,.35))}
-.gcard-inner{background:linear-gradient(135deg,#0D1E38,#091525);border-radius:17px;padding:22px;height:100%}
+/* ── S0 — COVER ── */
+.s0{justify-content:center;align-items:center;text-align:center}
+.s0-logo{display:flex;align-items:center;gap:13px;margin-bottom:28px}
+.s0-icon{
+  width:52px;height:52px;border-radius:14px;
+  background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.35);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 32px rgba(201,162,39,.18);
+}
+.s0-wordmark{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;letter-spacing:-.025em;color:#F0EBD8}
+.s0-wordmark b{color:#C9A227;font-weight:800}
+.s0-h{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(40px,7.5vw,88px);
+  line-height:.98;letter-spacing:-.035em;
+  color:#F0EBD8;margin-bottom:18px;
+  text-wrap:balance;
+}
+.s0-h em{
+  font-style:normal;
+  background:linear-gradient(90deg,#C9A227,#E8C84A,#C9A227);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.s0-sub{font-size:clamp(14px,1.6vw,18px);color:rgba(240,235,216,.55);margin-bottom:28px;max-width:480px}
+.s0-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 
-/* stat big */
-.stat{text-align:center}
-.stat-n{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(42px,7vw,80px);line-height:1;letter-spacing:-.04em}
-.stat-l{font-size:12px;color:var(--c2);margin-top:6px;line-height:1.4}
+/* ── S1 — PROBLEM ── */
+.s1{justify-content:center}
+.s1-num{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(80px,18vw,200px);
+  line-height:.9;letter-spacing:-.05em;
+  background:linear-gradient(135deg,#ef4444,#f97316,#fbbf24);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:16px;
+}
+.s1-label{
+  font-size:clamp(16px,2.5vw,28px);
+  color:rgba(240,235,216,.6);
+  max-width:520px;
+  line-height:1.4;
+  margin-bottom:28px;
+}
+.s1-label strong{color:#F0EBD8}
+.s1-note{
+  font-size:clamp(18px,2.8vw,32px);
+  font-family:'Syne',sans-serif;font-weight:700;
+  color:#F0EBD8;
+}
 
-/* step row */
-.step-row{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;background:rgba(17,32,64,.7);border:1px solid rgba(240,235,216,.07);border-radius:14px}
-.step-num{width:30px;height:30px;border-radius:50%;background:var(--gd);border:1px solid var(--gr);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:var(--g1);flex-shrink:0;margin-top:1px}
+/* ── S2 — SOLUTION ── */
+.s2{justify-content:center;align-items:center;text-align:center}
+.s2-h{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(28px,5vw,60px);
+  line-height:1.05;letter-spacing:-.03em;
+  margin-bottom:10px;
+}
+.s2-sub{font-size:clamp(14px,1.5vw,17px);color:rgba(240,235,216,.5);margin-bottom:36px;max-width:500px}
+.s2-flow{display:flex;align-items:flex-start;gap:0;width:100%;max-width:760px}
+.s2-step{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 12px}
+.s2-icon{
+  width:60px;height:60px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;margin:0 auto 12px;
+}
+.s2-step-n{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#F0EBD8;margin-bottom:4px}
+.s2-step-d{font-size:12px;color:rgba(240,235,216,.45);line-height:1.5}
+.s2-arrow{display:flex;align-items:center;justify-content:center;padding-top:18px;color:rgba(201,162,39,.3);font-size:20px;flex-shrink:0}
 
-/* track chip */
-.tc{padding:14px;background:rgba(17,32,64,.8);border:1px solid rgba(240,235,216,.07);border-radius:14px}
-.tc.lit{border-color:rgba(201,162,39,.3);background:rgba(201,162,39,.07)}
-.tc-icon{font-size:24px;margin-bottom:8px}
-.tc-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--c0);margin-bottom:3px}
-.tc-desc{font-size:11px;color:var(--c2);line-height:1.4}
-.tc-badge{display:inline-block;margin-top:6px;font-size:10px;color:var(--g1);background:var(--gd);border-radius:99px;padding:2px 8px}
+/* ── S3 — PRODUCT ── */
+.s3{justify-content:center;align-items:center;gap:40px;flex-direction:row;flex-wrap:wrap}
+.s3-text{flex:0 0 260px;max-width:300px}
+.s3-text .s3-h{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(22px,3vw,36px);
+  line-height:1.15;letter-spacing:-.025em;
+  margin-bottom:16px;
+}
+.s3-text p{font-size:13px;color:rgba(240,235,216,.5);line-height:1.7;margin-bottom:10px}
+.s3-feat{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(240,235,216,.06)}
+.s3-feat:last-child{border-bottom:none}
+.s3-feat-dot{width:6px;height:6px;border-radius:50%;background:#C9A227;flex-shrink:0}
+.s3-feat-text{font-size:12.5px;color:rgba(240,235,216,.7)}
 
-/* award mock */
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
-.award-ring{position:relative;width:160px;height:160px;flex-shrink:0}
-.award-ring::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:conic-gradient(var(--g1),var(--g2),transparent,var(--g1));animation:spin 4s linear infinite}
-.award-ring::after{content:'';position:absolute;inset:0;border-radius:50%;background:var(--n2)}
-.award-inner{position:absolute;inset:0;border-radius:50%;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;animation:pulse 3s ease-in-out infinite}
+/* mockup */
+.mockup{
+  flex:1;min-width:280px;max-width:420px;
+  background:linear-gradient(160deg,#0C1B30,#070F1C);
+  border:1px solid rgba(201,162,39,.18);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,.6),0 0 60px rgba(201,162,39,.05);
+}
+.mk-topbar{
+  display:flex;align-items:center;gap:6px;
+  padding:10px 14px;
+  background:rgba(0,0,0,.3);
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.mk-dot{width:9px;height:9px;border-radius:50%}
+.mk-url{
+  flex:1;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:rgba(240,235,216,.3);
+  background:rgba(255,255,255,.04);
+  border-radius:5px;padding:3px 8px;
+  margin:0 8px;
+}
+.mk-body{padding:16px}
+.mk-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.mk-logo{display:flex;align-items:center;gap:7px}
+.mk-logo-icon{width:22px;height:22px;background:rgba(201,162,39,.15);border:1px solid rgba(201,162,39,.3);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.mk-logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#F0EBD8}
+.mk-logo-text b{color:#C9A227}
+.mk-xp{display:flex;align-items:center;gap:5px;background:rgba(201,162,39,.08);border:1px solid rgba(201,162,39,.2);border-radius:99px;padding:3px 10px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:#C9A227}
+.mk-card{background:rgba(201,162,39,.05);border:1px solid rgba(201,162,39,.15);border-radius:12px;padding:12px;margin-bottom:10px}
+.mk-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mk-card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:12px}
+.mk-prog-label{display:flex;justify-content:space-between;font-size:10px;color:rgba(240,235,216,.4);margin-bottom:4px}
+.mk-prog-bar{height:4px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin-bottom:7px}
+.mk-prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#C9A227,#E8C84A)}
+.mk-mission{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.15);border-radius:10px;padding:10px}
+.mk-mission-tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:99px;background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2);margin-bottom:6px;font-family:'IBM Plex Mono',monospace}
+.mk-mission-title{font-size:11px;font-weight:600;color:#F0EBD8;margin-bottom:3px}
+.mk-mission-sub{font-size:10px;color:rgba(240,235,216,.4)}
 
-/* pbar */
-.pb{margin-bottom:10px}
-.pb-head{display:flex;justify-content:space-between;font-size:11px;color:var(--c2);margin-bottom:4px}
-.pb-track{height:5px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
-.pb-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--g1),var(--g2))}
-.pb-fill.full{background:linear-gradient(90deg,#16a34a,var(--green))}
+/* ── S4 — TRACKS ── */
+.s4{justify-content:center;align-items:center;text-align:center}
+.s4-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:680px;margin-top:24px}
+.s4-card{
+  padding:18px 14px 16px;
+  border-radius:16px;
+  text-align:left;
+  border:1px solid rgba(240,235,216,.06);
+  background:rgba(240,235,216,.02);
+  transition:border-color .2s,background .2s;
+}
+.s4-card.lit{
+  border-color:rgba(201,162,39,.28);
+  background:rgba(201,162,39,.05);
+}
+.s4-icon{font-size:26px;margin-bottom:10px}
+.s4-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#F0EBD8;margin-bottom:4px}
+.s4-desc{font-size:11px;color:rgba(240,235,216,.4);line-height:1.5;margin-bottom:8px}
+.s4-status{font-size:10px;font-family:'IBM Plex Mono',monospace;color:#C9A227}
+.s4-soon{font-size:10px;font-family:'IBM Plex Mono',monospace;color:rgba(240,235,216,.25)}
 
-/* tech badge */
-.tech-b{display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(17,32,64,.8);border:1px solid rgba(240,235,216,.08);border-radius:12px}
-.tech-b-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700}
-.tech-b-role{font-size:11px;color:var(--c2)}
+/* ── S5 — CREDENTIAL ── */
+.s5{justify-content:center;align-items:center;flex-direction:row;gap:52px;flex-wrap:wrap}
+.s5-badge{position:relative;width:170px;height:170px;flex-shrink:0}
+@keyframes rotateBorder{to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+.s5-badge-ring{
+  position:absolute;inset:-3px;border-radius:50%;
+  background:conic-gradient(#C9A227 0%,#E8C84A 25%,rgba(201,162,39,.1) 50%,#C9A227 75%,#E8C84A 100%);
+  animation:rotateBorder 5s linear infinite;
+}
+.s5-badge-bg{position:absolute;inset:0;border-radius:50%;background:#050A14}
+.s5-badge-inner{
+  position:absolute;inset:0;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  animation:glow 3.5s ease-in-out infinite;
+  z-index:1;
+}
+.s5-badge-label{font-family:'Syne',sans-serif;font-weight:800;font-size:10px;color:#C9A227;text-align:center;letter-spacing:.08em;line-height:1.3}
+.s5-text{max-width:360px}
+.s5-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(22px,3.5vw,40px);line-height:1.1;letter-spacing:-.025em;margin-bottom:12px}
+.s5-point{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.s5-dot{width:6px;height:6px;border-radius:50%;background:#C9A227;margin-top:6px;flex-shrink:0}
+.s5-point-t{font-size:13px;font-weight:600;color:#F0EBD8;margin-bottom:2px}
+.s5-point-d{font-size:12px;color:rgba(240,235,216,.45);line-height:1.5}
+.s5-code{
+  margin-top:16px;padding:10px 14px;
+  background:rgba(201,162,39,.05);border:1px solid rgba(201,162,39,.15);
+  border-radius:10px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:#C9A227;line-height:1.7;
+}
 
-/* link btns */
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:13px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;text-decoration:none;transition:all .15s;cursor:pointer;border:none}
-.btn-gold{background:linear-gradient(135deg,var(--g1),var(--g2));color:var(--n0)}
-.btn-gold:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(201,162,39,.35)}
-.btn-outline{background:transparent;border:1px solid var(--gr);color:var(--g1)}
-.btn-outline:hover{background:var(--gd)}
+/* ── S6 — HACKATHON ── */
+.s6{justify-content:center;align-items:center;text-align:center}
+.s6-tracks{display:flex;flex-direction:column;gap:12px;width:100%;max-width:540px;margin-top:24px;text-align:left}
+.s6-track{
+  display:flex;align-items:center;gap:16px;
+  padding:18px 20px;
+  border-radius:16px;
+}
+.s6-track.main{
+  background:rgba(201,162,39,.06);
+  border:1px solid rgba(201,162,39,.25);
+}
+.s6-track.sec{
+  background:rgba(240,235,216,.02);
+  border:1px solid rgba(240,235,216,.08);
+}
+.s6-icon{font-size:28px;flex-shrink:0}
+.s6-info{flex:1}
+.s6-track-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:#F0EBD8;margin-bottom:3px}
+.s6-track-desc{font-size:12px;color:rgba(240,235,216,.45)}
+.s6-prize{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#C9A227;flex-shrink:0}
+.s6-total{
+  display:flex;align-items:center;gap:20px;
+  margin-top:18px;padding:14px 24px;
+  background:rgba(201,162,39,.06);border:1px solid rgba(201,162,39,.15);
+  border-radius:14px;
+}
+.s6-total-n{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:#C9A227}
+.s6-total-l{font-size:12px;color:rgba(240,235,216,.45)}
 
-/* divider line */
-.vline{width:1px;height:40px;background:linear-gradient(to bottom,transparent,var(--g1),transparent);flex-shrink:0}
-
-/* chip row */
-.chips{display:flex;flex-wrap:wrap;gap:7px}
-.chip{padding:5px 13px;background:rgba(17,32,64,.9);border:1px solid rgba(240,235,216,.1);border-radius:99px;font-size:12px;color:var(--c1)}
-
-/* ──────── SLIDE SPECIFIC ──────── */
-
-/* S0 hero */
-.hero-logo{display:flex;align-items:center;gap:14px}
-.hero-icon{width:56px;height:56px;background:var(--gd);border:1px solid var(--gr);border-radius:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(201,162,39,.2)}
-.hero-wordmark{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;letter-spacing:-.025em}
-.hero-wordmark span{color:var(--g1)}
-
-/* S1 problem - big layout */
-.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:780px}
-
-/* S2 solution - horizontal steps */
-.sol-steps{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:start;gap:0;width:100%;max-width:820px}
-.sol-step{text-align:center;padding:0 8px}
-.sol-icon{width:52px;height:52px;background:var(--gd);border:1px solid var(--gr);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:22px}
-.sol-arrow{display:flex;align-items:center;justify-content:center;padding-top:14px;color:var(--g1);opacity:.5;font-size:20px}
-
-/* S3 product demo */
-.mockup{background:linear-gradient(160deg,#0D1E38,#07111E);border:1px solid rgba(201,162,39,.2);border-radius:20px;padding:20px;width:100%;max-width:480px;box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 60px rgba(201,162,39,.06)}
-.mock-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(240,235,216,.07)}
-.mock-dot{width:8px;height:8px;border-radius:50%}
-.mission-card{background:rgba(201,162,39,.06);border:1px solid rgba(201,162,39,.2);border-radius:12px;padding:14px;margin-bottom:10px}
-.mission-tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:99px;margin-bottom:8px}
-
-/* S5 stellar */
-.stellar-logo{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-
-/* S7 final cta */
-.qr-block{width:120px;height:120px;background:var(--c0);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* ── S7 — CTA ── */
+.s7{justify-content:center;align-items:center;text-align:center}
+.s7-url{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(26px,5.5vw,64px);
+  letter-spacing:-.03em;
+  color:#C9A227;
+  margin-bottom:6px;
+}
+.s7-url-note{font-size:13px;color:rgba(240,235,216,.35);margin-bottom:28px;font-family:'IBM Plex Mono',monospace}
+.s7-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 24px;border-radius:12px;
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  text-decoration:none;transition:all .18s;border:none;cursor:pointer;
+}
+.btn-g{background:linear-gradient(135deg,#C9A227,#E8C84A);color:#050A14}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(201,162,39,.3)}
+.btn-o{background:transparent;border:1px solid rgba(201,162,39,.3);color:#C9A227}
+.btn-o:hover{background:rgba(201,162,39,.08)}
+.s7-meta{font-size:12px;color:rgba(240,235,216,.25);font-family:'IBM Plex Mono',monospace;line-height:1.8}
 
 /* responsive */
-@media(max-width:700px){
-  .prob-grid{grid-template-columns:1fr}
-  .sol-steps{grid-template-columns:1fr;gap:8px}
-  .sol-arrow{display:none}
-  .s{padding:28px 18px 80px}
-  .hero-wordmark{font-size:24px}
+@media(max-width:680px){
+  .s3{flex-direction:column;gap:20px}
+  .s3-text{flex:unset;max-width:100%;width:100%}
+  .s5{flex-direction:column;gap:24px}
+  .s5-text{max-width:100%;width:100%}
+  .s2-flow{flex-direction:column;align-items:center}
+  .s2-arrow{display:none}
+  .s4-grid{grid-template-columns:repeat(2,1fr)}
+  .s{padding:0 18px}
+  .s0-h{font-size:38px}
+  .s7-url{font-size:28px}
 }
 </style>
 </head>
 <body>
 
 <canvas id="cvs"></canvas>
+<div class="prog" id="prog" style="width:0%"></div>
 <div class="deck" id="deck"></div>
+
 <nav class="nav">
   <button class="arr" id="prev" onclick="go(-1)">&#8592;</button>
   <div class="dots" id="dots"></div>
   <button class="arr" id="next" onclick="go(1)">&#8594;</button>
-  <span class="sn" id="snum">1/9</span>
+  <span class="snum" id="snum">1/8</span>
 </nav>
 
 <script>
-/* ── particles (only on slide 0) ── */
-const cvs = document.getElementById('cvs');
-const ctx = cvs.getContext('2d');
-let W, H, pts = [], raf;
-function resize(){ W=cvs.width=innerWidth; H=cvs.height=innerHeight; }
-resize(); addEventListener('resize', resize);
-for(let i=0;i<90;i++) pts.push({x:Math.random()*2-1,y:Math.random()*2-1,vx:(Math.random()-.5)*.0003,vy:(Math.random()-.5)*.0003,r:Math.random()*.8+.4,a:Math.random()*.7+.2});
-function drawParticles(){
+/* ─── particles ─── */
+const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');
+let W,H,pts=[],raf=null;
+function resize(){W=cvs.width=innerWidth;H=cvs.height=innerHeight}
+resize();addEventListener('resize',resize);
+for(let i=0;i<70;i++) pts.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.0002,vy:(Math.random()-.5)*.0002,r:Math.random()*.8+.3,a:Math.random()*.5+.15});
+function drawP(){
   ctx.clearRect(0,0,W,H);
-  const cx=W/2,cy=H/2;
   pts.forEach(p=>{
-    p.x+=p.vx; p.y+=p.vy;
-    if(p.x<-1.2)p.x=1.2; if(p.x>1.2)p.x=-1.2;
-    if(p.y<-1.2)p.y=1.2; if(p.y>1.2)p.y=-1.2;
-    const px=cx+p.x*W*.6, py=cy+p.y*H*.6;
-    ctx.beginPath(); ctx.arc(px,py,p.r,0,Math.PI*2);
-    ctx.fillStyle=\`rgba(201,162,39,\${p.a*.55})\`; ctx.fill();
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=1;if(p.x>1)p.x=0;
+    if(p.y<0)p.y=1;if(p.y>1)p.y=0;
+    ctx.beginPath();ctx.arc(p.x*W,p.y*H,p.r,0,Math.PI*2);
+    ctx.fillStyle=\`rgba(201,162,39,\${p.a})\`;ctx.fill();
   });
   pts.forEach((a,i)=>pts.slice(i+1).forEach(b=>{
-    const ax=cx+a.x*W*.6,ay=cy+a.y*H*.6,bx=cx+b.x*W*.6,by=cy+b.y*H*.6;
-    const d=Math.hypot(ax-bx,ay-by);
-    if(d<140){ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.strokeStyle=\`rgba(201,162,39,\${(.14*(1-d/140))})\`;ctx.lineWidth=.7;ctx.stroke()}
+    const d=Math.hypot((a.x-b.x)*W,(a.y-b.y)*H);
+    if(d<130){ctx.beginPath();ctx.moveTo(a.x*W,a.y*H);ctx.lineTo(b.x*W,b.y*H);ctx.strokeStyle=\`rgba(201,162,39,\${.12*(1-d/130)})\`;ctx.lineWidth=.6;ctx.stroke()}
   }));
-  raf=requestAnimationFrame(drawParticles);
+  raf=requestAnimationFrame(drawP);
 }
 
-/* ── slides content ── */
-const SHIELD = \`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 4.4 3.4 8.5 8 9.5 4.6-1 8-5.1 8-9.5V6l-8-4z"/></svg>\`;
+/* ─── shield svg ─── */
+const SH=\`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 4.4 3.4 8.5 8 9.5 4.6-1 8-5.1 8-9.5V6l-8-4z"/></svg>\`;
+const SH2=\`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 4.4 3.4 8.5 8 9.5 4.6-1 8-5.1 8-9.5V6l-8-4z"/></svg>\`;
 
-const SLIDES = [
+/* ─── slide templates ─── */
+const SLIDES=[
 
-/* ── 0 PORTADA ── */
-\`<div class="bg-glow" style="width:600px;height:600px;top:-200px;left:-150px;background:rgba(201,162,39,.04)"></div>
-<div class="bg-glow" style="width:400px;height:400px;bottom:-150px;right:-100px;background:rgba(59,130,246,.04)"></div>
-<div style="display:flex;flex-direction:column;align-items:center;gap:20px;max-width:760px;text-align:center;position:relative">
-  <div class="a1">
-    <div class="hero-logo">
-      <div class="hero-icon">\${SHIELD}</div>
-      <div class="hero-wordmark">FYV<span> Box</span></div>
-    </div>
+/* 0 — PORTADA */
+\`<div class="s s0" data-slide="0">
+  <div class="e1 s0-logo">
+    <div class="s0-icon">\${SH}</div>
+    <div class="s0-wordmark">FYV<b> Box</b></div>
   </div>
-  <div class="a2" style="width:100%">
-    <div class="h1">Entrena para <span class="gold">no caer</span><br>en estafas crypto</div>
-  </div>
-  <p class="body a3" style="max-width:520px;font-size:clamp(14px,1.8vw,18px)">El primer simulador de fraudes Web3 que te certifica on-chain — construido sobre <span class="gold">Stellar Testnet</span>.</p>
-  <div class="a4" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-    <span class="pill">Stellar · Soroban</span>
-    <span class="pill">Credencial On-Chain</span>
-    <span class="pill">Open Source</span>
-    <span class="pill">LATAM</span>
-  </div>
-  <div class="a5" style="display:flex;align-items:center;gap:16px;margin-top:6px">
-    <span style="font-size:12px;color:var(--c2);font-family:'IBM Plex Mono',monospace">fyv-box.vercel.app</span>
-    <div class="vline"></div>
-    <span style="font-size:12px;color:var(--c2)">CriptoUNAM × Semana DIE 2026</span>
+  <h1 class="s0-h e2">Entrena para<br><em>no caer</em><br>en estafas crypto</h1>
+  <p class="s0-sub e3">El primer simulador de fraudes Web3 construido sobre Stellar Testnet.<br>Practica. Aprende. Certifícate on-chain.</p>
+  <div class="s0-tags e4">
+    <span class="tag">Stellar · Soroban</span>
+    <span class="tag">Credencial On-Chain</span>
+    <span class="tag">Open Source</span>
+    <span class="tag">LATAM</span>
   </div>
 </div>\`,
 
-/* ── 1 PROBLEMA ── */
-\`<div class="bg-grid"></div>
-<div style="display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;max-width:820px">
-  <div class="a1" style="text-align:center">
-    <div class="eye" style="margin-bottom:8px">El problema</div>
-    <div class="h2">En crypto LATAM,<br>aprendes perdiendo</div>
-  </div>
-  <div class="prob-grid a2">
-    <div class="gcard">
-      <div class="gcard-inner" style="text-align:center;padding:24px 18px">
-        <div class="stat-n" style="color:#ef4444">$3.2B</div>
-        <div class="stat-l">perdidos en fraudes<br>crypto en LATAM (2023)<br><span style="font-size:10px;opacity:.6">Chainalysis</span></div>
-      </div>
-    </div>
-    <div class="card" style="text-align:center;padding:24px 18px">
-      <div class="stat-n" style="color:#f97316">73%</div>
-      <div class="stat-l">de víctimas no reconocieron<br>la señal de alerta<br>a tiempo</div>
-    </div>
-    <div class="card" style="text-align:center;padding:24px 18px">
-      <div class="stat-n" style="color:var(--g1)">0</div>
-      <div class="stat-l">plataformas de<br>entrenamiento anti-fraude<br>en español</div>
-    </div>
-  </div>
-  <p class="body a3" style="text-align:center;max-width:540px">Los walkthroughs de YouTube no entrenan el instinto. Los fraudes se reconocen <em>viviéndolos</em>, no leyéndolos.</p>
-</div>\`,
-
-/* ── 2 SOLUCIÓN ── */
-\`<div class="bg-grid"></div>
-<div style="display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;max-width:820px">
-  <div class="a1" style="text-align:center">
-    <div class="eye" style="margin-bottom:8px">La solución</div>
-    <div class="h2"><span class="gold">FYV Box</span> — simulacro · XP · credencial</div>
-  </div>
-  <div class="sol-steps a2" style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:start;gap:0;width:100%">
-    <div class="sol-step">
-      <div class="sol-icon">🔑</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--c0);margin-bottom:4px">Conecta</div>
-      <div style="font-size:11.5px;color:var(--c2);line-height:1.5">Clave pública Stellar como identidad. Sin contraseña.</div>
-    </div>
-    <div class="sol-arrow">→</div>
-    <div class="sol-step">
-      <div class="sol-icon">🎯</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--c0);margin-bottom:4px">Simula</div>
-      <div style="font-size:11.5px;color:var(--c2);line-height:1.5">Phishing, rug pulls y scams reales en un entorno seguro.</div>
-    </div>
-    <div class="sol-arrow">→</div>
-    <div class="sol-step">
-      <div class="sol-icon">⭐</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--c0);margin-bottom:4px">Aprende</div>
-      <div style="font-size:11.5px;color:var(--c2);line-height:1.5">Cada error enseña. XP y progreso por track.</div>
-    </div>
-    <div class="sol-arrow">→</div>
-    <div class="sol-step">
-      <div class="sol-icon" style="background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4)">🏆</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--green);margin-bottom:4px">Gradúate</div>
-      <div style="font-size:11.5px;color:var(--c2);line-height:1.5">Credencial Soroban on-chain verificable por cualquiera.</div>
-    </div>
-  </div>
-  <div class="a3" style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;padding:18px 24px;background:rgba(201,162,39,.05);border:1px solid rgba(201,162,39,.15);border-radius:16px">
-    <div style="text-align:center"><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--g1)">6</div><div style="font-size:11px;color:var(--c2)">tracks de entrenamiento</div></div>
-    <div class="vline" style="height:32px;margin:auto"></div>
-    <div style="text-align:center"><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--g1)">20+</div><div style="font-size:11px;color:var(--c2)">misiones activas</div></div>
-    <div class="vline" style="height:32px;margin:auto"></div>
-    <div style="text-align:center"><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--green)">1</div><div style="font-size:11px;color:var(--c2)">credencial on-chain</div></div>
+/* 1 — PROBLEMA */
+\`<div class="s s1" data-slide="1">
+  <div>
+    <div class="eye e1">El problema</div>
+    <div class="s1-num e2">$3.2B</div>
+    <p class="s1-label e3">robados en <strong>fraudes crypto en LATAM</strong> durante 2023.<br>Victims que nunca aprendieron a detectar las señales.</p>
+    <p class="s1-note e4">"No hay forma de practicar sin perder dinero real."</p>
   </div>
 </div>\`,
 
-/* ── 3 PRODUCTO / DEMO ── */
-\`<div class="bg-grid"></div>
-<div style="display:flex;align-items:center;gap:40px;width:100%;max-width:860px;flex-wrap:wrap;justify-content:center">
-  <div style="flex:1;min-width:260px;max-width:360px">
-    <div class="eye a1" style="margin-bottom:10px">El producto</div>
-    <div class="h3 a2" style="margin-bottom:14px">Misiones que se sienten reales</div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div class="step-row a3">
-        <div class="step-num">✓</div>
-        <div><div style="font-weight:600;font-size:13px;color:var(--c0)">Phishing interactivo</div><div style="font-size:12px;color:var(--c2)">El usuario decide si el sitio es legítimo. Retroalimentación inmediata.</div></div>
-      </div>
-      <div class="step-row a4">
-        <div class="step-num">✓</div>
-        <div><div style="font-weight:600;font-size:13px;color:var(--c0)">Falsos tokens Stellar</div><div style="font-size:12px;color:var(--c2)">Assets reales de testnet clonados para el simulacro.</div></div>
-      </div>
-      <div class="step-row a5">
-        <div class="step-num">✓</div>
-        <div><div style="font-weight:600;font-size:13px;color:var(--c0)">Progreso persistente</div><div style="font-size:12px;color:var(--c2)">Supabase + clave pública. Historial permanente.</div></div>
-      </div>
+/* 2 — SOLUCIÓN */
+\`<div class="s s2" data-slide="2">
+  <div class="eye e1">La solución</div>
+  <h2 class="s2-h e2">Practica antes<br>de perder</h2>
+  <p class="s2-sub e3">Un entorno seguro donde los errores enseñan, no cuestan.</p>
+  <div class="s2-flow e4">
+    <div class="s2-step">
+      <div class="s2-icon" style="background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.25)">🔑</div>
+      <div class="s2-step-n">Conecta</div>
+      <div class="s2-step-d">Clave pública Stellar como identidad. Sin contraseñas.</div>
     </div>
-  </div>
-  <div class="mockup a2" style="flex:1;min-width:260px;max-width:380px">
-    <div class="mock-bar">
-      <div class="mock-dot" style="background:#ef4444"></div>
-      <div class="mock-dot" style="background:#f59e0b"></div>
-      <div class="mock-dot" style="background:#22c55e"></div>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--c2);margin-left:8px">fyv-box.vercel.app/dashboard</span>
+    <div class="s2-arrow">→</div>
+    <div class="s2-step">
+      <div class="s2-icon" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)">🎯</div>
+      <div class="s2-step-n">Simula</div>
+      <div class="s2-step-d">Phishing, rug pulls y scams reales en entorno controlado.</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">Tu progreso</div>
-      <div style="display:flex;align-items:center;gap:5px;background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.25);border-radius:99px;padding:3px 10px">
-        <span style="font-size:14px">⭐</span><span style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--g1)">420 XP</span>
-      </div>
+    <div class="s2-arrow">→</div>
+    <div class="s2-step">
+      <div class="s2-icon" style="background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.25)">⭐</div>
+      <div class="s2-step-n">Aprende</div>
+      <div class="s2-step-d">XP por misión. Dashboard de progreso por track.</div>
     </div>
-    <div class="pb"><div class="pb-head"><span>Phishing</span><span>4/4</span></div><div class="pb-track"><div class="pb-fill full" style="width:100%"></div></div></div>
-    <div class="pb"><div class="pb-head"><span>Fake Assets</span><span>3/4</span></div><div class="pb-track"><div class="pb-fill" style="width:75%"></div></div></div>
-    <div class="pb"><div class="pb-head"><span>Social Eng.</span><span>2/4</span></div><div class="pb-track"><div class="pb-fill" style="width:50%"></div></div></div>
-    <div style="margin-top:14px;border-top:1px solid rgba(240,235,216,.07);padding-top:12px">
-      <div class="mission-card">
-        <span class="mission-tag" style="background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2)">🎣 PHISHING</span>
-        <div style="font-weight:600;font-size:13px;margin-bottom:4px">stellar-airdrop.com te pide tu seed phrase</div>
-        <div style="font-size:11px;color:var(--c2)">¿Es legítimo? · 3 puntos de evidencia</div>
-      </div>
+    <div class="s2-arrow">→</div>
+    <div class="s2-step">
+      <div class="s2-icon" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22)">🏆</div>
+      <div class="s2-step-n" style="color:#4ade80">Certifícate</div>
+      <div class="s2-step-d">NFT Soroban on-chain verificable por cualquiera.</div>
     </div>
   </div>
 </div>\`,
 
-/* ── 4 TRACKS ── */
-\`<div class="bg-grid"></div>
-<div style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:780px">
-  <div class="a1" style="text-align:center">
-    <div class="eye" style="margin-bottom:8px">Tracks de entrenamiento</div>
-    <div class="h2">6 categorías de fraude<br><span class="gold">real</span></div>
-  </div>
-  <div class="a2" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%">
-    <div class="tc lit">
-      <div class="tc-icon">🎣</div>
-      <div class="tc-name">Phishing</div>
-      <div class="tc-desc">Sitios falsos, emails y links trampa diseñados para robar claves</div>
-      <span class="tc-badge">Activo ✓</span>
+/* 3 — PRODUCTO */
+\`<div class="s s3" data-slide="3" style="padding-top:48px;padding-bottom:80px">
+  <div class="s3-text e1">
+    <div class="eye">El producto</div>
+    <div class="s3-h">Un dashboard real,<br>misiones reales</div>
+    <div class="s3-feat">
+      <div class="s3-feat-dot"></div>
+      <span class="s3-feat-text">Misiones interactivas por track: toma decisiones como en el mundo real</span>
     </div>
-    <div class="tc lit">
-      <div class="tc-icon">💎</div>
-      <div class="tc-name">Fake Assets</div>
-      <div class="tc-desc">Tokens clonados, contratos trampa y airdrops fraudulentos</div>
-      <span class="tc-badge">Activo ✓</span>
+    <div class="s3-feat">
+      <div class="s3-feat-dot"></div>
+      <span class="s3-feat-text">Retroalimentación inmediata con explicación del fraude</span>
     </div>
-    <div class="tc lit">
-      <div class="tc-icon">🤝</div>
-      <div class="tc-name">Social Eng.</div>
-      <div class="tc-desc">Manipulación psicológica, urgencia artificial y falsa autoridad</div>
-      <span class="tc-badge">Activo ✓</span>
+    <div class="s3-feat">
+      <div class="s3-feat-dot"></div>
+      <span class="s3-feat-text">Progreso guardado por clave pública en Supabase</span>
     </div>
-    <div class="tc">
-      <div class="tc-icon">⚠️</div>
-      <div class="tc-name">Approvals</div>
-      <div class="tc-desc">Permisos de wallet peligrosos e infinite approvals</div>
-      <span class="tc-badge" style="color:var(--c2);background:rgba(255,255,255,.05)">Próximamente</span>
-    </div>
-    <div class="tc">
-      <div class="tc-icon">🚀</div>
-      <div class="tc-name">Presale Scam</div>
-      <div class="tc-desc">Rug pulls, preventa fraudulenta y tokenomics trampa</div>
-      <span class="tc-badge" style="color:var(--c2);background:rgba(255,255,255,.05)">Próximamente</span>
-    </div>
-    <div class="tc">
-      <div class="tc-icon">🔑</div>
-      <div class="tc-name">Key Hygiene</div>
-      <div class="tc-desc">Exposición accidental de claves y malas prácticas de custodia</div>
-      <span class="tc-badge" style="color:var(--c2);background:rgba(255,255,255,.05)">Próximamente</span>
+    <div class="s3-feat">
+      <div class="s3-feat-dot"></div>
+      <span class="s3-feat-text">API pública para verificar graduación on-chain</span>
     </div>
   </div>
-</div>\`,
-
-/* ── 5 CREDENCIAL ── */
-\`<div class="bg-grid"></div>
-<div style="display:flex;align-items:center;gap:48px;width:100%;max-width:820px;flex-wrap:wrap;justify-content:center">
-  <div class="a1" style="display:flex;flex-direction:column;align-items:center">
-    <div class="award-ring">
-      <div class="award-inner">
-        \${SHIELD}
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:var(--g1);text-align:center;line-height:1.3">SCAM<br>RESISTANT</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--c2);margin-top:4px">Soroban NFT</div>
-      </div>
+  <div class="mockup e2">
+    <div class="mk-topbar">
+      <div class="mk-dot" style="background:#ef4444"></div>
+      <div class="mk-dot" style="background:#f59e0b"></div>
+      <div class="mk-dot" style="background:#22c55e"></div>
+      <div class="mk-url">fyv-box.vercel.app/dashboard</div>
     </div>
-    <div style="margin-top:14px;font-size:11px;color:var(--c2);text-align:center;font-family:'IBM Plex Mono',monospace;line-height:1.5">
-      ReadinessRegistry<br>Stellar Testnet
-    </div>
-  </div>
-  <div style="flex:1;min-width:260px;max-width:380px">
-    <div class="eye a2" style="margin-bottom:10px">Credencial On-Chain</div>
-    <div class="h3 a3" style="margin-bottom:14px">Un NFT que demuestra<br>competencia real</div>
-    <div class="a4" style="display:flex;flex-direction:column;gap:12px">
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="width:8px;height:8px;border-radius:50%;background:var(--g1);margin-top:5px;flex-shrink:0"></div>
-        <div><div style="font-size:13px;font-weight:600;color:var(--c0);margin-bottom:2px">Verificable públicamente</div><div style="font-size:12px;color:var(--c2)">Cualquiera puede consultar GET /api/verify?address=G…</div></div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="width:8px;height:8px;border-radius:50%;background:var(--g1);margin-top:5px;flex-shrink:0"></div>
-        <div><div style="font-size:13px;font-weight:600;color:var(--c0);margin-bottom:2px">Permanente en la red</div><div style="font-size:12px;color:var(--c2)">Registrado en el contrato Soroban ReadinessRegistry</div></div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="width:8px;height:8px;border-radius:50%;background:var(--g1);margin-top:5px;flex-shrink:0"></div>
-        <div><div style="font-size:13px;font-weight:600;color:var(--c0);margin-bottom:2px">Sin costo</div><div style="font-size:12px;color:var(--c2)">Testnet. Friendbot cubre las fees de emisión.</div></div>
-      </div>
-    </div>
-    <div class="a5" style="margin-top:16px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:10px 14px">
-      <code class="mono" style="font-size:12px;color:var(--green)">GET /api/verify?address=GABC…<br>→ { "graduated": true, "xp": 820 }</code>
-    </div>
-  </div>
-</div>\`,
-
-/* ── 6 STELLAR + STACK ── */
-\`<div class="bg-grid"></div>
-<div style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:820px">
-  <div class="a1" style="text-align:center">
-    <div class="eye" style="margin-bottom:8px">Tecnología</div>
-    <div class="h2">Construido sobre <span class="gold">Stellar</span></div>
-  </div>
-  <div class="a2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:660px">
-    <div class="card" style="padding:18px">
-      <div style="font-size:20px;margin-bottom:8px">⚡</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:5px">Testnet gratuita</div>
-      <div style="font-size:12px;color:var(--c2)">Friendbot financia las cuentas. Los usuarios practican sin riesgo real.</div>
-    </div>
-    <div class="card" style="padding:18px">
-      <div style="font-size:20px;margin-bottom:8px">📋</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:5px">Soroban Contracts</div>
-      <div style="font-size:12px;color:var(--c2)">ReadinessRegistry emite credenciales on-chain permanentes.</div>
-    </div>
-    <div class="card" style="padding:18px">
-      <div style="font-size:20px;margin-bottom:8px">🌎</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:5px">Diseñada para LATAM</div>
-      <div style="font-size:12px;color:var(--c2)">Mismo público objetivo que Stellar: finanzas inclusivas.</div>
-    </div>
-    <div class="card" style="padding:18px">
-      <div style="font-size:20px;margin-bottom:8px">🔍</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:5px">Horizon API</div>
-      <div style="font-size:12px;color:var(--c2)">Datos on-chain en tiempo real para escenarios de simulacro.</div>
-    </div>
-  </div>
-  <div class="a3" style="width:100%;max-width:660px">
-    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
-      <div class="tech-b"><div><div class="tech-b-name">Next.js 16</div><div class="tech-b-role">App Router · TS</div></div></div>
-      <div class="tech-b"><div><div class="tech-b-name">Stellar SDK v13</div><div class="tech-b-role">Horizon · Soroban</div></div></div>
-      <div class="tech-b"><div><div class="tech-b-name">Supabase</div><div class="tech-b-role">Auth · Progress</div></div></div>
-      <div class="tech-b"><div><div class="tech-b-name">Tailwind v4</div><div class="tech-b-role">Framer Motion</div></div></div>
-      <div class="tech-b"><div><div class="tech-b-name">Vercel</div><div class="tech-b-role">Deploy · Edge</div></div></div>
-    </div>
-  </div>
-</div>\`,
-
-/* ── 7 SPONSORS ── */
-\`<div class="bg-grid"></div>
-<div style="display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;max-width:780px">
-  <div class="a1" style="text-align:center">
-    <div class="eye" style="margin-bottom:8px">CriptoUNAM × Semana DIE 2026</div>
-    <div class="h2">Postulando a <span class="gold">2 tracks</span></div>
-  </div>
-  <div class="a2" style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:560px">
-    <div class="gcard">
-      <div class="gcard-inner" style="display:flex;align-items:flex-start;gap:14px">
-        <div style="font-size:28px">🔗</div>
-        <div style="flex:1">
-          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px">Blockchain → <span class="gold">Stellar</span></div>
-          <div style="font-size:12px;color:var(--c2);margin-bottom:10px">Integración nativa desde el primer commit: SDK v13, Horizon API, Soroban ReadinessRegistry.</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <span class="pill" style="font-size:11px">Stellar $330</span>
-            <span class="pill" style="font-size:11px">Pollar $200</span>
-          </div>
+    <div class="mk-body">
+      <div class="mk-nav">
+        <div class="mk-logo">
+          <div class="mk-logo-icon">\${SH}</div>
+          <div class="mk-logo-text">FYV<b> Box</b></div>
         </div>
+        <div class="mk-xp">⭐ 420 XP</div>
       </div>
-    </div>
-    <div class="card" style="display:flex;align-items:flex-start;gap:14px">
-      <div style="font-size:28px">📚</div>
-      <div style="flex:1">
-        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px">Contenido → <span class="gold">Tangem</span></div>
-        <div style="font-size:12px;color:var(--c2);margin-bottom:10px">Plataforma educativa en español. Misiones progresivas, certificación. Comunidad UNAM/LATAM.</div>
-        <span class="pill" style="font-size:11px">Tangem hasta $85</span>
+      <div class="mk-card">
+        <div class="mk-card-head">
+          <div class="mk-card-title">Tu progreso</div>
+          <span style="font-size:10px;color:rgba(240,235,216,.35)">3 tracks activos</span>
+        </div>
+        <div class="mk-prog-label"><span>Phishing</span><span>4/4 ✓</span></div>
+        <div class="mk-prog-bar"><div class="mk-prog-fill" style="width:100%;background:linear-gradient(90deg,#16a34a,#22c55e)"></div></div>
+        <div class="mk-prog-label"><span>Fake Assets</span><span>3/4</span></div>
+        <div class="mk-prog-bar"><div class="mk-prog-fill" style="width:75%"></div></div>
+        <div class="mk-prog-label"><span>Social Eng.</span><span>2/4</span></div>
+        <div class="mk-prog-bar"><div class="mk-prog-fill" style="width:50%"></div></div>
       </div>
-    </div>
-  </div>
-  <div class="a3" style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center">
-    <div style="text-align:center;padding:14px 28px;background:rgba(201,162,39,.07);border:1px solid rgba(201,162,39,.2);border-radius:14px">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:var(--g1)">$615</div>
-      <div style="font-size:11px;color:var(--c2);margin-top:2px">premio potencial total</div>
-    </div>
-    <div style="text-align:center;padding:14px 28px;background:rgba(17,32,64,.8);border:1px solid rgba(240,235,216,.08);border-radius:14px">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:var(--c0)">100%</div>
-      <div style="font-size:11px;color:var(--c2);margin-top:2px">open source</div>
+      <div class="mk-mission">
+        <span class="mk-mission-tag">🎣 PHISHING · ACTIVA</span>
+        <div class="mk-mission-title">stellar-airdrop.io te pide tu seed phrase</div>
+        <div class="mk-mission-sub">¿Es legítimo? Analiza 3 señales de alerta — +80 XP</div>
+      </div>
     </div>
   </div>
 </div>\`,
 
-/* ── 8 CTA ── */
-\`<div class="bg-glow" style="width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(201,162,39,.04);border-radius:50%"></div>
-<div style="display:flex;flex-direction:column;align-items:center;gap:22px;max-width:580px;text-align:center;position:relative">
-  <div class="a1">
-    <div class="hero-logo" style="justify-content:center">
-      <div class="hero-icon">\${SHIELD}</div>
-      <div class="hero-wordmark">FYV<span> Box</span></div>
+/* 4 — TRACKS */
+\`<div class="s s4" data-slide="4">
+  <div class="eye e1">Tracks de entrenamiento</div>
+  <h2 class="e2" style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(26px,4.5vw,52px);letter-spacing:-.03em;line-height:1.05">6 tipos de fraude.<br><span style="color:#C9A227">Los más comunes en crypto.</span></h2>
+  <div class="s4-grid e3">
+    <div class="s4-card lit">
+      <div class="s4-icon">🎣</div>
+      <div class="s4-name">Phishing</div>
+      <div class="s4-desc">Sitios falsos, emails y links trampa</div>
+      <div class="s4-status">● Activo</div>
+    </div>
+    <div class="s4-card lit">
+      <div class="s4-icon">💎</div>
+      <div class="s4-name">Fake Assets</div>
+      <div class="s4-desc">Tokens clonados y contratos trampa</div>
+      <div class="s4-status">● Activo</div>
+    </div>
+    <div class="s4-card lit">
+      <div class="s4-icon">🤝</div>
+      <div class="s4-name">Social Eng.</div>
+      <div class="s4-desc">Manipulación y urgencia artificial</div>
+      <div class="s4-status">● Activo</div>
+    </div>
+    <div class="s4-card">
+      <div class="s4-icon" style="opacity:.45">⚠️</div>
+      <div class="s4-name" style="color:rgba(240,235,216,.4)">Approvals</div>
+      <div class="s4-desc">Permisos peligrosos de wallet</div>
+      <div class="s4-soon">○ Próximamente</div>
+    </div>
+    <div class="s4-card">
+      <div class="s4-icon" style="opacity:.45">🚀</div>
+      <div class="s4-name" style="color:rgba(240,235,216,.4)">Presale Scam</div>
+      <div class="s4-desc">Rug pulls y preventas fraudulentas</div>
+      <div class="s4-soon">○ Próximamente</div>
+    </div>
+    <div class="s4-card">
+      <div class="s4-icon" style="opacity:.45">🔑</div>
+      <div class="s4-name" style="color:rgba(240,235,216,.4)">Key Hygiene</div>
+      <div class="s4-desc">Exposición accidental de claves</div>
+      <div class="s4-soon">○ Próximamente</div>
     </div>
   </div>
-  <div class="a2">
-    <div class="h2">Pruébalo ahora</div>
+</div>\`,
+
+/* 5 — CREDENCIAL */
+\`<div class="s s5" data-slide="5" style="padding-top:40px;padding-bottom:80px">
+  <div class="s5-badge e1">
+    <div class="s5-badge-ring"></div>
+    <div class="s5-badge-bg"></div>
+    <div class="s5-badge-inner">
+      \${SH2}
+      <div class="s5-badge-label">SCAM<br>RESISTANT</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:rgba(201,162,39,.5);margin-top:3px">Soroban NFT</div>
+    </div>
   </div>
-  <div class="a3" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-    <a class="btn btn-gold" href="https://fyv-box.vercel.app" target="_blank">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      fyv-box.vercel.app
-    </a>
-    <a class="btn btn-outline" href="https://github.com/ALFA117/fyv-box" target="_blank">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
-      ALFA117/fyv-box
-    </a>
-  </div>
-  <div class="a4 chips" style="justify-content:center">
-    <span class="chip">stellar</span><span class="chip">soroban</span><span class="chip">anti-fraud</span><span class="chip">latam</span><span class="chip">open-source</span>
-  </div>
-  <div class="a5" style="padding:14px 20px;background:rgba(17,32,64,.8);border:1px solid rgba(240,235,216,.08);border-radius:12px;width:100%;max-width:420px">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-      <div>
-        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px">Axel Rodríguez Frías</div>
-        <div style="font-size:12px;color:var(--c2)">rodriguez.frias.axelisaias@gmail.com</div>
+  <div class="s5-text">
+    <div class="eye e2" style="margin-bottom:10px">Credencial On-Chain</div>
+    <h2 class="s5-h e3">Un NFT que demuestra<br>competencia real</h2>
+    <div class="e4">
+      <div class="s5-point">
+        <div class="s5-dot"></div>
+        <div><div class="s5-point-t">Verificable públicamente</div><div class="s5-point-d">Cualquiera puede consultar el estado de graduación de cualquier dirección.</div></div>
       </div>
-      <code class="mono" style="font-size:11px;color:var(--g1)">github.com/ALFA117</code>
+      <div class="s5-point">
+        <div class="s5-dot"></div>
+        <div><div class="s5-point-t">Registrado en Soroban</div><div class="s5-point-d">ReadinessRegistry — contrato permanente en Stellar Testnet.</div></div>
+      </div>
+      <div class="s5-point">
+        <div class="s5-dot"></div>
+        <div><div class="s5-point-t">Sin costo para el usuario</div><div class="s5-point-d">Friendbot cubre todas las fees. Zero barreras.</div></div>
+      </div>
     </div>
+    <div class="s5-code e5">GET /api/verify?address=GABC...<br><span style="color:rgba(240,235,216,.4)">→ </span>{ "graduated": true, "xp": 820 }</div>
+  </div>
+</div>\`,
+
+/* 6 — HACKATHON */
+\`<div class="s s6" data-slide="6">
+  <div class="eye e1">CriptoUNAM × Semana DIE 2026</div>
+  <h2 class="e2" style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(26px,4.5vw,52px);letter-spacing:-.03em;line-height:1.05">Postulando a<br><span style="color:#C9A227">2 tracks</span></h2>
+  <div class="s6-tracks e3">
+    <div class="s6-track main">
+      <div class="s6-icon">🔗</div>
+      <div class="s6-info">
+        <div class="s6-track-name">Blockchain → <span style="color:#C9A227">Stellar</span></div>
+        <div class="s6-track-desc">SDK v13 · Horizon API · Soroban ReadinessRegistry — integración nativa desde el primer commit</div>
+      </div>
+      <div class="s6-prize">$530</div>
+    </div>
+    <div class="s6-track sec">
+      <div class="s6-icon">📚</div>
+      <div class="s6-info">
+        <div class="s6-track-name">Contenido → <span style="color:#C9A227">Tangem</span></div>
+        <div class="s6-track-desc">Plataforma educativa en español para comunidad UNAM/LATAM con certificación on-chain</div>
+      </div>
+      <div class="s6-prize" style="font-size:14px">hasta<br>$85</div>
+    </div>
+  </div>
+  <div class="s6-total e4">
+    <div><div class="s6-total-n">$615</div><div class="s6-total-l">premio potencial total</div></div>
+    <div style="width:1px;height:36px;background:rgba(201,162,39,.15)"></div>
+    <div><div class="s6-total-n" style="font-size:22px;color:#F0EBD8">100%</div><div class="s6-total-l">open source</div></div>
+    <div style="width:1px;height:36px;background:rgba(201,162,39,.15)"></div>
+    <div><div class="s6-total-n" style="font-size:22px;color:#4ade80">0</div><div class="s6-total-l">fondos custodiados</div></div>
+  </div>
+</div>\`,
+
+/* 7 — CTA */
+\`<div class="s s7" data-slide="7">
+  <div class="e1" style="margin-bottom:6px">
+    <div class="s0-logo" style="justify-content:center;margin-bottom:20px">
+      <div class="s0-icon">\${SH}</div>
+      <div class="s0-wordmark">FYV<b> Box</b></div>
+    </div>
+  </div>
+  <div class="s7-url e2">fyv-box.vercel.app</div>
+  <div class="s7-url-note e3">Demo en vivo · Stellar Testnet</div>
+  <div class="s7-btns e4">
+    <a class="btn btn-g" href="https://fyv-box.vercel.app" target="_blank">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Abrir Demo
+    </a>
+    <a class="btn btn-o" href="https://github.com/ALFA117/fyv-box" target="_blank">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+      Ver Código
+    </a>
+  </div>
+  <div class="s7-meta e5">
+    Axel Rodríguez Frías &nbsp;·&nbsp; ALFA117 &nbsp;·&nbsp; CriptoUNAM × Semana DIE 2026<br>
+    github.com/ALFA117/fyv-box
   </div>
 </div>\`,
 
 ];
 
-/* ── engine ── */
-let cur = 0;
-const deck = document.getElementById('deck');
-const dotsEl = document.getElementById('dots');
-const snumEl = document.getElementById('snum');
+/* ─── engine ─── */
+let cur=0;
+const deck=document.getElementById('deck');
+const dotsEl=document.getElementById('dots');
+const snumEl=document.getElementById('snum');
+const prog=document.getElementById('prog');
 
 function build(){
-  deck.innerHTML=''; dotsEl.innerHTML='';
+  deck.innerHTML='';dotsEl.innerHTML='';
   SLIDES.forEach((html,i)=>{
-    const el = document.createElement('div');
-    el.className = 's' + (i===0?' on':'');
-    el.innerHTML = html;
+    const wrap=document.createElement('div');
+    wrap.innerHTML=html.trim();
+    const el=wrap.firstElementChild;
+    if(i===0) el.classList.add('on');
     deck.appendChild(el);
-    const d = document.createElement('div');
-    d.className = 'dot' + (i===0?' on':'');
-    d.onclick = ()=>goTo(i);
+    const d=document.createElement('div');
+    d.className='dot'+(i===0?' on':'');
+    d.onclick=()=>goTo(i);
     dotsEl.appendChild(d);
   });
   sync();
-  // particles on first slide
-  drawParticles();
-  cvs.classList.add('vis');
+  drawP();
 }
 
-function slides(){ return deck.querySelectorAll('.s') }
+function els(){return deck.querySelectorAll('[data-slide]')}
 
 function goTo(n){
-  const ss = slides();
-  if(n<0||n>=ss.length) return;
+  const ss=els();
+  if(n<0||n>=ss.length||n===cur) return;
+  const going = n > cur ? 'right' : 'left';
   ss[cur].classList.remove('on');
-  cur = n;
+  ss[cur].classList.add(going==='right'?'left':''); // exit direction
+  // cleanup after transition
+  const old=ss[cur];
+  setTimeout(()=>old.classList.remove('left'),500);
+  cur=n;
   ss[cur].classList.add('on');
-  // particles only on slide 0
-  if(cur===0){ cvs.classList.add('vis'); if(!raf) drawParticles(); }
-  else { cvs.classList.remove('vis'); cancelAnimationFrame(raf); raf=null; }
+  // particles only slide 0
+  if(cur===0){ if(!raf) drawP(); }
+  else{ cancelAnimationFrame(raf);raf=null;ctx.clearRect(0,0,W,H); }
   sync();
 }
 
 function sync(){
-  const ss = slides();
+  const ss=els();
   dotsEl.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
   snumEl.textContent=(cur+1)+'/'+ss.length;
   document.getElementById('prev').disabled=cur===0;
   document.getElementById('next').disabled=cur===ss.length-1;
+  prog.style.width=((cur/(ss.length-1))*100)+'%';
 }
 
-function go(d){ goTo(cur+d); }
+function go(d){goTo(cur+d)}
 
 document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight'||e.key==='ArrowDown') go(1);
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ') go(1);
   if(e.key==='ArrowLeft'||e.key==='ArrowUp') go(-1);
 });
 
@@ -624,7 +699,7 @@ let tx=0;
 document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
 document.addEventListener('touchend',e=>{
   const dx=e.changedTouches[0].clientX-tx;
-  if(Math.abs(dx)>48) go(dx<0?1:-1);
+  if(Math.abs(dx)>50) go(dx<0?1:-1);
 },{passive:true});
 
 build();
