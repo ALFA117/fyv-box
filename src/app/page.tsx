@@ -78,12 +78,16 @@ function ParticleCanvas() {
     const MOUSE_DIST = 100;
 
     function draw() {
+      const isLight = document.documentElement.getAttribute("data-theme") === "light";
+      const dotRGB  = isLight ? "100,65,5"  : "201,162,39";
+      const dotMult = isLight ? 0.55        : 0.7;
+      const linkMult= isLight ? 0.22        : 0.18;
+
       const w = canvas!.width, h = canvas!.height;
       ctx.clearRect(0, 0, w, h);
 
       const ps = particles.current;
       for (const p of ps) {
-        // gentle mouse repel
         const dx = p.x - mouse.current.x;
         const dy = p.y - mouse.current.y;
         const d  = Math.sqrt(dx * dx + dy * dy);
@@ -92,35 +96,28 @@ function ParticleCanvas() {
           p.vx += (dx / d) * force;
           p.vy += (dy / d) * force;
         }
-        // dampen
-        p.vx *= 0.99;
-        p.vy *= 0.99;
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = w;
-        if (p.x > w) p.x = 0;
-        if (p.y < 0) p.y = h;
-        if (p.y > h) p.y = 0;
+        p.vx *= 0.99; p.vy *= 0.99;
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
 
-        // draw dot
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(201,162,39,${p.alpha * 0.7})`;
+        ctx.fillStyle = `rgba(${dotRGB},${p.alpha * dotMult})`;
         ctx.fill();
       }
 
-      // draw links
       for (let i = 0; i < ps.length; i++) {
         for (let j = i + 1; j < ps.length; j++) {
           const dx = ps[i].x - ps[j].x;
           const dy = ps[i].y - ps[j].y;
           const d  = Math.sqrt(dx * dx + dy * dy);
           if (d < LINK_DIST) {
-            const alpha = (1 - d / LINK_DIST) * 0.18;
+            const alpha = (1 - d / LINK_DIST) * linkMult;
             ctx.beginPath();
             ctx.moveTo(ps[i].x, ps[i].y);
             ctx.lineTo(ps[j].x, ps[j].y);
-            ctx.strokeStyle = `rgba(201,162,39,${alpha})`;
+            ctx.strokeStyle = `rgba(${dotRGB},${alpha})`;
             ctx.lineWidth = 0.7;
             ctx.stroke();
           }
@@ -148,17 +145,20 @@ function ParticleCanvas() {
 }
 
 /* ─── Holographic Logo ───────────────────────────────────────────────────── */
-function HologramLogo() {
+function HologramLogo({ theme }: { theme: "dark" | "light" }) {
+  const isLight = theme === "light";
   return (
     <div className="relative flex w-full items-center justify-center px-8">
       {/* glow de fondo pulsante */}
       <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
-        animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.08, 1] }}
+        animate={{ opacity: [0.5, 1, 0.5], scale: [1, 1.08, 1] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         style={{
-          background: "radial-gradient(ellipse 80% 65% at 50% 50%, rgba(201,162,39,.28) 0%, rgba(201,162,39,.08) 50%, transparent 70%)",
+          background: isLight
+            ? "radial-gradient(ellipse 80% 65% at 50% 50%, rgba(140,90,5,.18) 0%, rgba(140,90,5,.05) 50%, transparent 70%)"
+            : "radial-gradient(ellipse 80% 65% at 50% 50%, rgba(201,162,39,.28) 0%, rgba(201,162,39,.08) 50%, transparent 70%)",
         }}
       />
 
@@ -175,7 +175,9 @@ function HologramLogo() {
           height={164}
           className="w-full"
           style={{
-            filter: "brightness(1.4) contrast(1.2) drop-shadow(0 0 22px rgba(201,162,39,.85)) drop-shadow(0 0 55px rgba(201,162,39,.5))",
+            filter: isLight
+              ? "brightness(0) sepia(1) saturate(3) hue-rotate(5deg) contrast(0.9) drop-shadow(0 0 14px rgba(120,70,5,.45)) drop-shadow(0 0 35px rgba(120,70,5,.25))"
+              : "brightness(1.4) contrast(1.2) drop-shadow(0 0 22px rgba(201,162,39,.85)) drop-shadow(0 0 55px rgba(201,162,39,.5))",
             height: "auto",
           }}
           priority
@@ -360,20 +362,40 @@ export default function LandingPage() {
       {/* Particle canvas */}
       <ParticleCanvas />
 
-      {/* Background profesional: gradiente profundo + blobs */}
+      {/* Background adaptativo dark/light */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        {/* base radial oscuro — da profundidad tipo deep space */}
-        <div className="absolute inset-0"
-          style={{ background: "radial-gradient(ellipse 120% 80% at 50% -10%, rgba(14,30,60,.95) 0%, var(--navy) 60%)" }} />
-        {/* glow dorado central — reflejo del logo */}
-        <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/4 -translate-y-1/2 rounded-full bg-[var(--gold)]/8 blur-[120px]" />
-        {/* acento azul profundo derecha */}
-        <div className="absolute right-0 top-1/2 h-[500px] w-[500px] -translate-y-1/3 rounded-full bg-blue-900/25 blur-[130px]" />
-        {/* acento verde esmeralda abajo */}
-        <div className="absolute bottom-0 left-1/4 h-80 w-[500px] rounded-full bg-emerald-900/15 blur-[110px]" />
-        {/* líneas de cuadrícula sutil (grid profesional) */}
-        <div className="absolute inset-0 opacity-[0.035]"
-          style={{ backgroundImage: "linear-gradient(rgba(201,162,39,1) 1px, transparent 1px), linear-gradient(90deg, rgba(201,162,39,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        {theme === "dark" ? (
+          <>
+            {/* base deep-space */}
+            <div className="absolute inset-0"
+              style={{ background: "radial-gradient(ellipse 120% 80% at 50% -10%, rgba(14,30,60,.95) 0%, #0A1A33 60%)" }} />
+            {/* glow dorado central */}
+            <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/4 -translate-y-1/2 rounded-full bg-yellow-600/8 blur-[120px]" />
+            {/* acento azul derecha */}
+            <div className="absolute right-0 top-1/2 h-[500px] w-[500px] -translate-y-1/3 rounded-full bg-blue-900/25 blur-[130px]" />
+            {/* acento esmeralda abajo */}
+            <div className="absolute bottom-0 left-1/4 h-80 w-[500px] rounded-full bg-emerald-900/15 blur-[110px]" />
+            {/* grid dorado sutil */}
+            <div className="absolute inset-0 opacity-[0.035]"
+              style={{ backgroundImage: "linear-gradient(rgba(201,162,39,1) 1px,transparent 1px),linear-gradient(90deg,rgba(201,162,39,1) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
+          </>
+        ) : (
+          <>
+            {/* base warm paper */}
+            <div className="absolute inset-0"
+              style={{ background: "linear-gradient(160deg, #FDFCF8 0%, #F8F3E8 40%, #EFE8D8 100%)" }} />
+            {/* resplandor cálido centro-derecha (detrás del logo) */}
+            <div className="absolute right-0 top-1/2 h-[560px] w-[560px] -translate-y-1/2 -translate-x-1/4 rounded-full bg-amber-300/20 blur-[130px]" />
+            {/* acento dorado top-left */}
+            <div className="absolute left-0 top-0 h-[400px] w-[400px] -translate-x-1/3 -translate-y-1/3 rounded-full bg-yellow-400/12 blur-[100px]" />
+            {/* sombra suave abajo */}
+            <div className="absolute bottom-0 inset-x-0 h-48"
+              style={{ background: "linear-gradient(to top, rgba(180,140,60,.08), transparent)" }} />
+            {/* grid ámbar muy sutil */}
+            <div className="absolute inset-0 opacity-[0.04]"
+              style={{ backgroundImage: "linear-gradient(rgba(100,65,5,1) 1px,transparent 1px),linear-gradient(90deg,rgba(100,65,5,1) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
+          </>
+        )}
       </div>
 
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
@@ -438,7 +460,9 @@ export default function LandingPage() {
               <span
                 className="bg-clip-text text-transparent"
                 style={{
-                  backgroundImage: "linear-gradient(90deg, var(--gold), #fff8e1, var(--gold-hover))",
+                  backgroundImage: theme === "dark"
+                    ? "linear-gradient(90deg, var(--gold), #fff8e1, var(--gold-hover))"
+                    : "linear-gradient(90deg, #7A5508, #C9A227, #7A5508)",
                   backgroundSize: "200% auto",
                   animation: "holo-rotate 4s linear infinite",
                 }}
@@ -497,7 +521,7 @@ export default function LandingPage() {
 
         {/* ── Mitad derecha: Logo ─────────────────────────────────────────── */}
         <div className="flex h-full w-1/2 items-center justify-center">
-          <HologramLogo />
+          <HologramLogo theme={theme} />
         </div>
 
         {/* Scroll hint */}
