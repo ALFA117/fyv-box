@@ -149,96 +149,40 @@ function ParticleCanvas() {
 
 /* ─── Holographic Logo ───────────────────────────────────────────────────── */
 function HologramLogo() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 120, damping: 22 });
-  const springY = useSpring(mouseY, { stiffness: 120, damping: 22 });
-  const rotateX  = useTransform(springY, [-1, 1], [14, -14]);
-  const rotateY  = useTransform(springX, [-1, 1], [-14, 14]);
-
-  function handleMove(e: React.MouseEvent) {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    mouseX.set((e.clientX - rect.left - rect.width  / 2) / (rect.width  / 2));
-    mouseY.set((e.clientY - rect.top  - rect.height / 2) / (rect.height / 2));
-  }
-  function handleLeave() { mouseX.set(0); mouseY.set(0); }
-
   return (
-    <div
-      ref={containerRef}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      className="relative flex items-center justify-center"
-      style={{ perspective: "900px", width: 340, height: 340 }}
-    >
-      {/* anillo exterior giratorio */}
+    <div className="relative flex w-full items-center justify-center px-8">
+      {/* glow de fondo */}
       <div
-        className="absolute inset-0 rounded-full border border-[var(--gold)]/25"
-        style={{ animation: "ring-spin 12s linear infinite" }}
         aria-hidden
-      >
-        {[0, 90, 180, 270].map((deg) => (
-          <div
-            key={deg}
-            className="absolute h-1.5 w-1.5 rounded-full bg-[var(--gold)]"
-            style={{
-              top: "50%", left: "50%",
-              transform: `rotate(${deg}deg) translateX(168px) translateY(-50%)`,
-              boxShadow: "0 0 6px var(--gold)",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* anillo interior punteado */}
-      <div
-        className="absolute rounded-full border border-dashed border-[var(--gold)]/20"
-        style={{ inset: 20, animation: "ring-spin-rev 9s linear infinite" }}
-        aria-hidden
-      />
-
-      {/* 3D tilt container */}
-      <motion.div
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="relative z-10"
-      >
-        {/* bottom glow shadow */}
-        <div
-          className="absolute -bottom-6 left-1/2 -translate-x-1/2 h-4 w-40 rounded-full blur-xl"
-          style={{ background: "rgba(201,162,39,.40)" }}
-          aria-hidden
-        />
-
-        {/* imagen completa — sin recorte */}
-        <div className="relative">
-          {/* glow detrás */}
-          <div
-            className="pointer-events-none absolute inset-0 -z-10 blur-2xl"
-            style={{ background: "radial-gradient(circle, rgba(201,162,39,.30) 0%, transparent 70%)" }}
-            aria-hidden
-          />
-          <Image
-            src="/logo-panther.webp"
-            alt="FYV Box Pantera"
-            width={260}
-            height={260}
-            className="relative z-10 drop-shadow-[0_0_24px_rgba(201,162,39,.5)]"
-            style={{ filter: "brightness(1.05) contrast(1.1)" }}
-            priority
-          />
-        </div>
-      </motion.div>
-
-      {/* ambient glow */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 rounded-full"
+        className="pointer-events-none absolute inset-0 -z-10"
         style={{
-          background: "radial-gradient(circle, rgba(201,162,39,.15) 0%, transparent 65%)",
+          background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(201,162,39,.18) 0%, transparent 70%)",
           animation: "pulse-glow 3s ease-in-out infinite",
         }}
+      />
+
+      {/* imagen completa sin recorte */}
+      <Image
+        src="/logo-panther.webp"
+        alt="FYV Box Pantera"
+        width={420}
+        height={164}
+        className="relative z-10 w-full max-w-[420px]"
+        style={{
+          filter: "brightness(1.4) contrast(1.2) drop-shadow(0 0 18px rgba(201,162,39,.7)) drop-shadow(0 0 40px rgba(201,162,39,.4))",
+          height: "auto",
+        }}
+        priority
+      />
+
+      {/* línea de scan horizontal sutil */}
+      <div
         aria-hidden
+        className="pointer-events-none absolute left-0 right-0 z-20 h-px"
+        style={{
+          background: "linear-gradient(90deg, transparent, rgba(201,162,39,.6), transparent)",
+          animation: "scan-v 3.5s linear infinite",
+        }}
       />
     </div>
   );
@@ -434,8 +378,8 @@ export default function LandingPage() {
         className="fixed top-0 inset-x-0 z-50 flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--navy)]/80 px-5 py-3 backdrop-blur-lg sm:px-10"
       >
         <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-[var(--border-gold)] bg-[var(--surface)]">
-            <Image src="/logo-panther.webp" alt="" width={36} height={36} className="h-full w-full object-cover" />
+          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[var(--border-gold)] bg-[var(--surface)] shadow-[0_0_8px_rgba(201,162,39,.3)]">
+            <Image src="/logo-panther.webp" alt="" width={40} height={40} className="h-full w-full object-cover" />
           </div>
           <span className="font-playfair text-base font-bold text-[var(--cream)]">
             FYV<span className="text-[var(--gold)]"> Box</span>
@@ -550,14 +494,9 @@ export default function LandingPage() {
         />
 
         {/* ── Mitad derecha: Logo ─────────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="flex w-1/2 items-center justify-center py-16 min-h-[calc(100dvh-4rem)]"
-        >
+        <div className="flex w-1/2 items-center justify-center py-16 min-h-[calc(100dvh-4rem)]">
           <HologramLogo />
-        </motion.div>
+        </div>
 
         {/* Scroll hint */}
         <motion.a
