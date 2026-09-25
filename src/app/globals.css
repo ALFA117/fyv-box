@@ -149,23 +149,66 @@ code, pre, .mono, .font-mono {
 
 /* ─── Logo 3D / glow animations ────────────────────────────────────────── */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 30px rgba(201,162,39,.25), 0 0 60px rgba(201,162,39,.10); }
-  50%       { box-shadow: 0 0 50px rgba(201,162,39,.45), 0 0 100px rgba(201,162,39,.20); }
+  0%, 100% { opacity: .6; transform: scale(1); }
+  50%       { opacity: 1;  transform: scale(1.08); }
 }
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotateX(0deg); }
-  50%       { transform: translateY(-8px) rotateX(2deg); }
+@keyframes scan-v {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  5%   { opacity: .7; }
+  95%  { opacity: .7; }
+  100% { transform: translateY(500%); opacity: 0; }
 }
-@keyframes circuit-dash {
-  0%   { stroke-dashoffset: 200; opacity: 0.3; }
-  50%  { opacity: 1; }
-  100% { stroke-dashoffset: 0;   opacity: 0.3; }
+@keyframes glitch-1 {
+  0%, 94%, 100% { clip-path: none; transform: none; }
+  95%  { clip-path: inset(20% 0 60% 0); transform: translateX(-4px); }
+  97%  { clip-path: inset(60% 0 10% 0); transform: translateX(4px); }
 }
-@keyframes scan-line {
-  0%   { top: 0%; opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+@keyframes glitch-2 {
+  0%, 96%, 100% { clip-path: none; transform: none; opacity: 1; }
+  97%  { clip-path: inset(40% 0 40% 0); transform: translateX(3px); opacity: .8; }
+  99%  { clip-path: inset(10% 0 80% 0); transform: translateX(-3px); opacity: .6; }
+}
+@keyframes holo-rotate {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes ring-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes ring-spin-rev {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+@keyframes counter-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* holographic sheen that sweeps on hover */
+.holo-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.holo-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(201,162,39,.18) 45%,
+    rgba(255,255,255,.12) 50%,
+    rgba(201,162,39,.18) 55%,
+    transparent 70%
+  );
+  background-size: 300% 100%;
+  animation: holo-rotate 3.5s linear infinite;
+  pointer-events: none;
 }
 
 /* ─── Shimmer animation ─────────────────────────────────────────────────── */
