@@ -52,7 +52,7 @@ html,body{height:100%;overflow:hidden;background:#03060E;color:#EEEADF;font-fami
 .s{
   position:absolute;inset:0;
   display:flex;
-  padding:72px 40px 80px;
+  padding:62px 48px 68px;
   opacity:0;transform:translateX(56px);
   pointer-events:none;
   transition:opacity .48s cubic-bezier(.16,1,.3,1), transform .48s cubic-bezier(.16,1,.3,1);
@@ -100,12 +100,12 @@ html,body{height:100%;overflow:hidden;background:#03060E;color:#EEEADF;font-fami
 .s0-left{flex:0 0 52%;display:flex;flex-direction:column;justify-content:center;padding-right:32px}
 .s0-h{
   font-family:'Syne',sans-serif;font-weight:800;
-  font-size:clamp(36px,5.5vw,72px);
-  line-height:.96;letter-spacing:-.04em;
-  color:#EEEADF;margin:14px 0 16px;
+  font-size:clamp(22px,3vw,46px);
+  line-height:1.08;letter-spacing:-.03em;
+  color:#EEEADF;margin:10px 0 14px;
 }
 .s0-h em{font-style:normal;color:#C9A227}
-.s0-sub{font-size:clamp(13px,1.3vw,16px);color:rgba(238,234,223,.45);line-height:1.7;margin-bottom:24px;max-width:400px}
+.s0-sub{font-size:clamp(12px,1.2vw,15px);color:rgba(238,234,223,.45);line-height:1.65;margin-bottom:18px;max-width:380px}
 .s0-tags{display:flex;gap:7px;flex-wrap:wrap}
 /* hero right — shield illustration */
 .s0-right{flex:1;display:flex;align-items:center;justify-content:center;position:relative}
@@ -119,30 +119,30 @@ html,body{height:100%;overflow:hidden;background:#03060E;color:#EEEADF;font-fami
 .s1{align-items:center;flex-direction:column;justify-content:center;text-align:center}
 .s1-num{
   font-family:'Syne',sans-serif;font-weight:800;
-  font-size:clamp(80px,16vw,180px);
+  font-size:clamp(60px,11vw,140px);
   line-height:.88;letter-spacing:-.06em;
   background:linear-gradient(135deg,#ef4444 0%,#f97316 50%,#fbbf24 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-.s1-label{font-size:clamp(15px,2vw,22px);color:rgba(238,234,223,.55);max-width:520px;line-height:1.5;margin:16px auto 20px}
+.s1-label{font-size:clamp(13px,1.5vw,18px);color:rgba(238,234,223,.55);max-width:480px;line-height:1.55;margin:12px auto 16px}
 .s1-label strong{color:#EEEADF}
-.s1-kicker{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(16px,2.2vw,26px);color:rgba(238,234,223,.7)}
+.s1-kicker{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(13px,1.6vw,20px);color:rgba(238,234,223,.7)}
 
 /* ── SLIDE 2 — SOLUTION ── */
-.s2{align-items:center;flex-direction:column;justify-content:center;text-align:center;gap:28px}
-.s2-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,4.5vw,54px);letter-spacing:-.035em;line-height:1.05}
+.s2{align-items:center;flex-direction:column;justify-content:center;text-align:center;gap:18px}
+.s2-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(20px,3vw,38px);letter-spacing:-.03em;line-height:1.1}
 .s2-flow{display:flex;align-items:flex-start;gap:0;width:100%;max-width:800px}
 .s2-step{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 10px}
-.s2-icon{width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px}
+.s2-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 10px}
 .s2-sname{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:5px}
 .s2-sdesc{font-size:12px;color:rgba(238,234,223,.4);line-height:1.55}
 .s2-arr{display:flex;align-items:center;justify-content:center;padding-top:16px;color:rgba(201,162,39,.25);font-size:22px;flex-shrink:0}
 
 /* ── SLIDE 3 — PRODUCT ── */
 .s3{flex-direction:row;align-items:center;gap:40px}
-.s3-left{flex:0 0 280px;display:flex;flex-direction:column;gap:0}
+.s3-left{flex:0 0 240px;display:flex;flex-direction:column;gap:0}
 .s3-left .eye{margin-bottom:10px}
-.s3-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(22px,2.8vw,34px);letter-spacing:-.025em;line-height:1.15;margin-bottom:18px}
+.s3-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(18px,2.2vw,28px);letter-spacing:-.02em;line-height:1.2;margin-bottom:14px}
 .s3-feat{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid rgba(238,234,223,.06)}
 .s3-feat:last-child{border-bottom:1px solid rgba(238,234,223,.06)}
 .s3-dot{width:5px;height:5px;border-radius:50%;background:#C9A227;margin-top:6px;flex-shrink:0}
@@ -176,9 +176,9 @@ html,body{height:100%;overflow:hidden;background:#03060E;color:#EEEADF;font-fami
 .mk-m-d{font-size:10px;color:rgba(238,234,223,.35)}
 
 /* ── SLIDE 4 — TRACKS ── */
-.s4{flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center}
-.s4-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(26px,4vw,50px);letter-spacing:-.035em;line-height:1.05}
-.s4-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:720px}
+.s4{flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.s4-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(19px,2.8vw,36px);letter-spacing:-.025em;line-height:1.1}
+.s4-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:680px}
 .tc{padding:18px 16px;border-radius:16px;border:1px solid rgba(238,234,223,.06);background:rgba(238,234,223,.02);text-align:left;transition:all .2s}
 .tc.lit{border-color:rgba(201,162,39,.28);background:rgba(201,162,39,.05)}
 .tc-icon{font-size:26px;margin-bottom:10px}
@@ -197,7 +197,7 @@ html,body{height:100%;overflow:hidden;background:#03060E;color:#EEEADF;font-fami
 .s5-inner{position:absolute;inset:0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:1;animation:bpulse 3.5s ease-in-out infinite}
 .s5-label{font-family:'Syne',sans-serif;font-weight:800;font-size:10px;color:#C9A227;text-align:center;letter-spacing:.1em;line-height:1.4}
 .s5-right{display:flex;flex-direction:column;max-width:380px}
-.s5-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(22px,3vw,40px);letter-spacing:-.03em;line-height:1.1;margin:10px 0 18px}
+.s5-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(18px,2.2vw,32px);letter-spacing:-.025em;line-height:1.15;margin:8px 0 14px}
 .s5-pt{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
 .s5-pd{width:5px;height:5px;border-radius:50%;background:#C9A227;margin-top:7px;flex-shrink:0}
 .s5-tt{font-size:13px;font-weight:600;color:#EEEADF;margin-bottom:2px}
@@ -206,8 +206,8 @@ html,body{height:100%;overflow:hidden;background:#03060E;color:#EEEADF;font-fami
 .s5-code span{color:rgba(238,234,223,.3)}
 
 /* ── SLIDE 6 — HACKATHON ── */
-.s6{flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center}
-.s6-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(26px,4vw,50px);letter-spacing:-.035em;line-height:1.05}
+.s6{flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.s6-h{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(19px,2.8vw,36px);letter-spacing:-.025em;line-height:1.1}
 .s6-tracks{display:flex;flex-direction:column;gap:10px;width:100%;max-width:580px;text-align:left}
 .s6t{display:flex;align-items:center;gap:16px;padding:18px 22px;border-radius:16px}
 .s6t.p{background:rgba(201,162,39,.06);border:1px solid rgba(201,162,39,.25)}
@@ -224,7 +224,7 @@ html,body{height:100%;overflow:hidden;background:#03060E;color:#EEEADF;font-fami
 
 /* ── SLIDE 7 — CTA ── */
 .s7{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:0}
-.s7-url{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,6vw,72px);letter-spacing:-.04em;color:#C9A227;line-height:1;margin:12px 0 4px}
+.s7-url{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(22px,4vw,52px);letter-spacing:-.03em;color:#C9A227;line-height:1;margin:10px 0 4px}
 .s7-note{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(238,234,223,.28);margin-bottom:28px}
 .s7-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:28px}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border-radius:12px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;text-decoration:none;transition:all .18s;border:none;cursor:pointer}
