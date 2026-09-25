@@ -243,19 +243,18 @@ function HologramLogo() {
           aria-hidden
         />
 
-        {/* logo frame — sin rounded-full para mostrar la imagen completa */}
+        {/* logo frame — círculo */}
         <div
-          className="holo-sheen relative overflow-hidden"
+          className="holo-sheen relative overflow-hidden rounded-full"
           style={{
-            width: 290,
-            height: 290,
-            borderRadius: 24,
-            background: "radial-gradient(circle at 40% 30%, rgba(201,162,39,.10) 0%, rgba(10,26,51,.92) 60%)",
+            width: 260,
+            height: 260,
+            background: "radial-gradient(circle at 40% 30%, rgba(201,162,39,.12) 0%, rgba(10,26,51,.95) 60%)",
             boxShadow: `
-              0 0 0 1.5px rgba(201,162,39,.55),
-              0 0 50px rgba(201,162,39,.28),
-              0 0 100px rgba(201,162,39,.10),
-              inset 0 0 50px rgba(201,162,39,.05)
+              0 0 0 1.5px rgba(201,162,39,.5),
+              0 0 40px rgba(201,162,39,.25),
+              0 0 80px rgba(201,162,39,.10),
+              inset 0 0 40px rgba(201,162,39,.06)
             `,
           }}
         >
@@ -281,13 +280,13 @@ function HologramLogo() {
             aria-hidden
           />
 
-          {/* main image — object-contain para no recortar */}
+          {/* main image */}
           <Image
             src="/logo-panther.webp"
             alt="FYV Box Pantera"
-            width={290}
-            height={290}
-            className="h-full w-full object-contain"
+            width={260}
+            height={260}
+            className="h-full w-full object-cover"
             style={{
               filter: "brightness(1.1) contrast(1.05)",
               animation: "glitch-1 9s step-end infinite",
@@ -500,8 +499,8 @@ export default function LandingPage() {
         className="fixed top-0 inset-x-0 z-50 flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--navy)]/80 px-5 py-3 backdrop-blur-lg sm:px-10"
       >
         <div className="flex items-center gap-2.5">
-          <div className="h-7 w-7 overflow-hidden rounded-lg">
-            <Image src="/logo-panther.webp" alt="" width={28} height={28} className="object-contain" />
+          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-[var(--border-gold)] bg-[var(--surface)]">
+            <Image src="/logo-panther.webp" alt="" width={36} height={36} className="h-full w-full object-cover" />
           </div>
           <span className="font-playfair text-base font-bold text-[var(--cream)]">
             FYV<span className="text-[var(--gold)]"> Box</span>
@@ -538,10 +537,10 @@ export default function LandingPage() {
       </motion.nav>
 
       {/* ══ HERO — split 50/50 ════════════════════════════════════════════ */}
-      <section className="relative flex min-h-dvh flex-col pt-16 lg:flex-row">
+      <section className="relative flex min-h-dvh flex-row pt-16">
 
         {/* ── Mitad izquierda: Copy ───────────────────────────────────────── */}
-        <div className="flex w-full items-center justify-center px-8 py-16 lg:w-1/2 lg:min-h-[calc(100dvh-4rem)] lg:px-16">
+        <div className="flex w-1/2 items-center justify-center px-6 py-16 min-h-[calc(100dvh-4rem)] lg:px-16">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
@@ -620,7 +619,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="flex w-full items-center justify-center py-16 lg:w-1/2 lg:min-h-[calc(100dvh-4rem)]"
+          className="flex w-1/2 items-center justify-center py-16 min-h-[calc(100dvh-4rem)]"
         >
           <HologramLogo />
         </motion.div>
