@@ -114,8 +114,9 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="mb-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)]"
+              className="mb-8 rounded-2xl border border-[var(--border-gold)] bg-[var(--surface)] p-5 shadow-[var(--shadow-gold)]"
             >
+              {/* Header row */}
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
                   <h2 className="font-playfair text-xl font-bold text-[var(--cream)]">
@@ -125,28 +126,67 @@ export default function DashboardPage() {
                     {completedCount} de {totalMissions} misiones completadas
                   </p>
                 </div>
-                <div className="flex shrink-0 flex-col items-end gap-1.5">
-                  <div className="flex items-center gap-1.5 rounded-full border border-[var(--border-gold)] bg-[var(--gold-subtle)] px-3 py-1">
-                    <Star className="h-3.5 w-3.5 text-[var(--gold)]" strokeWidth={2} />
-                    <span className="text-xs font-bold text-[var(--gold)]">{totalXP} XP</span>
-                  </div>
-                  {completedCount > 0 && (
-                    <Link
-                      href="/graduation"
-                      className="flex items-center gap-1 text-xs text-[var(--cream-muted)] hover:text-[var(--gold)] transition-colors"
-                    >
-                      <Award className="h-3 w-3" />
-                      Credenciales
-                    </Link>
-                  )}
+                <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--border-gold)] bg-[var(--gold-subtle)] px-3 py-1">
+                  <Star className="h-3.5 w-3.5 text-[var(--gold)]" strokeWidth={2} fill="currentColor" />
+                  <span className="text-sm font-bold text-[var(--gold)]">{totalXP} XP</span>
                 </div>
               </div>
+
+              {/* Global bar */}
               <ProgressBar
                 value={progressPct}
                 label={`${progressPct}% completado`}
                 size="md"
                 color={progressPct === 100 ? "success" : "gold"}
               />
+
+              {/* Per-track mini bars */}
+              {activeTracks.length > 0 && (
+                <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+                  {activeTracks.map((g) => {
+                    const meta = TrackMeta[g.track];
+                    const done = g.missions.filter((m) => g.completed.includes(m.id)).length;
+                    const total = g.missions.filter((m) => !m.comingSoon).length;
+                    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+                    return (
+                      <div key={g.track}>
+                        <div className="mb-1 flex items-center justify-between">
+                          <span className="text-[10px] font-medium text-[var(--cream-muted)] truncate pr-1">
+                            {meta.label}
+                          </span>
+                          <span className="text-[10px] text-[var(--cream-muted)] shrink-0">
+                            {done}/{total}
+                          </span>
+                        </div>
+                        <ProgressBar
+                          value={pct}
+                          size="sm"
+                          color={pct === 100 ? "success" : "gold"}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Graduation CTA */}
+              {progressPct === 100 ? (
+                <Link
+                  href="/graduation"
+                  className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-[var(--success)] px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                >
+                  <Award className="h-4 w-4" />
+                  Ver mis credenciales →
+                </Link>
+              ) : completedCount > 0 ? (
+                <Link
+                  href="/graduation"
+                  className="mt-4 flex items-center gap-2 rounded-xl border border-[var(--border-gold)] px-4 py-2 text-xs text-[var(--gold)] transition-colors hover:bg-[var(--gold-subtle)]"
+                >
+                  <Award className="h-3.5 w-3.5" />
+                  Ver credenciales parciales
+                </Link>
+              ) : null}
             </motion.div>
 
             {/* Track groups */}

@@ -1,6 +1,8 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Shield, ArrowLeft, BarChart2, LogOut } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Shield, ArrowLeft, BarChart2, LogOut, Sun, Moon } from "lucide-react";
 import { WalletIndicator } from "./WalletIndicator";
 import type { WalletIdentity } from "@/identity/interface";
 
@@ -11,6 +13,45 @@ interface Props {
   wallet?: WalletIdentity | null;
   showStats?: boolean;
   showLogout?: boolean;
+}
+
+function ThemeToggle() {
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("fyv-theme");
+      if (stored === "light" || stored === "dark") setTheme(stored);
+    } catch {}
+  }, []);
+
+  function toggle() {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    try { localStorage.setItem("fyv-theme", next); } catch {}
+    document.documentElement.setAttribute("data-theme", next);
+  }
+
+  return (
+    <button
+      onClick={toggle}
+      aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+      className="rounded-lg border border-[var(--border)] p-1.5 text-[var(--cream-muted)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--cream)]"
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={theme}
+          initial={{ opacity: 0, rotate: -90, scale: 0.6 }}
+          animate={{ opacity: 1, rotate: 0, scale: 1 }}
+          exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className="block"
+        >
+          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </motion.span>
+      </AnimatePresence>
+    </button>
+  );
 }
 
 export function AppNav({ back, wallet, showStats = false, showLogout = false }: Props) {
@@ -40,7 +81,7 @@ export function AppNav({ back, wallet, showStats = false, showLogout = false }: 
       )}
 
       {/* Right */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {wallet && (
           <WalletIndicator publicKey={wallet.publicKey} provider={wallet.provider} />
         )}
@@ -53,6 +94,7 @@ export function AppNav({ back, wallet, showStats = false, showLogout = false }: 
             <span className="hidden sm:inline">Stats</span>
           </Link>
         )}
+        <ThemeToggle />
         {showLogout && (
           <Link
             href="/"

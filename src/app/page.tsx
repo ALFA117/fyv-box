@@ -175,15 +175,6 @@ function HologramLogo() {
         priority
       />
 
-      {/* línea de scan horizontal sutil */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-0 right-0 z-20 h-px"
-        style={{
-          background: "linear-gradient(90deg, transparent, rgba(201,162,39,.6), transparent)",
-          animation: "scan-v 3.5s linear infinite",
-        }}
-      />
     </div>
   );
 }
@@ -416,10 +407,10 @@ export default function LandingPage() {
       </motion.nav>
 
       {/* ══ HERO — split 50/50 ════════════════════════════════════════════ */}
-      <section className="relative flex min-h-dvh flex-row pt-16">
+      <section className="relative flex h-dvh flex-row pt-16">
 
         {/* ── Mitad izquierda: Copy ───────────────────────────────────────── */}
-        <div className="flex w-1/2 items-center justify-center px-6 py-16 min-h-[calc(100dvh-4rem)] lg:px-16">
+        <div className="flex h-full w-1/2 items-center justify-center overflow-y-auto px-6 lg:px-16">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
@@ -494,7 +485,7 @@ export default function LandingPage() {
         />
 
         {/* ── Mitad derecha: Logo ─────────────────────────────────────────── */}
-        <div className="flex w-1/2 items-center justify-center py-16 min-h-[calc(100dvh-4rem)]">
+        <div className="flex h-full w-1/2 items-center justify-center">
           <HologramLogo />
         </div>
 

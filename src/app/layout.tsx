@@ -57,6 +57,14 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable} ${plexMono.variable}`}
       data-theme="dark"
     >
+      <head>
+        {/* Lee el tema de localStorage ANTES de que React hidrate → sin flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('fyv-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body>
         <ToastProvider>{children}</ToastProvider>
       </body>
