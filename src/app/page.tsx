@@ -362,40 +362,97 @@ export default function LandingPage() {
       {/* Particle canvas */}
       <ParticleCanvas />
 
-      {/* Background adaptativo dark/light */}
+      {/* Background 3D adaptativo dark/light */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         {theme === "dark" ? (
           <>
-            {/* base deep-space */}
             <div className="absolute inset-0"
-              style={{ background: "radial-gradient(ellipse 120% 80% at 50% -10%, rgba(14,30,60,.95) 0%, #0A1A33 60%)" }} />
-            {/* glow dorado central */}
+              style={{ background: "radial-gradient(ellipse 120% 80% at 50% -10%, rgba(14,30,60,.97) 0%, #0A1A33 55%)" }} />
             <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/4 -translate-y-1/2 rounded-full bg-yellow-600/8 blur-[120px]" />
-            {/* acento azul derecha */}
             <div className="absolute right-0 top-1/2 h-[500px] w-[500px] -translate-y-1/3 rounded-full bg-blue-900/25 blur-[130px]" />
-            {/* acento esmeralda abajo */}
-            <div className="absolute bottom-0 left-1/4 h-80 w-[500px] rounded-full bg-emerald-900/15 blur-[110px]" />
-            {/* grid dorado sutil */}
-            <div className="absolute inset-0 opacity-[0.035]"
+            <div className="absolute bottom-0 left-1/4 h-80 w-[500px] rounded-full bg-emerald-900/12 blur-[110px]" />
+            <div className="absolute inset-0 opacity-[0.03]"
               style={{ backgroundImage: "linear-gradient(rgba(201,162,39,1) 1px,transparent 1px),linear-gradient(90deg,rgba(201,162,39,1) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
           </>
         ) : (
           <>
-            {/* base warm paper */}
             <div className="absolute inset-0"
               style={{ background: "linear-gradient(160deg, #FDFCF8 0%, #F8F3E8 40%, #EFE8D8 100%)" }} />
-            {/* resplandor cálido centro-derecha (detrás del logo) */}
             <div className="absolute right-0 top-1/2 h-[560px] w-[560px] -translate-y-1/2 -translate-x-1/4 rounded-full bg-amber-300/20 blur-[130px]" />
-            {/* acento dorado top-left */}
             <div className="absolute left-0 top-0 h-[400px] w-[400px] -translate-x-1/3 -translate-y-1/3 rounded-full bg-yellow-400/12 blur-[100px]" />
-            {/* sombra suave abajo */}
-            <div className="absolute bottom-0 inset-x-0 h-48"
-              style={{ background: "linear-gradient(to top, rgba(180,140,60,.08), transparent)" }} />
-            {/* grid ámbar muy sutil */}
-            <div className="absolute inset-0 opacity-[0.04]"
+            <div className="absolute inset-0 opacity-[0.035]"
               style={{ backgroundImage: "linear-gradient(rgba(100,65,5,1) 1px,transparent 1px),linear-gradient(90deg,rgba(100,65,5,1) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
           </>
         )}
+
+        {/* Formas 3D flotantes — dark y light */}
+        <svg
+          className="absolute inset-0 h-full w-full"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice"
+          viewBox="0 0 1200 900"
+        >
+          {theme === "dark" ? (
+            <>
+              {/* Cubo grande — esquina superior derecha */}
+              <g style={{ animation: "float-3d 10s ease-in-out infinite", transformOrigin: "950px 160px" }}>
+                <polygon points="950,80 1030,118 1030,118 950,156 870,118" fill="rgba(201,162,39,.10)" stroke="rgba(201,162,39,.35)" strokeWidth="1"/>
+                <polygon points="870,118 950,156 950,232 870,194" fill="rgba(201,162,39,.055)" stroke="rgba(201,162,39,.25)" strokeWidth="1"/>
+                <polygon points="1030,118 950,156 950,232 1030,194" fill="rgba(201,162,39,.08)" stroke="rgba(201,162,39,.30)" strokeWidth="1"/>
+              </g>
+              {/* Cubo pequeño — izquierda media */}
+              <g style={{ animation: "float-3d-rev 13s ease-in-out infinite 1s", transformOrigin: "110px 420px" }}>
+                <polygon points="110,368 158,391 158,391 110,414 62,391" fill="rgba(80,140,255,.08)" stroke="rgba(80,140,255,.28)" strokeWidth="1"/>
+                <polygon points="62,391 110,414 110,461 62,438" fill="rgba(80,140,255,.04)" stroke="rgba(80,140,255,.20)" strokeWidth="1"/>
+                <polygon points="158,391 110,414 110,461 158,438" fill="rgba(80,140,255,.06)" stroke="rgba(80,140,255,.24)" strokeWidth="1"/>
+              </g>
+              {/* Esfera — derecha media */}
+              <g style={{ animation: "float-3d 7s ease-in-out infinite 2.5s", transformOrigin: "1080px 430px" }}>
+                <circle cx="1080" cy="430" r="58" fill="rgba(201,162,39,.04)" stroke="rgba(201,162,39,.22)" strokeWidth="1.2"/>
+                <ellipse cx="1080" cy="430" rx="58" ry="19" fill="none" stroke="rgba(201,162,39,.14)" strokeWidth="1"/>
+                <line x1="1080" y1="372" x2="1080" y2="488" stroke="rgba(201,162,39,.12)" strokeWidth="1"/>
+              </g>
+              {/* Hexágono — izquierda arriba */}
+              <g style={{ animation: "float-3d-rev 15s ease-in-out infinite 0.5s", transformOrigin: "155px 190px" }}>
+                <polygon points="155,148 196,170 196,214 155,236 114,214 114,170" fill="none" stroke="rgba(201,162,39,.28)" strokeWidth="1.4"/>
+                <polygon points="155,160 188,179 188,209 155,228 122,209 122,179" fill="rgba(201,162,39,.04)"/>
+              </g>
+              {/* Diamante — centro-arriba */}
+              <g style={{ animation: "float-3d 8s ease-in-out infinite 4s", transformOrigin: "600px 80px" }}>
+                <polygon points="600,44 644,80 600,116 556,80" fill="none" stroke="rgba(80,180,255,.25)" strokeWidth="1.4"/>
+                <polygon points="600,56 635,80 600,104 565,80" fill="rgba(80,180,255,.05)"/>
+              </g>
+              {/* Cubo chico — abajo derecha */}
+              <g style={{ animation: "float-3d 12s ease-in-out infinite 3s", transformOrigin: "1050px 760px" }}>
+                <polygon points="1050,724 1084,742 1084,742 1050,760 1016,742" fill="rgba(61,184,130,.07)" stroke="rgba(61,184,130,.25)" strokeWidth="1"/>
+                <polygon points="1016,742 1050,760 1050,796 1016,778" fill="rgba(61,184,130,.035)" stroke="rgba(61,184,130,.18)" strokeWidth="1"/>
+                <polygon points="1084,742 1050,760 1050,796 1084,778" fill="rgba(61,184,130,.05)" stroke="rgba(61,184,130,.20)" strokeWidth="1"/>
+              </g>
+            </>
+          ) : (
+            <>
+              {/* Light mode — tones más cálidos y suaves */}
+              <g style={{ animation: "float-3d 10s ease-in-out infinite", transformOrigin: "950px 160px" }}>
+                <polygon points="950,80 1030,118 1030,118 950,156 870,118" fill="rgba(140,90,5,.07)" stroke="rgba(140,90,5,.25)" strokeWidth="1"/>
+                <polygon points="870,118 950,156 950,232 870,194" fill="rgba(140,90,5,.035)" stroke="rgba(140,90,5,.18)" strokeWidth="1"/>
+                <polygon points="1030,118 950,156 950,232 1030,194" fill="rgba(140,90,5,.055)" stroke="rgba(140,90,5,.22)" strokeWidth="1"/>
+              </g>
+              <g style={{ animation: "float-3d-rev 13s ease-in-out infinite 1s", transformOrigin: "110px 420px" }}>
+                <polygon points="110,368 158,391 158,391 110,414 62,391" fill="rgba(60,100,180,.06)" stroke="rgba(60,100,180,.20)" strokeWidth="1"/>
+                <polygon points="62,391 110,414 110,461 62,438" fill="rgba(60,100,180,.03)" stroke="rgba(60,100,180,.14)" strokeWidth="1"/>
+                <polygon points="158,391 110,414 110,461 158,438" fill="rgba(60,100,180,.045)" stroke="rgba(60,100,180,.17)" strokeWidth="1"/>
+              </g>
+              <g style={{ animation: "float-3d-rev 15s ease-in-out infinite 0.5s", transformOrigin: "155px 190px" }}>
+                <polygon points="155,148 196,170 196,214 155,236 114,214 114,170" fill="none" stroke="rgba(140,90,5,.20)" strokeWidth="1.4"/>
+                <polygon points="155,160 188,179 188,209 155,228 122,209 122,179" fill="rgba(140,90,5,.03)"/>
+              </g>
+              <g style={{ animation: "float-3d 8s ease-in-out infinite 4s", transformOrigin: "600px 80px" }}>
+                <polygon points="600,44 644,80 600,116 556,80" fill="none" stroke="rgba(60,100,180,.20)" strokeWidth="1.4"/>
+                <polygon points="600,56 635,80 600,104 565,80" fill="rgba(60,100,180,.04)"/>
+              </g>
+            </>
+          )}
+        </svg>
       </div>
 
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
@@ -460,8 +517,8 @@ export default function LandingPage() {
               Stellar Testnet · Sin fondos reales
             </motion.div>
 
-            <h1 className="font-playfair text-4xl font-bold leading-[1.1] tracking-tight text-[var(--cream)] sm:text-5xl lg:text-5xl">
-              Aprende a no caer<br />
+            <h1 className="font-playfair text-[2.35rem] font-bold leading-[1.1] tracking-tight text-[var(--cream)] sm:text-5xl lg:text-5xl">
+              No caigas en<br />
               <span
                 className="bg-clip-text text-transparent"
                 style={{
@@ -472,7 +529,7 @@ export default function LandingPage() {
                   animation: "holo-rotate 4s linear infinite",
                 }}
               >
-                en estafas crypto
+                estafas crypto
               </span>
             </h1>
 
