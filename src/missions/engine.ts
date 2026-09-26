@@ -43,6 +43,16 @@ export function getMission(id: string): Mission | undefined {
   return loadCatalog().find((m) => m.id === id);
 }
 
+export type PublicMission = Omit<Mission, "options" | "explanation"> & {
+  options: { id: string; label: string }[];
+};
+
+/** Catalog as sent to the browser: no correct answers, no explanations. */
+export function toPublicMission(m: Mission): PublicMission {
+  const { explanation: _e, options, ...rest } = m;
+  return { ...rest, options: options.map(({ id, label }) => ({ id, label })) };
+}
+
 export function getMissionsByTrack(track: Mission["track"]): Mission[] {
   return loadCatalog().filter((m) => m.track === track);
 }

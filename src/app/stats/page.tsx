@@ -1,10 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { TrendingUp, Users, AlertTriangle, Loader2, BarChart3, Flame } from "lucide-react";
-import { TrackMeta } from "@/missions/schema";
-import type { Mission } from "@/missions/schema";
+import { TrendingUp, Users, AlertTriangle, BarChart3, Flame, WifiOff } from "lucide-react";
+import Link from "next/link";
+import { TrackMeta, type Mission } from "@/missions/schema";
 import { TrackIconBadge } from "@/components/TrackIcon";
+import { StatePanel } from "@/components/StatePanel";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/Skeleton";
 import { AppNav } from "@/components/AppNav";
 
 interface TrackStat {
@@ -14,178 +17,167 @@ interface TrackStat {
   trapRate: number;
 }
 
-const containerVariants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
-};
+interface StatsResponse {
+  stats: TrackStat[];
+  uniqueUsers: number;
+  generatedAt: string;
+}
+
+const containerVariants = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const itemVariants = {
-  hidden: { opacity: 0, x: -16 },
-  show:   { opacity: 1, x: 0,   transition: { type: "spring" as const, stiffness: 280, damping: 26 } },
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 280, damping: 26 } },
 };
+
+type LoadState = { kind: "loading" } | { kind: "ready"; data: StatsResponse } | { kind: "error"; message: string };
 
 export default function StatsPage() {
   const reduce = useReducedMotion();
-  const [stats, setStats]             = useState<TrackStat[]>([]);
-  const [generatedAt, setGeneratedAt] = useState<string | null>(null);
-  const [loading, setLoading]         = useState(true);
+  const [state, setState] = useState<LoadState>({ kind: "loading" });
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
-    fetch("/api/stats")
-      .then((r) => r.json())
-      .then((d) => {
-        setStats(d.stats ?? []);
-        setGeneratedAt(d.generatedAt ?? null);
-        setLoading(false);
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    setState({ kind: "loading" });
+    fetch("/api/stats", { signal: ctrl.signal })
+      .then(async (r) => {
+        const d = await r.json().catch(() => null);
+        if (!r.ok || !d || !Array.isArray(d.stats)) throw new Error(d?.error ?? "No pudimos cargar las estadísticas.");
+        setState({ kind: "ready", data: d as StatsResponse });
       })
-      .catch(() => setLoading(false));
-  }, []);
+      .catch((err: Error) => {
+        if (err.name === "AbortError" && !ctrl.signal.reason) return;
+        setState({ kind: "error", message: err.name === "AbortError" ? "El servidor tardó demasiado en responder." : err.message });
+      })
+      .finally(() => clearTimeout(timer));
+    return () => { clearTimeout(timer); ctrl.abort("unmount"); };
+  }, [retryKey]);
 
-  const totalUsers = Math.max(...(stats.map((s) => s.totalUsers).concat([0])));
-  const avgTrapRate =
-    stats.length > 0
-      ? Math.round(stats.reduce((a, s) => a + s.trapRate, 0) / stats.length)
-      : 0;
-
-  const hardestTrack = stats.length > 0
-    ? stats.reduce((a, b) => b.trapRate > a.trapRate ? b : a, stats[0])
-    : null;
+  const stats = state.kind === "ready" ? [...state.data.stats].sort((a, b) => b.trapRate - a.trapRate) : [];
+  const avgTrapRate = stats.length > 0 ? Math.round(stats.reduce((a, s) => a + s.trapRate, 0) / stats.length) : 0;
+  const hardest = stats[0];
 
   return (
-    <div className="min-h-dvh pb-24">
-      <AppNav back="/dashboard" />
+    <div className="min-h-dvh">
+      <AppNav back={{ href: "/dashboard", label: "Mapa" }} />
 
-      <div className="px-4 py-6 sm:px-6">
+      <main id="main" tabIndex={-1} className="outline-none px-gutter pb-safe pt-6">
         <div className="mx-auto max-w-lg">
-
-          {/* Header */}
-          <motion.div
-            className="mb-6"
-            initial={reduce ? false : { opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={reduce ? { duration: 0 } : { duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          >
+          <header className="mb-6">
             <div className="mb-1 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-[var(--gold)]" strokeWidth={1.75} />
-              <h1 className="font-playfair text-2xl font-bold text-[var(--cream)]">Estadísticas</h1>
+              <BarChart3 className="h-6 w-6 text-gold" strokeWidth={1.75} aria-hidden />
+              <h1 className="text-title-1 text-cream">Estadísticas</h1>
             </div>
-            <p className="text-sm text-[var(--cream-muted)]">¿En qué trampa cae más la gente?</p>
-            {generatedAt && (
-              <p className="mt-1 text-[10px] text-[var(--cream-muted)]/50">
-                Actualizado {new Date(generatedAt).toLocaleString("es-MX")}
+            <p className="text-body-sm text-cream-muted">¿En qué trampa cae más la gente al primer intento?</p>
+            {state.kind === "ready" && (
+              <p className="mt-1 text-xs text-cream-dim">
+                Datos reales · actualizado{" "}
+                <time dateTime={state.data.generatedAt}>{new Date(state.data.generatedAt).toLocaleString("es-MX")}</time>
               </p>
             )}
-          </motion.div>
+          </header>
 
-          {loading ? (
-            <div className="space-y-4">
+          {state.kind === "loading" ? (
+            <div className="space-y-4" role="status" aria-label="Cargando estadísticas">
               <div className="grid grid-cols-3 gap-3">
-                {[0, 1, 2].map((i) => <div key={i} className="skeleton h-24 rounded-2xl" />)}
+                {[0, 1, 2].map((i) => <Skeleton key={i} className="h-28" rounded="lg" />)}
               </div>
-              {[0, 1, 2].map((i) => <div key={i} className="skeleton h-24 rounded-2xl" />)}
-              <div className="flex justify-center pt-2">
-                <Loader2 className="h-5 w-5 animate-spin text-[var(--cream-muted)]" />
-              </div>
+              {[0, 1, 2].map((i) => <Skeleton key={i} className="h-24" rounded="lg" />)}
             </div>
+          ) : state.kind === "error" ? (
+            <StatePanel
+              tone="danger"
+              icon={WifiOff}
+              title="No se pudieron cargar las estadísticas"
+              body={state.message}
+              action={<Button variant="secondary" onClick={() => setRetryKey((k) => k + 1)}>Reintentar</Button>}
+            />
           ) : stats.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center gap-5 rounded-3xl border border-[var(--border)] bg-[var(--surface)] py-16 text-center"
-            >
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--navy)]">
-                <TrendingUp className="h-8 w-8 text-[var(--cream-muted)]" strokeWidth={1.25} />
-              </div>
-              <div className="space-y-1 px-6">
-                <p className="font-playfair text-lg font-bold text-[var(--cream)]">Sin datos aún</p>
-                <p className="text-sm text-[var(--cream-muted)]">
-                  ¡Sé el primero en entrenar y aparecer aquí!
-                </p>
-              </div>
-            </motion.div>
+            <StatePanel
+              icon={TrendingUp}
+              title="Todavía no hay datos"
+              body="Las estadísticas aparecen en cuanto alguien responde su primera misión."
+              action={
+                <Link href="/dashboard" className="flex min-h-[48px] items-center rounded-xl bg-gold px-5 text-sm font-semibold text-on-gold hover:bg-gold-hover">
+                  Responder una misión
+                </Link>
+              }
+            />
           ) : (
             <div className="space-y-5">
-              {/* Summary cards */}
               <motion.div
                 initial={reduce ? false : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={reduce ? { duration: 0 } : { duration: 0.4 }}
-                className="grid grid-cols-3 gap-3"
+                transition={reduce ? { duration: 0 } : { duration: 0.35 }}
+                className="grid grid-cols-3 gap-2.5 sm:gap-3"
               >
                 {[
-                  { icon: Users,         value: String(totalUsers),    label: "Usuarios",         accent: "text-blue-400" },
-                  { icon: AlertTriangle, value: `${avgTrapRate}%`,     label: "Tasa promedio",    accent: "text-[var(--amber)]" },
-                  { icon: Flame,         value: hardestTrack ? `${hardestTrack.trapRate}%` : "—", label: "Track más difícil", accent: "text-[var(--danger)]" },
-                ].map(({ icon: Icon, value, label, accent }) => (
-                  <div
-                    key={label}
-                    className="flex flex-col items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-2 py-5"
-                  >
-                    <Icon className={`h-5 w-5 ${accent}`} strokeWidth={1.75} />
-                    <p className={`font-playfair text-xl font-bold tabular-nums ${accent}`}>{value}</p>
-                    <p className="text-center text-[10px] leading-tight text-[var(--cream-muted)]">{label}</p>
+                  { icon: Users, value: String(state.kind === "ready" ? state.data.uniqueUsers : 0), label: "Personas", tone: "text-info" },
+                  { icon: AlertTriangle, value: `${avgTrapRate}%`, label: "Caen en promedio", tone: "text-amber" },
+                  { icon: Flame, value: hardest ? `${hardest.trapRate}%` : "—", label: "Track más difícil", tone: "text-danger" },
+                ].map(({ icon: Icon, value, label, tone }) => (
+                  <div key={label} className="flex flex-col items-center gap-1.5 rounded-2xl border border-line bg-surface px-2 py-4 text-center">
+                    <Icon className={`h-5 w-5 ${tone}`} strokeWidth={1.75} aria-hidden />
+                    <p className={`font-display text-xl font-bold tabular-nums ${tone}`}>{value}</p>
+                    <p className="text-xs leading-tight text-cream-muted">{label}</p>
                   </div>
                 ))}
               </motion.div>
 
-              {/* Per-track bars */}
-              <motion.div
+              <motion.ul
                 variants={reduce ? undefined : containerVariants}
                 initial={reduce ? false : "hidden"}
                 animate={reduce ? undefined : "show"}
                 className="space-y-3"
               >
-                {stats
-                  .sort((a, b) => b.trapRate - a.trapRate)
-                  .map((stat) => {
-                    const meta       = TrackMeta[stat.track as Mission["track"]];
-                    const isHigh     = stat.trapRate >= 60;
-                    const isMedium   = stat.trapRate >= 30;
-                    const barColor   = isHigh   ? "bg-[var(--danger)]"  : isMedium ? "bg-[var(--amber)]"  : "bg-[var(--success)]";
-                    const badgeClass = isHigh
-                      ? "text-[var(--danger)]  bg-[var(--danger-subtle)]  border-[var(--danger-border)]"
-                      : isMedium
-                      ? "text-[var(--amber)]   bg-[var(--amber-subtle)]   border-[var(--amber-border)]"
-                      : "text-[var(--success)] bg-[var(--success-subtle)] border-[var(--success-border)]";
+                {stats.map((stat) => {
+                  const known = stat.track in TrackMeta;
+                  const track = stat.track as Mission["track"];
+                  const tone = stat.trapRate >= 60 ? "danger" : stat.trapRate >= 30 ? "amber" : "success";
+                  const bar = { danger: "bg-danger", amber: "bg-amber", success: "bg-success" }[tone];
+                  const chip = {
+                    danger: "text-danger bg-danger-subtle border-danger-border",
+                    amber: "text-amber bg-amber-subtle border-amber-border",
+                    success: "text-success bg-success-subtle border-success-border",
+                  }[tone];
 
-                    return (
-                      <motion.div
-                        key={stat.track}
-                        variants={itemVariants}
-                        className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-sm)]"
+                  return (
+                    <motion.li
+                      key={stat.track}
+                      variants={reduce ? undefined : itemVariants}
+                      className="rounded-2xl border border-line bg-surface p-4 shadow-[var(--shadow-sm)] sm:p-5"
+                    >
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          {known && <TrackIconBadge track={track} size={36} />}
+                          <span className="text-sm font-semibold text-cream">{known ? TrackMeta[track].label : stat.track}</span>
+                        </div>
+                        <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-bold ${chip}`}>{stat.trapRate}% caen</span>
+                      </div>
+                      <div
+                        className="h-2 w-full overflow-hidden rounded-full bg-line"
+                        role="img"
+                        aria-label={`${stat.trapRate}% cayó en la trampa`}
                       >
-                        <div className="mb-3 flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-3">
-                            <TrackIconBadge track={stat.track as Mission["track"]} size={16} />
-                            <span className="text-sm font-semibold text-[var(--cream)]">
-                              {meta?.label ?? stat.track}
-                            </span>
-                          </div>
-                          <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${badgeClass}`}>
-                            {stat.trapRate}% caen
-                          </span>
-                        </div>
-
-                        <div className="relative h-2 w-full overflow-hidden rounded-full bg-white/8">
-                          <motion.div
-                            className={`h-full rounded-full ${barColor}`}
-                            initial={reduce ? false : { width: 0 }}
-                            animate={{ width: `${stat.trapRate}%` }}
-                            transition={reduce ? { duration: 0 } : { duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                          />
-                        </div>
-
-                        <p className="mt-2 text-xs text-[var(--cream-muted)]">
-                          {stat.fellForTrap} de {stat.totalUsers} usuario{stat.totalUsers !== 1 ? "s" : ""}{" "}
-                          cayó al primer intento
-                        </p>
-                      </motion.div>
-                    );
-                  })}
-              </motion.div>
+                        <motion.div
+                          className={`h-full origin-left rounded-full ${bar}`}
+                          initial={reduce ? false : { scaleX: 0 }}
+                          animate={{ scaleX: stat.trapRate / 100 }}
+                          transition={reduce ? { duration: 0 } : { duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                        />
+                      </div>
+                      <p className="mt-2 text-xs text-cream-muted">
+                        {stat.fellForTrap} de {stat.totalUsers} {stat.totalUsers === 1 ? "persona cayó" : "personas cayeron"} al primer intento
+                      </p>
+                    </motion.li>
+                  );
+                })}
+              </motion.ul>
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

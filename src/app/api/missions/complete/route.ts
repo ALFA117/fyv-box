@@ -1,91 +1,110 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { getMission, evaluateMission, getCertifiableModules } from "@/missions/engine";
 import { getRegistry } from "@/registry";
 import { supabaseServer } from "@/lib/supabase";
-import { z } from "zod";
+import { OWNERSHIP_MAX_AGE_MS, STELLAR_ADDRESS_RE, completionMessage } from "@/lib/ownership";
 
 const BodySchema = z.object({
-  stellarAddress: z.string().regex(/^G[A-Z2-7]{55}$/),
-  missionId: z.string(),
-  selectedOptionId: z.string(),
-  orgSlug: z.string().default("criptounam"),
+  stellarAddress: z.string().regex(STELLAR_ADDRESS_RE),
+  missionId: z.string().regex(/^[a-z0-9-]{1,64}$/),
+  selectedOptionId: z.string().regex(/^[a-z0-9]{1,8}$/),
+  issuedAt: z.number().int().positive(),
+  signature: z.string().min(40).max(200),
+  orgSlug: z.string().regex(/^[a-z0-9-]{1,40}$/).default("criptounam"),
 });
+
+function fail(status: number, error: string) {
+  return NextResponse.json({ error }, { status });
+}
+
+async function verifyOwnership(p: z.infer<typeof BodySchema>): Promise<boolean> {
+  if (Math.abs(Date.now() - p.issuedAt) > OWNERSHIP_MAX_AGE_MS) return false;
+  try {
+    const { Keypair } = await import("@stellar/stellar-sdk");
+    const sig = Uint8Array.from(Buffer.from(p.signature, "base64"));
+    return Keypair.fromPublicKey(p.stellarAddress).verifyMessage(completionMessage(p), sig);
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(req: NextRequest) {
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
+    return fail(400, "La solicitud no es JSON válido.");
   }
 
   const parsed = BodySchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  if (!parsed.success) return fail(400, "Datos incompletos o con formato inválido.");
+  const input = parsed.data;
+
+  const mission = getMission(input.missionId);
+  if (!mission) return fail(404, "Esta misión no existe.");
+
+  const selectedOption = mission.options.find((o) => o.id === input.selectedOptionId);
+  if (!selectedOption) return fail(400, "La opción elegida no pertenece a esta misión.");
+
+  if (!(await verifyOwnership(input))) {
+    return fail(401, "No pudimos comprobar que esta dirección es tuya. Recarga la página e intenta de nuevo.");
   }
 
-  const { stellarAddress, missionId, selectedOptionId, orgSlug } = parsed.data;
-
-  const mission = getMission(missionId);
-  if (!mission) {
-    return NextResponse.json({ error: "mission not found" }, { status: 404 });
-  }
-
+  const { stellarAddress, missionId, selectedOptionId, orgSlug } = input;
   const result = evaluateMission(mission, selectedOptionId);
-
   const db = supabaseServer();
 
-  // Track progress (for /stats)
-  const selectedOption = mission.options.find((o) => o.id === selectedOptionId);
-  await db.from("fyv_mission_progress").insert({
+  const { error: progressError } = await db.from("fyv_mission_progress").insert({
     stellar_address: stellarAddress,
     mission_id: missionId,
     track: mission.track,
     fell_for_trap: !result.isCorrect,
     selected_option_id: selectedOptionId,
     org_slug: orgSlug,
-    created_at: new Date().toISOString(),
   });
+  if (progressError) {
+    console.error("[FYV] progress insert failed:", progressError.message);
+    return fail(503, "No pudimos guardar tu respuesta. Revisa tu conexión e intenta de nuevo.");
+  }
 
-  // If correct, record in registry and check for new certifications
-  let newCertifications: string[] = [];
+  const newCertifications: string[] = [];
   if (result.isCorrect) {
-    const registry = getRegistry();
-
-    // Upsert this mission as completed
-    await db.from("fyv_completed_missions").upsert(
-      {
-        stellar_address: stellarAddress,
-        mission_id: missionId,
-        org_slug: orgSlug,
-        completed_at: new Date().toISOString(),
-      },
-      { onConflict: "stellar_address,mission_id,org_slug" }
+    const { error: completeError } = await db.from("fyv_completed_missions").upsert(
+      { stellar_address: stellarAddress, mission_id: missionId, org_slug: orgSlug },
+      { onConflict: "stellar_address,mission_id,org_slug" },
     );
+    if (completeError) {
+      console.error("[FYV] completion upsert failed:", completeError.message);
+      return fail(503, "Acertaste, pero no pudimos guardar tu avance. Intenta de nuevo.");
+    }
 
-    // Check if a track is now fully complete
-    const { data: completedRows } = await db
-      .from("fyv_completed_missions")
-      .select("mission_id")
-      .eq("stellar_address", stellarAddress)
-      .eq("org_slug", orgSlug);
+    try {
+      const { data: completedRows, error } = await db
+        .from("fyv_completed_missions")
+        .select("mission_id")
+        .eq("stellar_address", stellarAddress)
+        .eq("org_slug", orgSlug);
+      if (error) throw new Error(error.message);
 
-    const completedIds = (completedRows ?? []).map((r: { mission_id: string }) => r.mission_id);
-    const certifiableNow = getCertifiableModules(completedIds);
-
-    // Record new modules in registry
-    const existingReadiness = await registry.getReadiness(stellarAddress);
-    for (const module of certifiableNow) {
-      if (!existingReadiness.isCertified(module)) {
-        await registry.recordCompletion({ stellarAddress, module, orgSlug });
-        newCertifications.push(module);
+      const completedIds = (completedRows ?? []).map((r: { mission_id: string }) => r.mission_id);
+      const registry = getRegistry();
+      const existing = await registry.getReadiness(stellarAddress);
+      for (const module of getCertifiableModules(completedIds)) {
+        if (!existing.isCertified(module)) {
+          await registry.recordCompletion({ stellarAddress, module, orgSlug });
+          newCertifications.push(module);
+        }
       }
+    } catch (err) {
+      console.error("[FYV] certification failed:", err instanceof Error ? err.message : err);
+      return fail(503, "Tu avance se guardó, pero la credencial no se pudo emitir. Vuelve a enviar la respuesta.");
     }
   }
 
   return NextResponse.json({
     ...result,
     newCertifications,
-    selectedOptionLabel: selectedOption?.label ?? "",
+    selectedOptionLabel: selectedOption.label,
   });
 }

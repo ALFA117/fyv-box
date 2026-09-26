@@ -408,7 +408,7 @@ const SLIDES=[
   <div class="s0-left">
     <div class="eye e1">CriptoUNAM × Semana DIE 2026</div>
     <h1 class="s0-h e2">Entrena para<br><em>no caer</em><br>en estafas<br>crypto</h1>
-    <p class="s0-sub e3">El primer simulador de fraudes Web3 que te certifica on-chain, construido sobre Stellar Testnet.</p>
+    <p class="s0-sub e3">Simulador de fraudes Web3 con credencial verificable ligada a tu dirección Stellar Testnet.</p>
     <div class="s0-tags e4">
       <span class="tag">Stellar · Soroban</span>
       <span class="tag">On-Chain</span>
@@ -458,7 +458,7 @@ const SLIDES=[
     <div class="s2-step">
       <div class="s2-icon" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22)">🏆</div>
       <div class="s2-sname" style="color:#4ade80">Certifícate</div>
-      <div class="s2-sdesc">NFT Soroban on-chain verificable por cualquier persona.</div>
+      <div class="s2-sdesc">Credencial verificable por cualquiera vía API pública.</div>
     </div>
   </div>
 </div>\`,
@@ -472,7 +472,7 @@ const SLIDES=[
       <div class="s3-feat"><div class="s3-dot"></div><span class="s3-txt">Misiones interactivas — toma decisiones como en el mundo real</span></div>
       <div class="s3-feat"><div class="s3-dot"></div><span class="s3-txt">Retroalimentación inmediata con explicación del fraude</span></div>
       <div class="s3-feat"><div class="s3-dot"></div><span class="s3-txt">Progreso guardado por clave pública en Supabase</span></div>
-      <div class="s3-feat"><div class="s3-dot"></div><span class="s3-txt">API pública para verificar graduación on-chain</span></div>
+      <div class="s3-feat"><div class="s3-dot"></div><span class="s3-txt">API pública para verificar la credencial de cualquier dirección</span></div>
     </div>
   </div>
   <div class="mockup e4">
@@ -513,9 +513,9 @@ const SLIDES=[
     <div class="tc lit"><div class="tc-icon">🎣</div><div class="tc-name">Phishing</div><div class="tc-desc">Sitios falsos, emails y links trampa</div><div class="tc-s">● Activo</div></div>
     <div class="tc lit"><div class="tc-icon">💎</div><div class="tc-name">Fake Assets</div><div class="tc-desc">Tokens clonados y contratos trampa</div><div class="tc-s">● Activo</div></div>
     <div class="tc lit"><div class="tc-icon">🤝</div><div class="tc-name">Social Eng.</div><div class="tc-desc">Manipulación y urgencia artificial</div><div class="tc-s">● Activo</div></div>
-    <div class="tc"><div class="tc-icon" style="opacity:.4">⚠️</div><div class="tc-name" style="color:rgba(238,234,223,.35)">Approvals</div><div class="tc-desc">Permisos peligrosos de wallet</div><div class="tc-ns">○ Próximamente</div></div>
-    <div class="tc"><div class="tc-icon" style="opacity:.4">🚀</div><div class="tc-name" style="color:rgba(238,234,223,.35)">Presale Scam</div><div class="tc-desc">Rug pulls y preventas fraudulentas</div><div class="tc-ns">○ Próximamente</div></div>
-    <div class="tc"><div class="tc-icon" style="opacity:.4">🔑</div><div class="tc-name" style="color:rgba(238,234,223,.35)">Key Hygiene</div><div class="tc-desc">Exposición accidental de claves</div><div class="tc-ns">○ Próximamente</div></div>
+    <div class="tc lit"><div class="tc-icon">⚠️</div><div class="tc-name">Approvals</div><div class="tc-desc">Permisos peligrosos de wallet</div><div class="tc-s">● Activo</div></div>
+    <div class="tc lit"><div class="tc-icon">🚀</div><div class="tc-name">Presale Scam</div><div class="tc-desc">Rug pulls y preventas fraudulentas</div><div class="tc-s">● Activo</div></div>
+    <div class="tc lit"><div class="tc-icon">🔑</div><div class="tc-name">Key Hygiene</div><div class="tc-desc">Exposición accidental de claves</div><div class="tc-s">● Activo</div></div>
   </div>
 </div>\`,
 
@@ -527,18 +527,18 @@ const SLIDES=[
     <div class="s5-inner">
       \${SH_LG}
       <div class="s5-label">SCAM<br>RESISTANT</div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:rgba(201,162,39,.45);margin-top:2px">Soroban NFT</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:rgba(201,162,39,.45);margin-top:2px">Verificable</div>
     </div>
   </div>
   <div class="s5-right">
-    <div class="eye e2">Credencial On-Chain</div>
-    <h2 class="s5-h e3">Un NFT que prueba<br>competencia real</h2>
+    <div class="eye e2">Credencial verificable</div>
+    <h2 class="s5-h e3">Una credencial que prueba<br>competencia real</h2>
     <div class="e4">
       <div class="s5-pt"><div class="s5-pd"></div><div><div class="s5-tt">Verificable públicamente</div><div class="s5-dd">Cualquiera puede consultar el estado de graduación de cualquier dirección Stellar.</div></div></div>
-      <div class="s5-pt"><div class="s5-pd"></div><div><div class="s5-tt">Registrado en Soroban</div><div class="s5-dd">ReadinessRegistry — contrato permanente en Stellar Testnet.</div></div></div>
-      <div class="s5-pt"><div class="s5-pd"></div><div><div class="s5-tt">Gratis. Zero barreras.</div><div class="s5-dd">Friendbot cubre todas las fees de emisión del NFT.</div></div></div>
+      <div class="s5-pt"><div class="s5-pd"></div><div><div class="s5-tt">Listo para Soroban</div><div class="s5-dd">Hoy vive en Supabase; el contrato ReadinessRegistry se activa con un flag.</div></div></div>
+      <div class="s5-pt"><div class="s5-pd"></div><div><div class="s5-tt">Gratis. Cero barreras.</div><div class="s5-dd">Friendbot fondea tu billetera de prueba automáticamente.</div></div></div>
     </div>
-    <div class="s5-code e5">GET /api/verify?address=GABC…<br><span>→ { "graduated": true, "xp": 820 }</span></div>
+    <div class="s5-code e5">GET /api/verify?address=GABC…<br><span>→ { "certified": true, "modules": [...] }</span></div>
   </div>
 </div>\`,
 

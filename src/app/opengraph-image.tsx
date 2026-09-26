@@ -1,11 +1,22 @@
 import { ImageResponse } from "next/og";
+import { BRAND } from "@/lib/brand";
+import { ogFonts } from "@/lib/ogFonts";
 
-export const runtime = "edge";
-export const alt    = "FYV Box — Aprende a no caer en estafas crypto";
-export const size   = { width: 1200, height: 630 };
+export const alt = `${BRAND.name} — ${BRAND.tagline}. Simulacros gratuitos en Stellar testnet.`;
+export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OGImage() {
+const PILLS = [
+  { label: "Phishing", color: BRAND.danger },
+  { label: "Airdrops falsos", color: BRAND.amber },
+  { label: "Ingeniería social", color: BRAND.info },
+  { label: "Credencial verificable", color: BRAND.success },
+];
+
+export default async function OGImage() {
+  const fonts = await ogFonts();
+  const display = fonts.some((f) => f.name === "Syne") ? "Syne" : undefined;
+
   return new ImageResponse(
     (
       <div
@@ -14,117 +25,73 @@ export default function OGImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(135deg, #0A1A33 0%, #11284D 60%, #162F58 100%)",
-          fontFamily: "system-ui, -apple-system, sans-serif",
+          justifyContent: "space-between",
+          padding: "64px 80px",
+          background: `linear-gradient(135deg, ${BRAND.navy} 0%, ${BRAND.surface} 62%, ${BRAND.surface2} 100%)`,
+          color: BRAND.cream,
+          fontFamily: "Inter",
           position: "relative",
-          overflow: "hidden",
         }}
       >
-        {/* Background glow */}
         <div
           style={{
             position: "absolute",
-            top: -120,
-            right: -120,
-            width: 500,
-            height: 500,
-            borderRadius: "50%",
-            background: "rgba(201,162,39,0.12)",
-            filter: "blur(80px)",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: -80,
-            left: -80,
-            width: 400,
-            height: 400,
-            borderRadius: "50%",
-            background: "rgba(80,140,255,0.07)",
-            filter: "blur(60px)",
+            right: -180,
+            top: -180,
+            width: 620,
+            height: 620,
+            borderRadius: 9999,
+            background: "radial-gradient(circle, rgba(201,162,39,0.22) 0%, rgba(201,162,39,0) 70%)",
           }}
         />
 
-        {/* Content */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28, zIndex: 1 }}>
-          {/* Logo row */}
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: 16,
-                background: "rgba(201,162,39,0.15)",
-                border: "1.5px solid rgba(201,162,39,0.4)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 32,
-              }}
-            >
-              🛡
-            </div>
-            <span
-              style={{
-                fontSize: 56,
-                fontWeight: 800,
-                color: "#F5F1E6",
-                letterSpacing: "-0.03em",
-              }}
-            >
-              FYV<span style={{ color: "#C9A227" }}> Box</span>
-            </span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", fontFamily: display, fontSize: 46, fontWeight: 800, letterSpacing: "-0.03em" }}>
+            <span>FYV</span>
+            <span style={{ color: BRAND.gold, marginLeft: 12 }}>Box</span>
           </div>
+          <div style={{ display: "flex", fontSize: 24, color: BRAND.creamMuted }}>fyv-box.vercel.app</div>
+        </div>
 
-          {/* Tagline */}
-          <p
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div
             style={{
-              fontSize: 26,
-              color: "#B8C2D6",
-              textAlign: "center",
-              maxWidth: 700,
-              margin: 0,
-              lineHeight: 1.4,
+              display: "flex",
+              flexWrap: "wrap",
+              fontFamily: display,
+              fontSize: 84,
+              fontWeight: 800,
+              lineHeight: 1.02,
+              letterSpacing: "-0.035em",
             }}
           >
-            Aprende a detectar estafas crypto con simulacros reales
-          </p>
-
-          {/* Pills */}
-          <div style={{ display: "flex", gap: 14, marginTop: 8 }}>
-            {[
-              { label: "Phishing", color: "rgba(224,82,82,0.2)", border: "rgba(224,82,82,0.4)", text: "#E05252" },
-              { label: "Ingeniería Social", color: "rgba(80,140,255,0.15)", border: "rgba(80,140,255,0.4)", text: "#60A5FA" },
-              { label: "Activos Falsos", color: "rgba(245,158,11,0.15)", border: "rgba(245,158,11,0.4)", text: "#F59E0B" },
-              { label: "Credencial Stellar", color: "rgba(61,184,130,0.15)", border: "rgba(61,184,130,0.4)", text: "#3DB882" },
-            ].map((p) => (
-              <div
-                key={p.label}
-                style={{
-                  background: p.color,
-                  border: `1px solid ${p.border}`,
-                  borderRadius: 999,
-                  padding: "8px 18px",
-                  fontSize: 16,
-                  color: p.text,
-                  fontWeight: 600,
-                }}
-              >
-                {p.label}
-              </div>
-            ))}
+            <span>No caigas en&nbsp;</span>
+            <span style={{ color: BRAND.gold }}>estafas crypto</span>
           </div>
+          <div style={{ display: "flex", marginTop: 24, fontSize: 32, color: BRAND.creamMuted, lineHeight: 1.35 }}>
+            Simulacros gratis en español sobre Stellar testnet. Practica sin arriesgar dinero.
+          </div>
+        </div>
 
-          {/* URL */}
-          <p style={{ fontSize: 18, color: "rgba(184,194,214,0.5)", margin: 0, marginTop: 8 }}>
-            fyv-box.vercel.app
-          </p>
+        <div style={{ display: "flex", gap: 14 }}>
+          {PILLS.map((p) => (
+            <div
+              key={p.label}
+              style={{
+                display: "flex",
+                padding: "10px 22px",
+                borderRadius: 999,
+                border: `2px solid ${p.color}`,
+                color: p.color,
+                fontSize: 24,
+              }}
+            >
+              {p.label}
+            </div>
+          ))}
         </div>
       </div>
     ),
-    { ...size }
+    { ...size, fonts: fonts.length ? fonts : undefined },
   );
 }

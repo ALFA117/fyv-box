@@ -1,39 +1,33 @@
 "use client";
-import { AlertTriangle, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
+import { midTruncate, STELLAR_EXPERT_ACCOUNT } from "@/lib/ownership";
 
 interface Props {
   publicKey: string;
   provider: "pollar" | "test-wallet";
 }
 
-function midTruncate(addr: string, head = 6, tail = 4) {
-  if (addr.length <= head + tail + 3) return addr;
-  return `${addr.slice(0, head)}…${addr.slice(-tail)}`;
-}
-
+/** Tappable chip: opens the real testnet account in Stellar Expert. */
 export function WalletIndicator({ publicKey, provider }: Props) {
-  const short    = midTruncate(publicKey, 6, 4);
-  const shortest = midTruncate(publicKey, 4, 3);
-
   return (
-    <div className="flex items-center gap-1.5">
+    <a
+      href={`${STELLAR_EXPERT_ACCOUNT}/${publicKey}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={`${publicKey} — ver cuenta en Stellar Expert (testnet)`}
+      aria-label={`Tu billetera de prueba ${midTruncate(publicKey, 4, 4)}. Ver cuenta en Stellar Expert, testnet`}
+      className="tap flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl border border-line bg-surface px-2.5 transition-colors hover:border-line-gold active:bg-surface-2"
+    >
+      <Wallet className="h-4 w-4 shrink-0 text-cream-muted" aria-hidden="true" />
+      <span className="font-mono text-xs text-cream max-[359px]:hidden">
+        <span className="sm:hidden">{midTruncate(publicKey, 4, 3)}</span>
+        <span className="hidden sm:inline">{midTruncate(publicKey, 6, 4)}</span>
+      </span>
       {provider === "test-wallet" && (
-        <span
-          title="Billetera de prueba — solo testnet. Nunca uses fondos reales aquí."
-          className="hidden items-center gap-1 rounded-full border border-[var(--amber-border)] bg-[var(--amber-subtle)] px-2.5 py-1 text-xs font-medium text-[var(--amber)] sm:flex"
-        >
-          <AlertTriangle className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden="true" />
+        <span className="hidden rounded-full border border-amber-border bg-amber-subtle px-2 py-0.5 text-xs font-semibold text-amber sm:inline">
           testnet
         </span>
       )}
-      <div
-        className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2 py-1"
-        title={publicKey}
-      >
-        <Wallet className="h-3 w-3 shrink-0 text-[var(--cream-muted)]" aria-hidden="true" />
-        <span className="font-mono text-xs text-[var(--cream-muted)] sm:hidden">{shortest}</span>
-        <span className="hidden font-mono text-xs text-[var(--cream-muted)] sm:inline">{short}</span>
-      </div>
-    </div>
+    </a>
   );
 }

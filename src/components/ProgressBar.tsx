@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 interface Props {
   value: number; // 0–100
@@ -9,19 +9,17 @@ interface Props {
 }
 
 const barColors = {
-  gold:    "bg-[var(--gold)]",
-  success: "bg-[var(--success)]",
-  danger:  "bg-[var(--danger)]",
-  amber:   "bg-[var(--amber)]",
+  gold:    "bg-gold",
+  success: "bg-success",
+  danger:  "bg-danger",
+  amber:   "bg-amber",
 };
 
-const heights = {
-  sm: "h-1.5",
-  md: "h-2",
-};
+const heights = { sm: "h-1.5", md: "h-2" };
 
 export function ProgressBar({ value, label, size = "md", color = "gold" }: Props) {
-  const pct = Math.max(0, Math.min(100, value));
+  const pct = Math.max(0, Math.min(100, Math.round(value)));
+  const reduce = useReducedMotion();
 
   return (
     <div
@@ -29,23 +27,21 @@ export function ProgressBar({ value, label, size = "md", color = "gold" }: Props
       aria-valuenow={pct}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-label={label}
+      aria-label={label ?? "Progreso"}
       className="space-y-1.5"
     >
       {label && (
-        <div className="flex justify-between">
-          <span className="text-xs text-[var(--cream-muted)]">{label}</span>
-          <span className="tabular-nums text-xs font-medium text-[var(--cream-muted)]">
-            {pct}%
-          </span>
+        <div className="flex justify-between text-xs text-cream-muted">
+          <span>{label}</span>
+          <span className="tabular-nums font-medium">{pct}%</span>
         </div>
       )}
-      <div className={`w-full overflow-hidden rounded-full bg-white/8 ${heights[size]}`}>
+      <div className={`w-full overflow-hidden rounded-full bg-line ${heights[size]}`}>
         <motion.div
-          className={`${heights[size]} rounded-full ${barColors[color]}`}
-          initial={{ width: "0%" }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className={`h-full origin-left rounded-full ${barColors[color]}`}
+          initial={reduce ? false : { scaleX: 0 }}
+          animate={{ scaleX: pct / 100 }}
+          transition={reduce ? { duration: 0 } : { duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
 
 const CORS = {
@@ -7,59 +7,64 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+export const dynamic = "force-dynamic";
+
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS });
 }
 
+interface Row {
+  track: string;
+  fell_for_trap: boolean;
+  mission_id: string;
+  stellar_address: string;
+  created_at: string;
+}
+
 /**
  * GET /api/stats
- * Aggregate stats by track: % of users who fell for the trap on first attempt.
+ * Per track: % of users who fell for the trap on their first attempt at any mission of that track.
  */
-export async function GET(_req: NextRequest) {
-  const db = supabaseServer();
-
-  const { data, error } = await db
+export async function GET() {
+  const { data, error } = await supabaseServer()
     .from("fyv_mission_progress")
-    .select("track, fell_for_trap, mission_id, stellar_address");
+    .select("track, fell_for_trap, mission_id, stellar_address, created_at")
+    .order("created_at", { ascending: true })
+    .limit(10000);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500, headers: CORS });
+    console.error("[FYV] stats failed:", error.message);
+    return NextResponse.json(
+      { error: "No pudimos cargar las estadísticas. Intenta en unos segundos." },
+      { status: 503, headers: CORS },
+    );
   }
 
-  // Per track: count unique users, count users who fell for trap on first attempt
-  const trackMap: Record<
-    string,
-    { total: Set<string>; fell: Set<string> }
-  > = {};
-
-  // Only look at first attempt per user+mission
-  const firstAttempts = new Map<string, typeof data[0]>();
-  for (const row of data ?? []) {
+  // Rows are ordered oldest-first, so the first one per user·mission is the first attempt.
+  const firstAttempts = new Map<string, Row>();
+  for (const row of (data ?? []) as Row[]) {
     const key = `${row.stellar_address}::${row.mission_id}`;
-    if (!firstAttempts.has(key)) {
-      firstAttempts.set(key, row);
-    }
+    if (!firstAttempts.has(key)) firstAttempts.set(key, row);
   }
 
+  const trackMap: Record<string, { total: Set<string>; fell: Set<string> }> = {};
+  const allUsers = new Set<string>();
   for (const row of firstAttempts.values()) {
-    if (!trackMap[row.track]) {
-      trackMap[row.track] = { total: new Set(), fell: new Set() };
-    }
+    allUsers.add(row.stellar_address);
+    trackMap[row.track] ??= { total: new Set(), fell: new Set() };
     trackMap[row.track].total.add(row.stellar_address);
-    if (row.fell_for_trap) {
-      trackMap[row.track].fell.add(row.stellar_address);
-    }
+    if (row.fell_for_trap) trackMap[row.track].fell.add(row.stellar_address);
   }
 
   const stats = Object.entries(trackMap).map(([track, counts]) => ({
     track,
     totalUsers: counts.total.size,
     fellForTrap: counts.fell.size,
-    trapRate:
-      counts.total.size > 0
-        ? Math.round((counts.fell.size / counts.total.size) * 100)
-        : 0,
+    trapRate: counts.total.size > 0 ? Math.round((counts.fell.size / counts.total.size) * 100) : 0,
   }));
 
-  return NextResponse.json({ stats, generatedAt: new Date().toISOString() }, { headers: CORS });
+  return NextResponse.json(
+    { stats, uniqueUsers: allUsers.size, generatedAt: new Date().toISOString() },
+    { headers: { ...CORS, "Cache-Control": "s-maxage=60, stale-while-revalidate=300" } },
+  );
 }

@@ -1,11 +1,13 @@
 "use client";
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle, XCircle, Loader2, ShieldCheck, Code2 } from "lucide-react";
-import Link from "next/link";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Search, CheckCircle, XCircle, ShieldCheck, Code2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { AppNav } from "@/components/AppNav";
+import { Skeleton } from "@/components/Skeleton";
+import { TrackMeta } from "@/missions/schema";
+import { isStellarAddress, midTruncate, STELLAR_EXPERT_ACCOUNT } from "@/lib/ownership";
 
 interface VerifyResult {
   address: string;
@@ -14,234 +16,229 @@ interface VerifyResult {
   backend: string;
 }
 
-const moduleLabels: Record<string, string> = {
-  "phishing":             "Phishing e Impersonación",
-  "fake-assets":          "Activos y Airdrops Falsos",
-  "social-engineering":   "Ingeniería Social",
-  "dangerous-approvals":  "Aprobaciones Peligrosas",
-  "presale-scam":         "Estafas de Preventa",
-  "key-hygiene":          "Higiene de Llaves",
-};
+function normalize(value: string) {
+  return value.replace(/\s+/g, "").toUpperCase();
+}
 
-function midTruncate(addr: string, head = 8, tail = 6) {
-  if (addr.length <= head + tail + 3) return addr;
-  return `${addr.slice(0, head)}…${addr.slice(-tail)}`;
+function validate(value: string): string | null {
+  if (!value) return "Pega una dirección Stellar.";
+  if (!value.startsWith("G")) return "Las direcciones públicas de Stellar empiezan con G.";
+  if (value.length !== 56) return `Una dirección tiene 56 caracteres; esta tiene ${value.length}.`;
+  if (!isStellarAddress(value)) return "La dirección contiene caracteres inválidos.";
+  return null;
 }
 
 function VerifyContent() {
-  const searchParams   = useSearchParams();
-  const initialAddress = searchParams.get("address") ?? "";
+  const searchParams = useSearchParams();
+  const initialAddress = normalize(searchParams.get("address") ?? "");
+  const reduce = useReducedMotion();
 
   const [address, setAddress] = useState(initialAddress);
   const [loading, setLoading] = useState(false);
-  const [result,  setResult]  = useState<VerifyResult | null>(null);
-  const [error,   setError]   = useState<string | null>(null);
+  const [result, setResult] = useState<VerifyResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const reqId = useRef(0);
 
   useEffect(() => {
-    if (initialAddress.trim()) verify(initialAddress);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (initialAddress) verify(initialAddress);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function verify(addr: string = address) {
-    if (!addr.trim()) return;
+  async function verify(raw: string = address) {
+    const addr = normalize(raw);
+    const invalid = validate(addr);
+    if (invalid) {
+      setFieldError(invalid);
+      inputRef.current?.focus();
+      return;
+    }
+    setAddress(addr);
+    setFieldError(null);
     setLoading(true);
     setError(null);
     setResult(null);
 
+    const id = ++reqId.current;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
     try {
-      const res  = await fetch(`/api/verify?address=${encodeURIComponent(addr)}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Error");
-      setResult(data);
+      const res = await fetch(`/api/verify?address=${encodeURIComponent(addr)}`, { signal: ctrl.signal });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data) throw new Error(data?.error ?? "No pudimos consultar el registro. Intenta de nuevo.");
+      if (id === reqId.current) setResult(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error desconocido");
+      if (id !== reqId.current) return;
+      const aborted = e instanceof Error && e.name === "AbortError";
+      setError(aborted ? "El registro tardó demasiado en responder. Intenta de nuevo." : e instanceof Error ? e.message : "Error desconocido");
     } finally {
-      setLoading(false);
+      clearTimeout(timer);
+      if (id === reqId.current) setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-dvh pb-24">
-      <AppNav back="/" />
+    <div className="min-h-dvh">
+      <AppNav back={{ href: "/", label: "Inicio" }} />
 
-      <div className="px-4 py-6">
+      <main id="main" tabIndex={-1} className="outline-none px-gutter pb-safe pt-6">
         <div className="mx-auto max-w-lg">
-          {/* Page heading */}
-          <div className="mb-6">
+          <header className="mb-6">
             <div className="mb-1 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-[var(--gold)]" strokeWidth={1.75} />
-              <h1 className="font-playfair text-2xl font-bold text-[var(--cream)]">
-                Verificador de Credenciales
-              </h1>
+              <ShieldCheck className="h-6 w-6 text-gold" strokeWidth={1.75} aria-hidden />
+              <h1 className="text-title-1 text-cream">Verificar credencial</h1>
             </div>
-            <p className="text-sm text-[var(--cream-muted)]">
-              Consulta si una dirección Stellar está certificada por FYV Box
+            <p className="text-body-sm text-cream-muted">
+              Consulta si una dirección Stellar completó algún track de FYV Box.
+            </p>
+          </header>
+
+          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-info-border bg-info-subtle px-4 py-3">
+            <Code2 className="mt-0.5 h-4 w-4 shrink-0 text-info" strokeWidth={1.75} aria-hidden />
+            <p className="text-sm leading-relaxed text-info">
+              Es la misma consulta que haría una wallet o dApp antes de confiar en un usuario, vía el endpoint público{" "}
+              <code className="rounded bg-info/15 px-1 text-[0.8125rem]">/api/verify</code>.
             </p>
           </div>
 
-          {/* Info banner */}
-          <div className="mb-6 flex items-start gap-3 rounded-xl border border-blue-500/20 bg-blue-500/8 px-4 py-3">
-            <Code2 className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" strokeWidth={1.75} />
-            <p className="text-xs leading-relaxed text-blue-300">
-              Esta es la vista que tendría <strong>cualquier wallet o dApp</strong> al
-              verificar la confianza de un usuario antes de dejarlo continuar.
-              Lee desde{" "}
-              <code className="rounded bg-blue-500/20 px-1 font-mono">/api/verify</code> —
-              endpoint público con CORS abierto.
-            </p>
-          </div>
-
-          {/* Search card */}
-          <div className="mb-5 rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)]">
-            <form
-              onSubmit={(e) => { e.preventDefault(); verify(); }}
-              className="space-y-3"
-            >
-              <label className="block text-xs font-medium text-[var(--cream-muted)]">
-                Dirección Stellar (G...)
-              </label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--cream-muted)]" />
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="GABCDE…"
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--navy)] py-3 pl-10 pr-4 font-mono text-xs text-[var(--cream)] placeholder:text-[var(--cream-dim)] transition-colors focus:border-[var(--gold-ring)] focus:outline-none"
-                  />
-                </div>
-                <Button type="submit" loading={loading} disabled={!address.trim()}>
-                  Verificar
-                </Button>
-              </div>
-            </form>
-          </div>
-
-          {/* Result area */}
-          <AnimatePresence mode="wait">
-            {loading && (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="space-y-3"
-              >
-                <div className="skeleton h-20 rounded-2xl" />
-                <div className="skeleton h-36 rounded-2xl" />
-              </motion.div>
+          <form
+            onSubmit={(e) => { e.preventDefault(); verify(); }}
+            noValidate
+            className="mb-5 rounded-2xl border border-line-strong bg-surface p-4 shadow-[var(--shadow-md)] sm:p-5"
+          >
+            <label htmlFor="address" className="mb-2 block text-label text-cream-muted">
+              Dirección Stellar pública
+            </label>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-cream-muted" aria-hidden />
+              <input
+                ref={inputRef}
+                id="address"
+                name="address"
+                type="text"
+                inputMode="text"
+                autoCapitalize="characters"
+                autoCorrect="off"
+                autoComplete="off"
+                spellCheck={false}
+                enterKeyHint="search"
+                value={address}
+                onChange={(e) => { setAddress(e.target.value); setFieldError(null); }}
+                placeholder="G…"
+                aria-invalid={!!fieldError}
+                aria-describedby={fieldError ? "address-error" : "address-help"}
+                className={`h-12 w-full rounded-xl border bg-navy pl-10 pr-4 font-mono text-base text-cream placeholder:text-cream-dim transition-colors focus:outline-none ${fieldError ? "border-danger" : "border-line focus:border-gold-ring"}`}
+              />
+            </div>
+            {fieldError ? (
+              <p id="address-error" role="alert" className="mt-2 text-sm text-danger">{fieldError}</p>
+            ) : (
+              <p id="address-help" className="mt-2 text-xs text-cream-dim">56 caracteres, empieza con G. Nunca pegues una llave secreta (S…).</p>
             )}
+            <Button type="submit" size="lg" className="mt-4 w-full" loading={loading}>
+              {loading ? "Consultando…" : "Verificar"}
+            </Button>
+          </form>
 
-            {error && !loading && (
-              <motion.div
-                key="error"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="flex items-start gap-3 rounded-xl border border-[var(--danger-border)] bg-[var(--danger-subtle)] p-4 text-sm text-[var(--danger)]"
-              >
-                <XCircle className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.75} />
-                <div>
-                  <p className="font-semibold">Error al verificar</p>
-                  <p className="mt-0.5 text-xs opacity-80">{error}</p>
-                </div>
-              </motion.div>
-            )}
+          <div aria-live="polite">
+            <AnimatePresence mode="wait" initial={false}>
+              {loading && (
+                <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3" role="status" aria-label="Consultando">
+                  <Skeleton className="h-20" rounded="lg" />
+                  <Skeleton className="h-32" rounded="lg" />
+                </motion.div>
+              )}
 
-            {result && !loading && (
-              <motion.div
-                key="result"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 26 }}
-                className="space-y-4"
-              >
-                {/* Verdict */}
-                <div
-                  className={[
-                    "flex items-center gap-4 rounded-2xl border p-5",
-                    result.certified
-                      ? "border-[var(--success-border)] bg-[var(--success-subtle)]"
-                      : "border-[var(--danger-border)] bg-[var(--danger-subtle)]",
-                  ].join(" ")}
+              {error && !loading && (
+                <motion.div
+                  key="error"
+                  initial={reduce ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  role="alert"
+                  className="flex items-start gap-3 rounded-2xl border border-danger-border bg-danger-subtle p-4"
                 >
-                  {result.certified ? (
-                    <CheckCircle
-                      className="h-10 w-10 shrink-0 text-[var(--success)]"
-                      strokeWidth={1.75}
-                    />
-                  ) : (
-                    <XCircle
-                      className="h-10 w-10 shrink-0 text-[var(--danger)]"
-                      strokeWidth={1.75}
-                    />
-                  )}
-                  <div className="min-w-0">
-                    <p
-                      className={`text-lg font-bold ${
-                        result.certified ? "text-[var(--success)]" : "text-[var(--danger)]"
-                      }`}
-                    >
-                      {result.certified ? "Usuario verificado" : "Sin credenciales FYV Box"}
-                    </p>
-                    <p
-                      className="mt-0.5 font-mono text-xs text-[var(--cream-muted)]"
-                      title={result.address}
-                    >
-                      {midTruncate(result.address, 12, 8)}
-                    </p>
+                  <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-danger" strokeWidth={1.75} aria-hidden />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-danger">No se pudo verificar</p>
+                    <p className="mt-0.5 text-sm text-cream-muted">{error}</p>
+                    <button type="button" onClick={() => verify()} className="tap -ml-2 mt-1 rounded-xl px-2 text-sm font-semibold text-cream hover:text-gold">
+                      Reintentar
+                    </button>
                   </div>
-                </div>
+                </motion.div>
+              )}
 
-                {/* Modules */}
-                {result.modules.length > 0 && (
-                  <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--cream-muted)]">
-                      Módulos certificados
-                    </p>
-                    <div className="space-y-2">
-                      {result.modules.map((m) => (
-                        <div key={m.module} className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 shrink-0 text-[var(--success)]" strokeWidth={2} />
-                            <span className="text-sm text-[var(--cream)]">
-                              {moduleLabels[m.module] ?? m.module}
-                            </span>
-                          </div>
-                          <span className="text-xs text-[var(--cream-muted)]">
-                            {new Date(m.completedAt).toLocaleDateString("es-MX")}
-                          </span>
-                        </div>
-                      ))}
+              {result && !loading && (
+                <motion.div
+                  key="result"
+                  initial={reduce ? false : { opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 26 }}
+                  className="space-y-4"
+                >
+                  <div className={`flex items-center gap-4 rounded-2xl border p-5 ${result.certified ? "border-success-border bg-success-subtle" : "border-line-strong bg-surface"}`}>
+                    {result.certified
+                      ? <CheckCircle className="h-10 w-10 shrink-0 text-success" strokeWidth={1.75} aria-hidden />
+                      : <XCircle className="h-10 w-10 shrink-0 text-cream-muted" strokeWidth={1.75} aria-hidden />}
+                    <div className="min-w-0">
+                      <p className={`text-title-3 ${result.certified ? "text-success" : "text-cream"}`}>
+                        {result.certified ? "Credencial verificada" : "Sin credenciales todavía"}
+                      </p>
+                      <p className="mt-0.5 font-mono text-sm text-cream-muted" title={result.address}>
+                        {midTruncate(result.address, 8, 8)}
+                      </p>
                     </div>
                   </div>
-                )}
 
-                <p className="text-right text-xs text-[var(--cream-muted)]/50">
-                  backend: {result.backend}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  {result.modules.length > 0 && (
+                    <div className="rounded-2xl border border-line bg-surface p-4">
+                      <p className="mb-3 text-eyebrow text-cream-muted">Tracks certificados</p>
+                      <ul className="space-y-2.5">
+                        {result.modules.map((m) => (
+                          <li key={m.module} className="flex items-center justify-between gap-3">
+                            <span className="flex min-w-0 items-center gap-2 text-sm text-cream">
+                              <CheckCircle className="h-4 w-4 shrink-0 text-success" strokeWidth={2} aria-hidden />
+                              <span className="truncate">{TrackMeta[m.module as keyof typeof TrackMeta]?.label ?? m.module}</span>
+                            </span>
+                            <time dateTime={m.completedAt} className="shrink-0 text-xs tabular-nums text-cream-muted">
+                              {new Date(m.completedAt).toLocaleDateString("es-MX")}
+                            </time>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-          {/* API docs block */}
-          <div className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
-            <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--cream-muted)]">
-              <Code2 className="h-3.5 w-3.5" />
-              Integra en tu dApp
-            </p>
-            <pre className="overflow-x-auto rounded-lg bg-[var(--navy)] p-3 text-xs text-[var(--gold)]/90">
+                  <a
+                    href={`${STELLAR_EXPERT_ACCOUNT}/${result.address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tap -ml-2 inline-flex items-center gap-2 rounded-xl px-2 text-sm font-medium text-gold hover:text-gold-hover"
+                  >
+                    <ExternalLink className="h-4 w-4" aria-hidden />
+                    Ver la cuenta en Stellar Expert (testnet)
+                  </a>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <section aria-labelledby="api-title" className="mt-8 rounded-2xl border border-line bg-surface p-4 sm:p-5">
+            <h2 id="api-title" className="mb-3 flex items-center gap-2 text-eyebrow text-cream-muted">
+              <Code2 className="h-4 w-4" aria-hidden />
+              Intégralo en tu dApp
+            </h2>
+            <pre className="scroll-x rounded-xl bg-navy p-3 text-[0.8125rem] leading-relaxed text-gold">
 {`curl "https://fyv-box.vercel.app/api/verify?address=G..."
 # → { "certified": true, "modules": [...] }`}
             </pre>
-            <p className="mt-2 text-xs text-[var(--cream-muted)]">
-              Endpoint público · CORS abierto · sin autenticación
-            </p>
-          </div>
+            <p className="mt-2 text-xs text-cream-muted">Público · CORS abierto · sin autenticación</p>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
@@ -250,8 +247,9 @@ export default function VerifyPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-dvh items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[var(--gold)]" />
+        <div className="px-gutter mx-auto max-w-lg space-y-4 pt-24" role="status" aria-label="Cargando">
+          <Skeleton className="h-9 w-64" />
+          <Skeleton className="h-40" rounded="lg" />
         </div>
       }
     >

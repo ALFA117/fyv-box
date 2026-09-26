@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRegistry } from "@/registry";
 import { supabaseServer } from "@/lib/supabase";
+import { isStellarAddress } from "@/lib/ownership";
+import { TrackMeta } from "@/missions/schema";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -8,69 +10,58 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+export const dynamic = "force-dynamic";
+
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS });
 }
 
+function fail(status: number, error: string) {
+  return NextResponse.json({ error }, { status, headers: CORS });
+}
+
 /**
  * GET /api/verify?address=G...&module=phishing
- *
- * Returns:
- *   { certified: bool, modules: string[], address: string, backend: string }
+ * → { address, certified, modules: [{ module, completedAt }], backend }
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const address = searchParams.get("address");
+  const address = searchParams.get("address")?.trim().toUpperCase() ?? "";
   const module = searchParams.get("module");
 
-  if (!address) {
-    return NextResponse.json(
-      { error: "address param required" },
-      { status: 400, headers: CORS }
-    );
+  if (!address) return fail(400, "Falta el parámetro address.");
+  if (!isStellarAddress(address)) {
+    return fail(400, "Dirección inválida: debe empezar con G y tener 56 caracteres.");
   }
+  if (module && !(module in TrackMeta)) return fail(400, "Módulo desconocido.");
 
-  // Validate Stellar address format (G...)
-  if (!/^G[A-Z2-7]{55}$/.test(address)) {
-    return NextResponse.json(
-      { error: "invalid Stellar address format" },
-      { status: 400, headers: CORS }
-    );
-  }
-
+  let readiness;
   try {
-    const registry = getRegistry();
-    const readiness = await registry.getReadiness(address);
+    readiness = await getRegistry().getReadiness(address);
+  } catch (err) {
+    console.error("[FYV] verify failed:", err instanceof Error ? err.message : err);
+    return fail(503, "El registro de credenciales no respondió. Intenta en unos segundos.");
+  }
 
-    const certified = module
-      ? readiness.isCertified(module)
-      : readiness.modules.length > 0;
-
-    // Log the query (future billing point)
-    const requesterIp =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-    const db = supabaseServer();
-    await db.from("fyv_verify_log").insert({
+  // Best-effort audit log: a missing table or a failed insert must never break verification.
+  try {
+    const requesterIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    await supabaseServer().from("fyv_verify_log").insert({
       querier_ip: requesterIp,
       queried_address: address,
       module_id: module ?? null,
-      queried_at: new Date().toISOString(),
     });
-
-    return NextResponse.json(
-      {
-        address,
-        certified,
-        modules: readiness.modules.map((m) => ({
-          module: m.module,
-          completedAt: m.completedAt,
-        })),
-        backend: process.env.REGISTRY_BACKEND ?? "supabase",
-      },
-      { headers: CORS }
-    );
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "internal error";
-    return NextResponse.json({ error: msg }, { status: 500, headers: CORS });
+  } catch {
+    /* ignore */
   }
+
+  return NextResponse.json(
+    {
+      address,
+      certified: module ? readiness.isCertified(module) : readiness.modules.length > 0,
+      modules: readiness.modules.map((m) => ({ module: m.module, completedAt: m.completedAt })),
+      backend: process.env.REGISTRY_BACKEND ?? "supabase",
+    },
+    { headers: { ...CORS, "Cache-Control": "no-store" } },
+  );
 }

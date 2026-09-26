@@ -11,52 +11,48 @@ const radii = {
 };
 
 export function Skeleton({ className = "", rounded = "md" }: Props) {
-  return (
-    <div
-      aria-hidden="true"
-      className={`shimmer ${radii[rounded]} ${className}`}
-    />
-  );
+  return <div aria-hidden="true" className={`shimmer ${radii[rounded]} ${className}`} />;
 }
 
 export function MissionCardSkeleton() {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
-      <Skeleton className="h-9 w-9 shrink-0" rounded="full" />
-      <div className="flex-1 space-y-1.5">
-        <Skeleton className="h-3.5 w-3/4" />
-        <Skeleton className="h-3 w-1/3" />
+    <div className="flex items-center gap-4 rounded-2xl border border-line bg-surface p-4">
+      <Skeleton className="h-11 w-11 shrink-0" rounded="full" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3.5 w-1/3" />
       </div>
-      <Skeleton className="h-4 w-4" rounded="sm" />
     </div>
   );
 }
 
 export function DashboardSkeleton() {
   return (
-    <div className="space-y-6">
-      {/* Progress card */}
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-6 w-20" rounded="full" />
+    <div className="mx-auto max-w-2xl space-y-6" role="status" aria-label="Cargando tus misiones">
+      <div className="rounded-3xl border border-line bg-surface p-5">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-3.5 w-28" />
+          </div>
+          <Skeleton className="h-10 w-24" rounded="lg" />
         </div>
-        <Skeleton className="h-3 w-full" rounded="full" />
+        <Skeleton className="h-2 w-full" rounded="full" />
+        <div className="mt-5 grid grid-cols-2 gap-4">
+          {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-7" />)}
+        </div>
       </div>
-      {/* Track groups */}
-      {[0,1,2].map((i) => (
+      {[0, 1].map((i) => (
         <div key={i} className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 shrink-0" rounded="md" />
-            <div className="flex-1 space-y-1">
-              <Skeleton className="h-3.5 w-40" />
-              <Skeleton className="h-3 w-56" />
+          <div className="flex items-center gap-3 rounded-2xl border border-line p-3.5">
+            <Skeleton className="h-10 w-10 shrink-0" rounded="md" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3.5 w-52" />
             </div>
           </div>
-          <div className="space-y-2">
-            <MissionCardSkeleton />
-            <MissionCardSkeleton />
-          </div>
+          <MissionCardSkeleton />
+          <MissionCardSkeleton />
         </div>
       ))}
     </div>

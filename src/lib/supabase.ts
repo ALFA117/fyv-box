@@ -14,21 +14,26 @@ export function getSupabaseClient(): SupabaseClient {
   return _client;
 }
 
-// Compat export para componentes cliente que usan `supabase` directamente
+// Compat export para componentes cliente que usan `supabase` directamente (solo lecturas)
 export const supabase = {
   from: (...args: Parameters<SupabaseClient["from"]>) =>
     getSupabaseClient().from(...args),
-  auth: new Proxy({} as SupabaseClient["auth"], {
-    get(_t, prop) {
-      return (getSupabaseClient().auth as unknown as Record<string, unknown>)[prop as string];
-    },
-  }),
 } as SupabaseClient;
 
+let warnedNoServiceRole = false;
+
+/**
+ * Server-only client. Uses SUPABASE_SERVICE_ROLE_KEY when configured; otherwise
+ * falls back to the anon key, which only works while the anon write policies of
+ * migration 001 exist (see README → FIX_NOTES → "Cerrar escrituras anónimas").
+ */
 export function supabaseServer(): SupabaseClient {
-  const url = getUrl();
   const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  return createClient(url, serviceRole ?? getAnon(), {
+  if (!serviceRole && !warnedNoServiceRole) {
+    warnedNoServiceRole = true;
+    console.warn("[FYV] SUPABASE_SERVICE_ROLE_KEY no configurada — escribiendo con anon key");
+  }
+  return createClient(getUrl(), serviceRole ?? getAnon(), {
     auth: { persistSession: false },
   });
 }
