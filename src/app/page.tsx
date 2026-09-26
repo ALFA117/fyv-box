@@ -569,8 +569,29 @@ export default function LandingPage() {
         </motion.a>
       </section>
 
+      {/* ══ TRUST BAR — entre hero y auth ══════════════════════════════ */}
+      <Reveal className="px-4 sm:px-8">
+        <div className="mx-auto max-w-3xl">
+          <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/60 px-5 py-4 backdrop-blur-sm">
+            {[
+              { icon: Shield,       text: "Stellar testnet",    sub: "Transacciones reales, sin riesgo" },
+              { icon: CheckCircle,  text: "Open source",         sub: "Código verificable en GitHub" },
+              { icon: Globe,        text: "CriptoUNAM",          sub: "Comunidad blockchain UNAM" },
+            ].map(({ icon: Icon, text, sub }) => (
+              <div key={text} className="flex items-center gap-2.5 px-3">
+                <Icon className="h-4 w-4 shrink-0 text-[var(--gold)]" strokeWidth={2} />
+                <div>
+                  <p className="text-xs font-semibold text-[var(--cream)]">{text}</p>
+                  <p className="text-[10px] text-[var(--cream-muted)]">{sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+
       {/* ══ AUTH CTA — justo debajo del hero ═══════════════════════════ */}
-      <section id="auth" className="px-4 py-20 sm:px-8">
+      <section id="auth" className="px-4 py-16 sm:px-8">
         <div className="mx-auto max-w-md">
           <Reveal className="mb-8 text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
@@ -580,29 +601,20 @@ export default function LandingPage() {
               ¿Listo para entrenar?
             </h2>
             <p className="mt-3 text-sm text-[var(--cream-muted)]">
-              Ingresa tu correo. Tu billetera de prueba se genera automáticamente.
+              Ingresa tu correo. Tu billetera de prueba en Stellar testnet se genera automáticamente.
             </p>
           </Reveal>
 
           <Reveal>
             <GlassCard className="p-6 shadow-[var(--shadow-lg)]" gold>
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-[var(--amber-border)] bg-[var(--amber-subtle)] px-3.5 py-2.5">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-[var(--amber)]" strokeWidth={2.5} />
+                <p className="text-xs text-[var(--amber)]">
+                  <strong>Entorno de práctica</strong> — ninguna transacción usa fondos reales
+                </p>
+              </div>
               <AuthForm />
             </GlassCard>
-          </Reveal>
-
-          <Reveal className="mt-5" delay={0.1}>
-            <div className="flex flex-wrap justify-center gap-5">
-              {[
-                { icon: Shield,       text: "Sin fondos reales" },
-                { icon: CheckCircle,  text: "Open source" },
-                { icon: Globe,        text: "Stellar testnet" },
-              ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-1.5 text-xs text-[var(--cream-muted)]">
-                  <Icon className="h-3.5 w-3.5 text-[var(--gold)]" strokeWidth={2} />
-                  {text}
-                </div>
-              ))}
-            </div>
           </Reveal>
         </div>
       </section>
@@ -793,12 +805,43 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--border)] px-4 py-8 text-center backdrop-blur-sm">
-        <div className="flex items-center justify-center gap-2 text-xs text-[var(--cream-muted)]">
-          <div className="h-5 w-5 overflow-hidden rounded-md opacity-60">
-            <Image src="/logo-panther.webp" alt="" width={20} height={20} className="object-contain" />
+      <footer className="border-t border-[var(--border)] px-4 py-12 backdrop-blur-sm">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-8 flex flex-col items-center gap-3 sm:flex-row sm:items-start sm:justify-between">
+            {/* Brand */}
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-[var(--border-gold)] bg-[var(--surface)]">
+                <Image src="/logo-panther.webp" alt="" width={32} height={32} className="h-full w-full object-cover" />
+              </div>
+              <div>
+                <p className="font-playfair text-sm font-bold text-[var(--cream)]">FYV <span className="text-[var(--gold)]">Box</span></p>
+                <p className="text-[10px] text-[var(--cream-muted)]">Anti-fraud training · Web3 LATAM</p>
+              </div>
+            </div>
+
+            {/* Links */}
+            <div className="flex items-center gap-5">
+              {[
+                { href: "#about", label: "Quiénes somos" },
+                { href: "#faucets", label: "Faucets" },
+                { href: "/dashboard", label: "Entrenar →" },
+              ].map(({ href, label }) => (
+                <a key={label} href={href}
+                  className="text-xs text-[var(--cream-muted)] transition-colors hover:text-[var(--gold)]">
+                  {label}
+                </a>
+              ))}
+            </div>
           </div>
-          FYV Box — CriptoUNAM · Stellar testnet · 2026
+
+          <div className="flex flex-col items-center justify-between gap-2 border-t border-[var(--border)] pt-6 text-center sm:flex-row sm:text-left">
+            <p className="text-xs text-[var(--cream-muted)]">
+              © 2026 FYV Box · Construido por <strong className="text-[var(--cream)]">CriptoUNAM</strong>
+            </p>
+            <p className="text-xs text-[var(--cream-muted)]">
+              Ejecutado en <span className="text-[var(--gold)]">Stellar Testnet</span> · Cero riesgo financiero
+            </p>
+          </div>
         </div>
       </footer>
     </div>

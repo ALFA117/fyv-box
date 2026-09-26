@@ -72,19 +72,22 @@ export function MissionCard({ mission, completed, locked = false }: Props) {
 
       {/* Text */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-[var(--cream)]">
+        <p className={`text-sm font-semibold leading-snug ${completed ? "text-[var(--cream-muted)]" : "text-[var(--cream)]"}`}>
           {mission.title}
         </p>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           <span className={`rounded border px-1.5 py-0 text-[10px] font-semibold leading-5 ${diff.color}`}>
             {diff.label}
           </span>
-          <span className="flex items-center gap-0.5 text-xs text-[var(--cream-muted)]">
+          <span className="flex items-center gap-0.5 text-[11px] text-[var(--cream-muted)]">
             <Star className="h-3 w-3" aria-hidden />
             {mission.xp} XP
           </span>
           {completed && (
-            <span className="text-[10px] font-semibold text-[var(--success)]">✓ Completada</span>
+            <span className="flex items-center gap-0.5 text-[10px] font-bold text-[var(--success)]">
+              <CheckCircle className="h-3 w-3" strokeWidth={2.5} />
+              Completada
+            </span>
           )}
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, Award, AlertCircle, Trophy, Flame, Shield } from "lucide-react";
+import { Star, Award, AlertCircle, Trophy, Flame, Shield, TrendingUp, Zap } from "lucide-react";
 import Link from "next/link";
 import { getWallet, type WalletIdentity } from "@/identity";
 import { WalletIndicator } from "@/components/WalletIndicator";
@@ -29,6 +29,14 @@ const itemVariants = {
   hidden: { opacity: 0, y: 18 },
   show:   { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 280, damping: 26 } },
 };
+
+function getXpLevel(xp: number): { level: number; title: string; nextXp: number; color: string } {
+  if (xp < 200)  return { level: 1, title: "Novato Crypto",      nextXp: 200,  color: "text-[var(--cream-muted)]" };
+  if (xp < 500)  return { level: 2, title: "Guardián Básico",    nextXp: 500,  color: "text-blue-400" };
+  if (xp < 1000) return { level: 3, title: "Cazador de Estafas", nextXp: 1000, color: "text-[var(--amber)]" };
+  if (xp < 1800) return { level: 4, title: "Detector Élite",     nextXp: 1800, color: "text-[var(--gold)]" };
+  return           { level: 5, title: "Maestro FYV",             nextXp: 1800, color: "text-[var(--success)]" };
+}
 
 const TRACK_COLOR: Record<Mission["track"], string> = {
   "phishing":            "border-[var(--danger)]   bg-[var(--danger-subtle)]   text-[var(--danger)]",
@@ -113,41 +121,54 @@ export default function DashboardPage() {
             <p className="mt-1 text-xs text-[var(--cream-muted)]">Revisa tu conexión e intenta de nuevo.</p>
           </motion.div>
         ) : (
-          <div className="mx-auto max-w-2xl space-y-8">
+          <div className="mx-auto max-w-2xl space-y-6">
 
             {/* ── XP + Progress card ── */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="relative overflow-hidden rounded-3xl border border-[var(--border-gold)] bg-[var(--surface)] shadow-[var(--shadow-gold)]"
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="relative overflow-hidden rounded-3xl border border-[var(--border-gold)] bg-gradient-to-br from-[var(--surface)] to-[var(--surface-card)] shadow-[0_0_40px_rgba(201,162,39,.12)]"
             >
-              {/* Background accent */}
-              <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-[var(--gold)]/8 blur-3xl" aria-hidden />
-              <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[var(--gold)]/5 blur-2xl" aria-hidden />
+              {/* Ambient glows */}
+              <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-[var(--gold)]/10 blur-[60px]" aria-hidden />
+              <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-blue-500/5 blur-[50px]" aria-hidden />
 
               <div className="relative p-5 sm:p-6">
-                {/* Top row */}
-                <div className="mb-5 flex items-start justify-between gap-3">
+                {/* Level badge + XP top row */}
+                <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
-                    <h2 className="font-playfair text-xl font-bold text-[var(--cream)] sm:text-2xl">
-                      Tu progreso
-                    </h2>
-                    <p className="mt-0.5 text-xs text-[var(--cream-muted)]">
-                      {completedCount} de {totalMissions} misiones completadas
-                    </p>
+                    {(() => {
+                      const lvl = getXpLevel(totalXP);
+                      return (
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--gold-subtle)] ring-1 ring-[var(--border-gold)]">
+                            <Zap className="h-3.5 w-3.5 text-[var(--gold)]" strokeWidth={2.5} />
+                          </div>
+                          <div>
+                            <p className={`text-xs font-bold uppercase tracking-wider ${lvl.color}`}>
+                              Nv.{lvl.level} · {lvl.title}
+                            </p>
+                            <p className="text-[10px] text-[var(--cream-muted)]">
+                              {completedCount} de {totalMissions} misiones completadas
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
+
                   {/* XP badge */}
-                  <div className="flex shrink-0 flex-col items-end">
-                    <div className="flex items-center gap-1.5 rounded-2xl border border-[var(--border-gold)] bg-[var(--gold-subtle)] px-3.5 py-1.5 shadow-[var(--shadow-gold)]">
-                      <Star className="h-4 w-4 text-[var(--gold)]" strokeWidth={2} fill="currentColor" />
-                      <span className="font-playfair text-lg font-bold text-[var(--gold)]">{totalXP}</span>
-                      <span className="text-xs font-semibold text-[var(--gold)]/70">XP</span>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <div className="flex items-center gap-1.5 rounded-2xl border border-[var(--border-gold)] bg-[var(--gold-subtle)] px-3 py-1.5 shadow-[0_0_16px_rgba(201,162,39,.2)]">
+                      <Star className="h-3.5 w-3.5 text-[var(--gold)]" strokeWidth={2} fill="currentColor" />
+                      <span className="font-playfair text-xl font-bold text-[var(--gold)] tabular-nums">{totalXP}</span>
+                      <span className="text-[10px] font-bold text-[var(--gold)]/60">XP</span>
                     </div>
                     {progressPct > 0 && (
-                      <div className="mt-1 flex items-center gap-1 text-[10px] text-[var(--cream-muted)]">
+                      <div className="flex items-center gap-1 text-[10px] text-[var(--cream-muted)]">
                         <Flame className="h-3 w-3 text-[var(--amber)]" />
-                        {progressPct}% completado
+                        <span>{progressPct}% total</span>
                       </div>
                     )}
                   </div>
@@ -169,17 +190,18 @@ export default function DashboardPage() {
                       const total = g.missions.filter(m => !m.comingSoon).length;
                       const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
                       const bar   = TRACK_BAR[g.track];
+                      const isDone = pct === 100;
                       return (
                         <div key={g.track}>
                           <div className="mb-1.5 flex items-center justify-between">
-                            <span className="truncate pr-1 text-[10px] font-medium text-[var(--cream-muted)]">
-                              {meta.label}
+                            <span className={`truncate pr-1 text-[10px] font-medium ${isDone ? "text-[var(--success)]" : "text-[var(--cream-muted)]"}`}>
+                              {isDone ? "✓ " : ""}{meta.label}
                             </span>
                             <span className="shrink-0 text-[10px] text-[var(--cream-muted)]">{done}/{total}</span>
                           </div>
                           <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
                             <div
-                              className={`h-full rounded-full transition-all duration-700 ${bar}`}
+                              className={`h-full rounded-full transition-all duration-700 ${isDone ? "bg-[var(--success)]" : bar}`}
                               style={{ width: `${pct}%` }}
                             />
                           </div>
@@ -196,10 +218,15 @@ export default function DashboardPage() {
                     Ver mis credenciales →
                   </Link>
                 ) : completedCount > 0 && (
-                  <Link href="/graduation" className="mt-5 flex items-center gap-2 rounded-xl border border-[var(--border-gold)] px-4 py-2 text-xs text-[var(--gold)] transition-colors hover:bg-[var(--gold-subtle)]">
-                    <Award className="h-3.5 w-3.5" />
-                    Ver credenciales parciales
-                  </Link>
+                  <div className="mt-5 flex items-center gap-3">
+                    <Link href="/graduation" className="flex items-center gap-1.5 rounded-xl border border-[var(--border-gold)] px-3.5 py-2 text-xs text-[var(--gold)] transition-colors hover:bg-[var(--gold-subtle)]">
+                      <Award className="h-3.5 w-3.5" />
+                      Credenciales parciales
+                    </Link>
+                    <span className="text-[10px] text-[var(--cream-muted)]">
+                      {totalMissions - completedCount} misiones restantes para graduarte
+                    </span>
+                  </div>
                 )}
               </div>
             </motion.div>
@@ -209,7 +236,7 @@ export default function DashboardPage() {
               variants={containerVariants}
               initial="hidden"
               animate="show"
-              className="space-y-8"
+              className="space-y-6"
             >
               <AnimatePresence>
                 {groups.map(group => {
@@ -218,16 +245,17 @@ export default function DashboardPage() {
                   const trackDone    = group.missions.filter(m => group.completed.includes(m.id)).length;
                   const trackTotal   = group.missions.filter(m => !m.comingSoon).length;
                   const trackPct     = trackTotal > 0 ? Math.round((trackDone / trackTotal) * 100) : 0;
+                  const isComplete   = trackPct === 100 && trackTotal > 0;
 
                   return (
                     <motion.section key={group.track} variants={itemVariants}>
                       {/* Track header */}
-                      <div className="mb-3 flex items-center gap-3">
-                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${trackColor}`}>
-                          <TrackIconBadge track={group.track} size={16} />
+                      <div className={`mb-3 flex items-center gap-3 rounded-2xl border p-3.5 ${isComplete ? "border-[var(--success-border)] bg-[var(--success-subtle)]" : "border-[var(--border)] bg-[var(--surface)]/50"}`}>
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${trackColor}`}>
+                          <TrackIconBadge track={group.track} size={17} />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="text-sm font-bold text-[var(--cream)]">
                               {meta.label}
                             </h3>
@@ -235,27 +263,29 @@ export default function DashboardPage() {
                               <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-2 py-0.5 text-[10px] text-[var(--cream-muted)]">
                                 próximamente
                               </span>
+                            ) : isComplete ? (
+                              <span className="flex items-center gap-1 rounded-full border border-[var(--success-border)] bg-[var(--success)]/10 px-2 py-0.5 text-[10px] font-bold text-[var(--success)]">
+                                <Shield className="h-3 w-3" strokeWidth={2.5} />
+                                Completado
+                              </span>
                             ) : trackTotal > 0 && (
-                              <span className="text-[10px] text-[var(--cream-muted)]">
+                              <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-[10px] text-[var(--cream-muted)]">
                                 {trackDone}/{trackTotal}
-                                {trackPct === 100 && (
-                                  <span className="ml-1 text-[var(--success)]">✓</span>
-                                )}
                               </span>
                             )}
                           </div>
-                          <p className="truncate text-xs text-[var(--cream-muted)]">{meta.description}</p>
+                          <p className="mt-0.5 truncate text-xs text-[var(--cream-muted)]">{meta.description}</p>
                         </div>
-                        {/* Pequeño escudo si track completado */}
-                        {trackPct === 100 && (
-                          <Shield className="h-4 w-4 shrink-0 text-[var(--success)]" strokeWidth={2} />
+                        {isComplete && (
+                          <TrendingUp className="h-4 w-4 shrink-0 text-[var(--success)]" strokeWidth={2} />
                         )}
                       </div>
 
                       {/* Missions */}
                       {group.comingSoon ? (
-                        <div className="rounded-2xl border border-dashed border-[var(--border)] px-5 py-4 text-xs text-[var(--cream-muted)]">
-                          Este track estará disponible en una próxima actualización
+                        <div className="rounded-2xl border border-dashed border-[var(--border)] px-5 py-5 text-center text-xs text-[var(--cream-muted)]">
+                          <Shield className="mx-auto mb-2 h-5 w-5 opacity-30" strokeWidth={1.5} />
+                          Este track estará disponible próximamente
                         </div>
                       ) : (
                         <div className="space-y-2.5">

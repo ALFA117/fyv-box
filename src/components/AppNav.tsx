@@ -81,14 +81,14 @@ export function AppNav({ back, wallet, showStats = false, showLogout = false }: 
       )}
 
       {/* Right */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         {wallet && (
           <WalletIndicator publicKey={wallet.publicKey} provider={wallet.provider} />
         )}
         {showStats && (
           <Link
             href="/stats"
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--cream-muted)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--cream)]"
+            className="hidden items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--cream-muted)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--cream)] sm:flex"
           >
             <BarChart2 className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Stats</span>
