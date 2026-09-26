@@ -395,6 +395,7 @@ const WHO = [
 
 export default function LandingPage() {
   const { theme, toggle } = useTheme();
+  const reduce = useReducedMotion();
 
   return (
     <div className="relative min-h-dvh overflow-x-hidden">
@@ -499,9 +500,9 @@ export default function LandingPage() {
 
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
       <motion.nav
-        initial={{ y: -56, opacity: 0 }}
+        initial={reduce ? false : { y: -56, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        transition={reduce ? { duration: 0 } : { duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 inset-x-0 z-50 flex items-center justify-between gap-3 border-b border-white/[0.07] bg-[#0A1A33]/80 px-5 py-3 backdrop-blur-lg sm:px-10"
       >
         <div className="flex items-center gap-2.5">
@@ -534,10 +535,10 @@ export default function LandingPage() {
           >
             <AnimatePresence mode="wait" initial={false}>
               <motion.span key={theme}
-                initial={{ opacity: 0, rotate: -90, scale: 0.5 }}
+                initial={reduce ? false : { opacity: 0, rotate: -90, scale: 0.5 }}
                 animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
-                transition={{ type: "spring", stiffness: 300, damping: 22 }}>
+                exit={reduce ? {} : { opacity: 0, rotate: 90, scale: 0.5 }}
+                transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 22 }}>
                 {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </motion.span>
             </AnimatePresence>
@@ -551,15 +552,15 @@ export default function LandingPage() {
         {/* ── Copy — full width en mobile, mitad en desktop ───────────────── */}
         <div className="flex w-full flex-col px-5 pb-10 pt-10 lg:h-full lg:w-1/2 lg:items-center lg:justify-center lg:overflow-y-auto lg:px-16 lg:py-0">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={reduce ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={reduce ? { duration: 0 } : { delay: 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="mx-auto w-full max-w-lg"
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={reduce ? false : { opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.05, duration: 0.4 }}
+              transition={reduce ? { duration: 0 } : { delay: 0.05, duration: 0.4 }}
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--amber-border)] bg-[var(--amber-subtle)] px-3.5 py-1.5 text-xs font-semibold text-[var(--amber)]"
             >
               <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -590,9 +591,9 @@ export default function LandingPage() {
 
             {/* Logo panther — solo mobile, decorativo */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
+              initial={reduce ? false : { opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.25, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              transition={reduce ? { duration: 0 } : { delay: 0.25, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="mt-8 flex justify-center lg:hidden"
             >
               <div className="relative w-44">
@@ -623,16 +624,16 @@ export default function LandingPage() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={reduce ? false : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.5 }}
+              transition={reduce ? { duration: 0 } : { delay: 0.35, duration: 0.5 }}
               className="mt-8 flex flex-wrap items-center gap-3"
             >
               <motion.a
                 href="#auth"
-                whileHover={{ scale: 1.03, boxShadow: "0 0 36px rgba(201,162,39,.55)" }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                whileHover={reduce ? {} : { scale: 1.03, boxShadow: "0 0 36px rgba(201,162,39,.55)" }}
+                whileTap={reduce ? {} : { scale: 0.97 }}
+                transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 20 }}
                 className="group inline-flex items-center gap-2 rounded-xl bg-[var(--gold)] px-6 py-3.5 text-sm font-bold text-[var(--navy)] shadow-[0_0_24px_rgba(201,162,39,.35)] transition-colors hover:bg-[var(--gold-hover)]"
               >
                 Comenzar gratis
@@ -640,9 +641,9 @@ export default function LandingPage() {
               </motion.a>
               <motion.a
                 href="#who"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                whileHover={reduce ? {} : { scale: 1.02 }}
+                whileTap={reduce ? {} : { scale: 0.97 }}
+                transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 20 }}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-strong)] px-5 py-3.5 text-sm text-[var(--cream-muted)] backdrop-blur-sm transition-colors hover:border-[var(--border-gold)] hover:text-[var(--cream)]"
               >
                 ¿Esto es para mí?
