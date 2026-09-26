@@ -111,7 +111,7 @@ function DiscordFrame({ mission }: { mission: Mission }) {
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5865F2] font-bold text-sm text-white">
               {attackerName[0]?.toUpperCase()}
             </div>
-            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full ring-2" style={{ background: "#23a559", ringColor: "#313338" }} />
+            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full ring-2 ring-[#313338]" style={{ background: "#23a559" }} />
           </div>
 
           <div className="flex-1 min-w-0">
