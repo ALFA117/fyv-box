@@ -61,11 +61,13 @@ export default function DashboardPage() {
   const [groups,    setGroups]    = useState<TrackGroup[]>([]);
   const [totalXP,   setTotalXP]   = useState(0);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  const [retryKey,  setRetryKey]  = useState(0);
 
   useEffect(() => { getWallet().then(setWallet); }, []);
 
   useEffect(() => {
     if (!wallet) return;
+    setLoadState("loading");
     fetch("/api/missions/list")
       .then(r => r.json())
       .then(async (missions: Mission[]) => {
@@ -96,7 +98,7 @@ export default function DashboardPage() {
         setLoadState("ready");
       })
       .catch(() => setLoadState("error"));
-  }, [wallet]);
+  }, [wallet, retryKey]);
 
   const activeTracks    = groups.filter(g => !g.comingSoon);
   const totalMissions   = activeTracks.flatMap(g => g.missions).filter(m => !m.comingSoon).length;
@@ -112,13 +114,21 @@ export default function DashboardPage() {
           <DashboardSkeleton />
         ) : loadState === "error" ? (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mx-auto max-w-sm rounded-2xl border border-[var(--danger-border)] bg-[var(--danger-subtle)] p-6 text-center"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mx-auto max-w-sm space-y-4 rounded-2xl border border-[var(--danger-border)] bg-[var(--danger-subtle)] p-6 text-center"
           >
-            <AlertCircle className="mx-auto mb-3 h-8 w-8 text-[var(--danger)]" strokeWidth={1.75} />
-            <p className="text-sm font-semibold text-[var(--cream)]">Error al cargar las misiones</p>
-            <p className="mt-1 text-xs text-[var(--cream-muted)]">Revisa tu conexión e intenta de nuevo.</p>
+            <AlertCircle className="mx-auto h-8 w-8 text-[var(--danger)]" strokeWidth={1.75} />
+            <div>
+              <p className="text-sm font-semibold text-[var(--cream)]">Error al cargar las misiones</p>
+              <p className="mt-1 text-xs text-[var(--cream-muted)]">Revisa tu conexión e intenta de nuevo.</p>
+            </div>
+            <button
+              onClick={() => setRetryKey(k => k + 1)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--danger-border)] px-4 py-2 text-xs font-semibold text-[var(--danger)] transition-colors hover:bg-[var(--danger)]/10"
+            >
+              Reintentar
+            </button>
           </motion.div>
         ) : (
           <div className="mx-auto max-w-2xl space-y-6">

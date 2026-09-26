@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, CheckCircle, XCircle, Loader2, ShieldCheck, Code2 } from "lucide-react";
@@ -36,6 +36,11 @@ function VerifyContent() {
   const [loading, setLoading] = useState(false);
   const [result,  setResult]  = useState<VerifyResult | null>(null);
   const [error,   setError]   = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialAddress.trim()) verify(initialAddress);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function verify(addr: string = address) {
     if (!addr.trim()) return;

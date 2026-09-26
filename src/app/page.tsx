@@ -504,10 +504,10 @@ export default function LandingPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          {["#about","#faucets"].map((href, i) => (
+          {["#about","#tracks","#faucets"].map((href, i) => (
             <a key={href} href={href}
               className="hidden rounded-lg px-3 py-1.5 text-xs font-medium text-[#B8C2D6] transition-colors hover:text-[#F5F1E6] sm:block">
-              {["Quiénes somos","Faucets"][i]}
+              {["Nosotros","Módulos","Faucets"][i]}
             </a>
           ))}
           <a
@@ -789,6 +789,73 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ══ TRACKS — Lo que aprenderás ══════════════════════════════════ */}
+      <section id="tracks" className="px-4 py-14 sm:px-8 sm:py-24">
+        <div className="mx-auto max-w-5xl">
+          <Reveal className="mb-10 text-center">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
+              Contenido del curso
+            </p>
+            <h2 className="font-playfair text-3xl font-bold tracking-tight text-[var(--cream)] sm:text-4xl">
+              22 simulacros · 6 módulos
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-[var(--cream-muted)]">
+              Cada módulo termina con una credencial verificable. Puedes completarlos
+              en el orden que quieras.
+            </p>
+          </Reveal>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {([
+              { track: "phishing",            missions: 5, color: "text-[var(--danger)]",   bg: "bg-[var(--danger-subtle)]",   border: "border-[var(--danger-border)]" },
+              { track: "fake-assets",         missions: 3, color: "text-[var(--amber)]",    bg: "bg-[var(--amber-subtle)]",    border: "border-[var(--amber-border)]" },
+              { track: "social-engineering",  missions: 5, color: "text-blue-400",          bg: "bg-blue-500/10",              border: "border-blue-500/20" },
+              { track: "dangerous-approvals", missions: 3, color: "text-orange-400",        bg: "bg-orange-500/10",            border: "border-orange-500/20" },
+              { track: "presale-scam",        missions: 2, color: "text-purple-400",        bg: "bg-purple-500/10",            border: "border-purple-500/20" },
+              { track: "key-hygiene",         missions: 4, color: "text-[var(--success)]",  bg: "bg-[var(--success-subtle)]",  border: "border-[var(--success-border)]" },
+            ] as const).map(({ track, missions, color, bg, border }, i) => {
+              const meta = {
+                phishing:            { label: "Phishing e Impersonación",    emoji: "🎣", desc: "Páginas falsas, dominios engañosos, emails de phishing." },
+                "fake-assets":       { label: "Activos y Airdrops Falsos",   emoji: "🪙", desc: "Tokens fraudulentos, airdrops trampa, NFTs falsos." },
+                "social-engineering":{ label: "Ingeniería Social",           emoji: "🗣️", desc: "Presión psicológica, identidades falsas, FOMO artificial." },
+                "dangerous-approvals":{ label: "Aprobaciones Peligrosas",   emoji: "⚠️", desc: "Transacciones con permisos excesivos e irreversibles." },
+                "presale-scam":      { label: "Preventa y Rendimiento Falso",emoji: "📈", desc: "Promesas irreales, esquemas ponzi, proyectos rug-pull." },
+                "key-hygiene":       { label: "Higiene de Llaves",           emoji: "🔑", desc: "Proteger tu seed phrase, evitar leaks, gestión segura." },
+              }[track];
+              return (
+                <Reveal key={track} delay={i * 0.06}>
+                  <motion.a
+                    href="/dashboard"
+                    whileHover={{ y: -4, boxShadow: "0 12px 32px rgba(0,0,0,.3)" }}
+                    transition={{ type: "spring", stiffness: 380, damping: 28 }}
+                    className="group block"
+                  >
+                    <GlassCard className="h-full p-5">
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className={`flex h-11 w-11 items-center justify-center rounded-xl border ${border} ${bg} text-xl`}>
+                          {meta.emoji}
+                        </div>
+                        <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${border} ${bg} ${color}`}>
+                          {missions} misiones
+                        </span>
+                      </div>
+                      <p className={`text-sm font-bold ${color}`}>{meta.label}</p>
+                      <p className="mt-1.5 text-xs leading-relaxed text-[var(--cream-muted)]">
+                        {meta.desc}
+                      </p>
+                      <div className="mt-4 flex items-center gap-1 text-[10px] font-semibold text-[var(--cream-muted)] transition-colors group-hover:text-[var(--gold)]">
+                        Iniciar módulo
+                        <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                      </div>
+                    </GlassCard>
+                  </motion.a>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* ══ POR QUÉ NO SOMOS ESCUELA ════════════════════════════════════ */}
       <section id="why-not" className="px-4 py-14 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-5xl">
@@ -960,8 +1027,8 @@ export default function LandingPage() {
           <div className="mb-8 flex flex-col items-center gap-3 sm:flex-row sm:items-start sm:justify-between">
             {/* Brand */}
             <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-[var(--border-gold)] bg-[var(--surface)]">
-                <Image src="/logo-panther.webp" alt="" width={32} height={32} className="h-full w-full object-cover" />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-gold)] bg-[var(--gold-subtle)]">
+                <Shield className="h-4 w-4 text-[var(--gold)]" strokeWidth={2} />
               </div>
               <div>
                 <p className="font-playfair text-sm font-bold text-[var(--cream)]">FYV <span className="text-[var(--gold)]">Box</span></p>

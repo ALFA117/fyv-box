@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Award, Shield, ExternalLink } from "lucide-react";
+import { Award, Shield, ExternalLink, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { getWallet, type WalletIdentity } from "@/identity";
 import { CredentialBadge } from "@/components/CredentialBadge";
+import { TrackIcon } from "@/components/TrackIcon";
 import { supabase } from "@/lib/supabase";
 import type { Mission } from "@/missions/schema";
+import { TrackMeta } from "@/missions/schema";
 import { AppNav } from "@/components/AppNav";
 
 interface ModuleCompletion {
@@ -56,6 +58,22 @@ export default function GraduationPage() {
       <AppNav back="/dashboard" wallet={wallet ?? undefined} />
 
       <div className="px-4 py-6">
+        {loading ? (
+          /* ── Skeleton ── */
+          <div className="mx-auto max-w-lg space-y-4">
+            <div className="mb-8 flex flex-col items-center gap-4">
+              <div className="skeleton h-20 w-20 rounded-2xl" />
+              <div className="skeleton h-8 w-48 rounded-xl" />
+              <div className="skeleton h-4 w-64 rounded-lg" />
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skeleton h-28 rounded-2xl" />
+              ))}
+            </div>
+          </div>
+        ) : (
+        <>
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -82,11 +100,7 @@ export default function GraduationPage() {
           </motion.div>
 
           <h1 className="font-playfair text-3xl font-bold text-[var(--cream)]">
-            {loading
-              ? "Cargando…"
-              : hasCredentials
-              ? "Tus credenciales"
-              : "Aún no hay credenciales"}
+            {hasCredentials ? "Tus credenciales" : "Aún no hay credenciales"}
           </h1>
           <p className="mt-2 text-sm text-[var(--cream-muted)]">
             {hasCredentials
@@ -135,21 +149,59 @@ export default function GraduationPage() {
             </Link>
           </motion.div>
         ) : !loading ? (
-          <div className="mx-auto max-w-sm text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="mx-auto max-w-lg"
+          >
+            {/* Track preview grid */}
+            <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {(Object.keys(TrackMeta) as Mission["track"][]).map((track, i) => (
+                <motion.div
+                  key={track}
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.25 + i * 0.06, type: "spring", stiffness: 260, damping: 22 }}
+                  className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 text-center"
+                >
+                  {/* lock overlay */}
+                  <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--surface-2)]">
+                    <Lock className="h-2.5 w-2.5 text-[var(--cream-muted)]" strokeWidth={2.5} />
+                  </div>
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface-2)]">
+                    <TrackIcon track={track} size={18} />
+                  </div>
+                  <p className="text-[10px] font-semibold leading-tight text-[var(--cream-muted)]">
+                    {TrackMeta[track].label}
+                  </p>
+                  <p className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-2 py-0.5 text-[9px] text-[var(--cream-muted)]/60">
+                    Bloqueado
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* CTA card */}
+            <div className="rounded-2xl border border-[var(--border-gold)] bg-[var(--gold-subtle)] p-6 text-center shadow-[var(--shadow-gold)]">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--gold)]">
+                6 credenciales disponibles
+              </p>
+              <p className="mb-4 text-sm text-[var(--cream-muted)]">
+                Completa un track completo para desbloquear tu primera credencial verificable en Stellar testnet.
+              </p>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-5 py-3 text-sm text-[var(--cream)] transition-colors hover:border-[var(--border-gold)] hover:text-[var(--gold)]"
+                className="inline-flex items-center gap-2 rounded-xl bg-[var(--gold)] px-6 py-3 text-sm font-bold text-[var(--navy)] shadow-md transition-all hover:bg-[var(--gold-hover)] hover:shadow-[0_0_20px_rgba(201,162,39,.4)]"
               >
-                Ir a entrenar →
+                Ir a entrenar
+                <ArrowRight className="h-4 w-4" />
               </Link>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         ) : null}
+        </>
+        )}
       </div>
     </div>
   );
