@@ -503,13 +503,17 @@ export default function LandingPage() {
         initial={reduce ? false : { y: -56, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={reduce ? { duration: 0 } : { duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 inset-x-0 z-50 flex items-center justify-between gap-3 border-b border-white/[0.07] bg-[#0A1A33]/80 px-5 py-3 backdrop-blur-lg sm:px-10"
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between gap-3 border-b px-5 py-3 backdrop-blur-lg sm:px-10 ${
+          theme === "dark"
+            ? "border-white/[0.07] bg-[#0A1A33]/80"
+            : "border-black/[0.07] bg-[#F5F1E6]/90"
+        }`}
       >
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#C9A227]/30 bg-[#C9A227]/[0.14] ring-1 ring-[#C9A227]/40 shadow-[0_0_8px_rgba(201,162,39,.25)]">
             <Shield className="h-4.5 w-4.5 text-[#C9A227]" strokeWidth={2} />
           </div>
-          <span className="font-playfair text-base font-bold text-[#F5F1E6]">
+          <span className={`font-playfair text-base font-bold ${theme === "dark" ? "text-[#F5F1E6]" : "text-[#1A2E4A]"}`}>
             FYV<span className="text-[#C9A227]"> Box</span>
           </span>
         </div>
@@ -517,7 +521,11 @@ export default function LandingPage() {
         <div className="flex items-center gap-2">
           {["#about","#tracks","#faucets"].map((href, i) => (
             <a key={href} href={href}
-              className="hidden rounded-lg px-3 py-1.5 text-xs font-medium text-[#B8C2D6] transition-colors hover:text-[#F5F1E6] sm:block">
+              className={`hidden rounded-lg px-3 py-1.5 text-xs font-medium transition-colors sm:block ${
+                theme === "dark"
+                  ? "text-[#B8C2D6] hover:text-[#F5F1E6]"
+                  : "text-[#4A6080] hover:text-[#1A2E4A]"
+              }`}>
               {["Nosotros","Módulos","Faucets"][i]}
             </a>
           ))}
@@ -531,7 +539,11 @@ export default function LandingPage() {
           <button
             onClick={toggle}
             aria-label="Cambiar tema"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] text-[#B8C2D6] transition-colors hover:border-white/[0.14] hover:text-[#F5F1E6]"
+            className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-colors ${
+              theme === "dark"
+                ? "border-white/[0.07] text-[#B8C2D6] hover:border-white/[0.14] hover:text-[#F5F1E6]"
+                : "border-black/[0.08] text-[#4A6080] hover:border-black/[0.18] hover:text-[#1A2E4A]"
+            }`}
           >
             <AnimatePresence mode="wait" initial={false}>
               <motion.span key={theme}
