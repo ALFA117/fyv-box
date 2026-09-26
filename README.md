@@ -163,7 +163,7 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 
 ### Tipografía
 
-- Display y títulos: **Syne** 700/800 (`next/font`; la variable conserva el nombre `--font-playfair`).
+- Display, títulos y wordmark: **Playfair Display** 600–800 (serif elegante, `next/font`, variable `--font-playfair`), elegida con la skill ui-ux-pro-max (pareja "Classic Elegant" con Inter).
 - Cuerpo: **Inter**. Mono: **IBM Plex Mono** para direcciones, hashes y código.
 - Escala: `text-display` (36→52 px fluido), `text-title-1` (26→36), `text-title-2` (22), `text-title-3` (17), `text-body` (16), `text-body-sm` (14), `text-label` (12, semibold), `text-eyebrow` (12, mayúsculas, tracking amplio). Mínimo en toda la app: 12 px. Inputs a 16 px para evitar el zoom de iOS.
 - Direcciones Stellar siempre en mono y truncadas al centro con `midTruncate()` (`src/lib/ownership.ts`); la dirección completa va en `title` y en la etiqueta accesible.
@@ -189,7 +189,7 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 
 ### Marca
 
-- Wordmark `FYV Box` (Syne 800, "Box" en oro) en navegación, 404, OG y footer. Sin escudos ni logos oficiales de la UNAM.
+- Wordmark `FYV Box` (Playfair Display 700, "Box" en oro) en navegación, 404, OG y footer. Sin escudos ni logos oficiales de la UNAM.
 - Favicon SVG: monograma "F" en oro sobre marino; ícono de Apple "FYV." generado.
 
 ### Pendientes visuales
@@ -197,3 +197,11 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - Imagen OG específica por misión (hoy todas comparten la general).
 - Confeti o celebración al certificar un track.
 - Modo "repaso" de misiones completadas mostrando la respuesta correcta.
+
+### Segunda pasada (skills ui-ux-pro-max + motion)
+
+- Sin animaciones decorativas infinitas (logo flotante, halo pulsante, gradiente animado, formas flotantes): solo el shimmer de carga es continuo. Partículas solo en escritorio con mouse.
+- Barras de progreso animan `transform` en vez de `width`; opciones de misión con feedback de presión (`active:scale`), desactivado con reduced-motion.
+- Ninguna pantalla se sirve con contenido en `opacity: 0` desde el servidor (landing y misión).
+- `/pitch` rehecho con el sistema de marca: Playfair + Inter + Plex Mono, íconos SVG (sin emojis ni escudo), conteos reales del catálogo, swipe nativo con scroll-snap, controles de 44 px, áreas seguras, teclado, `prefers-reduced-motion` y enlace directo a diapositiva (`/pitch#4`). El dato "$3.2B en LATAM" no tenía fuente y se reemplazó por una afirmación verificable.
+- Pendiente: en Chrome headless dentro de un iframe el dashboard se quedó en esqueleto; en el navegador normal carga bien. Revisar en el celular (paso 2–3 del checklist).

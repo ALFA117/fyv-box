@@ -6,7 +6,7 @@ const SIZES = {
 
 export function Wordmark({ size = "md", className = "" }: { size?: keyof typeof SIZES; className?: string }) {
   return (
-    <span className={`whitespace-nowrap font-display font-extrabold tracking-[-0.03em] text-cream ${SIZES[size]} ${className}`}>
+    <span className={`whitespace-nowrap font-display font-bold tracking-[-0.01em] text-cream ${SIZES[size]} ${className}`}>
       FYV<span className="text-gold"> Box</span>
     </span>
   );

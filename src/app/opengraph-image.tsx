@@ -15,7 +15,7 @@ const PILLS = [
 
 export default async function OGImage() {
   const fonts = await ogFonts();
-  const display = fonts.some((f) => f.name === "Syne") ? "Syne" : undefined;
+  const display = fonts.some((f) => f.name === "Playfair Display") ? "Playfair Display" : undefined;
 
   return new ImageResponse(
     (
@@ -46,7 +46,7 @@ export default async function OGImage() {
         />
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", fontFamily: display, fontSize: 46, fontWeight: 800, letterSpacing: "-0.03em" }}>
+          <div style={{ display: "flex", fontFamily: display, fontSize: 46, fontWeight: 700, letterSpacing: "-0.01em" }}>
             <span>FYV</span>
             <span style={{ color: BRAND.gold, marginLeft: 12 }}>Box</span>
           </div>
@@ -60,9 +60,9 @@ export default async function OGImage() {
               flexWrap: "wrap",
               fontFamily: display,
               fontSize: 84,
-              fontWeight: 800,
+              fontWeight: 700,
               lineHeight: 1.02,
-              letterSpacing: "-0.035em",
+              letterSpacing: "-0.015em",
             }}
           >
             <span>No caigas en&nbsp;</span>

@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Inter, Syne, IBM_Plex_Mono } from "next/font/google";
+import { Inter, Playfair_Display, IBM_Plex_Mono } from "next/font/google";
 import { ToastProvider } from "@/components/Toast";
 import { BRAND, siteUrl } from "@/lib/brand";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
-// Syne para títulos y wordmark. La variable conserva el nombre histórico --font-playfair.
-const syne = Syne({ subsets: ["latin"], variable: "--font-playfair", weight: ["700", "800"], display: "swap" });
+// Serif elegante para títulos y wordmark.
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", weight: ["600", "700", "800"], display: "swap" });
 
 const plexMono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-mono", weight: ["400", "500"], display: "swap" });
 
@@ -67,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="es"
       data-theme="dark"
-      className={`${inter.variable} ${syne.variable} ${plexMono.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${plexMono.variable}`}
       suppressHydrationWarning
     >
       <body>

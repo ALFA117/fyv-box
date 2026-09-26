@@ -16,9 +16,9 @@ async function loadGoogleFont(family: string, weight: number): Promise<ArrayBuff
 }
 
 export async function ogFonts() {
-  const [syne, inter] = await Promise.all([loadGoogleFont("Syne", 800), loadGoogleFont("Inter", 500)]);
-  const fonts: { name: string; data: ArrayBuffer; weight: 500 | 800; style: "normal" }[] = [];
-  if (syne) fonts.push({ name: "Syne", data: syne, weight: 800, style: "normal" });
+  const [serif, inter] = await Promise.all([loadGoogleFont("Playfair+Display", 700), loadGoogleFont("Inter", 500)]);
+  const fonts: { name: string; data: ArrayBuffer; weight: 500 | 700; style: "normal" }[] = [];
+  if (serif) fonts.push({ name: "Playfair Display", data: serif, weight: 700, style: "normal" });
   if (inter) fonts.push({ name: "Inter", data: inter, weight: 500, style: "normal" });
   return fonts;
 }

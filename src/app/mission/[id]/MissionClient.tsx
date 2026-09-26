@@ -413,12 +413,7 @@ export function MissionClient({ mission }: { mission: PublicMission }) {
       </div>
 
       <main id="main" tabIndex={-1} className={`outline-none px-gutter py-6 sm:py-8 ${result ? "pb-safe" : "pb-40 lg:pb-12"}`}>
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={reduce ? { duration: 0 } : { duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="mx-auto max-w-5xl"
-        >
+        <div className="mx-auto max-w-5xl">
           <header className="mb-6">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${style.chip}`}>{trackName}</span>
@@ -457,7 +452,7 @@ export function MissionClient({ mission }: { mission: PublicMission }) {
                               disabled={submitting}
                               onClick={() => { setSelected(opt.id); setError(null); }}
                               className={[
-                                "group flex min-h-[56px] w-full items-start gap-3 rounded-2xl border px-4 py-3.5 text-left transition-colors duration-150 disabled:cursor-not-allowed",
+                                "group flex min-h-[56px] w-full cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3.5 text-left transition-[background-color,border-color,transform] duration-150 ease-out active:scale-[0.985] disabled:cursor-not-allowed motion-reduce:active:scale-100",
                                 isSel
                                   ? "border-gold bg-gold-subtle shadow-[var(--shadow-gold)]"
                                   : "border-line bg-surface hover:border-line-gold hover:bg-surface-2 active:bg-surface-3",
@@ -565,7 +560,7 @@ export function MissionClient({ mission }: { mission: PublicMission }) {
               </div>
             </section>
           </div>
-        </motion.div>
+        </div>
       </main>
 
       {/* Thumb-reachable confirm bar on phones (outside animated/transformed ancestors so `fixed` works) */}

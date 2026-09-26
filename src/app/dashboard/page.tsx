@@ -170,8 +170,8 @@ export default function DashboardPage() {
                       </div>
                       <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
                         <div
-                          className={`h-full rounded-full transition-[width] duration-700 ${isDone ? "bg-success" : TRACK_STYLE[g.track].bar}`}
-                          style={{ width: `${pct}%` }}
+                          className={`h-full origin-left rounded-full transition-transform duration-700 ease-out ${isDone ? "bg-success" : TRACK_STYLE[g.track].bar}`}
+                          style={{ transform: `scaleX(${pct / 100})` }}
                         />
                       </div>
                     </li>

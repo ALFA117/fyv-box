@@ -54,6 +54,8 @@ function ParticleCanvas() {
     const canvas = ref.current;
     if (!canvas) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Decorative and continuous: only on large screens with a mouse, never on phones (battery).
+    if (!window.matchMedia("(min-width: 1024px) and (pointer: fine)").matches) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -124,20 +126,10 @@ function ParticleCanvas() {
 
 /* ─── Logo pantera (desktop) ─────────────────────────────────────────────── */
 function HologramLogo() {
-  const reduce = useReducedMotion();
   return (
     <div className="relative flex w-full items-center justify-center px-8">
-      <motion.div
-        aria-hidden
-        className="logo-halo pointer-events-none absolute inset-0 -z-10"
-        animate={reduce ? undefined : { opacity: [0.5, 1, 0.5], scale: [1, 1.08, 1] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="relative z-10 w-full max-w-[420px]"
-        animate={reduce ? undefined : { y: [0, -14, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      >
+      <div aria-hidden className="logo-halo pointer-events-none absolute inset-0 -z-10" />
+      <div className="relative z-10 w-full max-w-[420px]">
         <Image
           src="/logo-panther.webp"
           alt=""
@@ -147,7 +139,7 @@ function HologramLogo() {
           className="logo-panther h-auto w-full"
           priority
         />
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -337,20 +329,20 @@ export function LandingClient({ missionCount, trackCounts }: LandingProps) {
       <div aria-hidden className="landing-grid pointer-events-none fixed inset-0 -z-20" />
       <ParticleCanvas />
       <svg aria-hidden className="pointer-events-none fixed inset-0 -z-10 hidden h-full w-full sm:block" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
-        <g style={{ color: "var(--decor-1)", animation: "float-3d 10s ease-in-out infinite", transformOrigin: "950px 160px" }} stroke="currentColor" fill="currentColor">
+        <g style={{ color: "var(--decor-1)", transformOrigin: "950px 160px" }} stroke="currentColor" fill="currentColor">
           <polygon points="950,80 1030,118 950,156 870,118" fillOpacity=".08" strokeOpacity=".32" />
           <polygon points="870,118 950,156 950,232 870,194" fillOpacity=".04" strokeOpacity=".22" />
           <polygon points="1030,118 950,156 950,232 1030,194" fillOpacity=".06" strokeOpacity=".27" />
         </g>
-        <g style={{ color: "var(--decor-2)", animation: "float-3d-rev 13s ease-in-out infinite 1s", transformOrigin: "110px 420px" }} stroke="currentColor" fill="currentColor">
+        <g style={{ color: "var(--decor-2)", transformOrigin: "110px 420px" }} stroke="currentColor" fill="currentColor">
           <polygon points="110,368 158,391 110,414 62,391" fillOpacity=".07" strokeOpacity=".26" />
           <polygon points="62,391 110,414 110,461 62,438" fillOpacity=".03" strokeOpacity=".18" />
           <polygon points="158,391 110,414 110,461 158,438" fillOpacity=".05" strokeOpacity=".22" />
         </g>
-        <g style={{ color: "var(--decor-1)", animation: "float-3d-rev 15s ease-in-out infinite .5s", transformOrigin: "155px 190px" }} stroke="currentColor" fill="none">
+        <g style={{ color: "var(--decor-1)", transformOrigin: "155px 190px" }} stroke="currentColor" fill="none">
           <polygon points="155,148 196,170 196,214 155,236 114,214 114,170" strokeOpacity=".26" strokeWidth="1.4" />
         </g>
-        <g style={{ color: "var(--decor-3)", animation: "float-3d 12s ease-in-out infinite 3s", transformOrigin: "1050px 760px" }} stroke="currentColor" fill="currentColor">
+        <g style={{ color: "var(--decor-3)", transformOrigin: "1050px 760px" }} stroke="currentColor" fill="currentColor">
           <polygon points="1050,724 1084,742 1050,760 1016,742" fillOpacity=".07" strokeOpacity=".24" />
           <polygon points="1016,742 1050,760 1050,796 1016,778" fillOpacity=".035" strokeOpacity=".17" />
           <polygon points="1084,742 1050,760 1050,796 1084,778" fillOpacity=".05" strokeOpacity=".2" />
