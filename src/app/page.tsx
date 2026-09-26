@@ -443,12 +443,12 @@ export default function LandingPage() {
       <section className="relative flex flex-col pt-16 lg:h-dvh lg:flex-row">
 
         {/* ── Copy — full width en mobile, mitad en desktop ───────────────── */}
-        <div className="flex min-h-[calc(100dvh-64px)] w-full items-center justify-center px-5 pb-8 pt-8 lg:min-h-0 lg:h-full lg:w-1/2 lg:overflow-y-auto lg:px-16 lg:py-0">
+        <div className="flex w-full flex-col px-5 pb-10 pt-10 lg:h-full lg:w-1/2 lg:items-center lg:justify-center lg:overflow-y-auto lg:px-16 lg:py-0">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-lg"
+            className="mx-auto w-full max-w-lg"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
