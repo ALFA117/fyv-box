@@ -492,28 +492,27 @@ export default function LandingPage() {
         initial={{ y: -56, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        data-theme="dark"
-        className="fixed top-0 inset-x-0 z-50 flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--navy)]/80 px-5 py-3 backdrop-blur-lg sm:px-10"
+        className="fixed top-0 inset-x-0 z-50 flex items-center justify-between gap-3 border-b border-white/[0.07] bg-[#0A1A33]/80 px-5 py-3 backdrop-blur-lg sm:px-10"
       >
         <div className="flex items-center gap-2.5">
-          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[var(--border-gold)] bg-[var(--surface)] shadow-[0_0_8px_rgba(201,162,39,.3)]">
-            <Image src="/logo-panther.webp" alt="" width={40} height={40} className="h-full w-full object-cover" />
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#C9A227]/30 bg-[#C9A227]/[0.14] ring-1 ring-[#C9A227]/40 shadow-[0_0_8px_rgba(201,162,39,.25)]">
+            <Shield className="h-4.5 w-4.5 text-[#C9A227]" strokeWidth={2} />
           </div>
-          <span className="font-playfair text-base font-bold text-[var(--cream)]">
-            FYV<span className="text-[var(--gold)]"> Box</span>
+          <span className="font-playfair text-base font-bold text-[#F5F1E6]">
+            FYV<span className="text-[#C9A227]"> Box</span>
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           {["#about","#faucets"].map((href, i) => (
             <a key={href} href={href}
-              className="hidden rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--cream-muted)] transition-colors hover:text-[var(--cream)] sm:block">
+              className="hidden rounded-lg px-3 py-1.5 text-xs font-medium text-[#B8C2D6] transition-colors hover:text-[#F5F1E6] sm:block">
               {["Quiénes somos","Faucets"][i]}
             </a>
           ))}
           <a
             href="/dashboard"
-            className="hidden items-center gap-1.5 rounded-lg border border-[var(--border-gold)] bg-[var(--gold)]/[0.12] px-3.5 py-1.5 text-xs font-bold text-[var(--gold)] transition-all hover:bg-[var(--gold)]/25 hover:shadow-[0_0_12px_rgba(201,162,39,.3)] sm:flex"
+            className="hidden items-center gap-1.5 rounded-lg border border-[#C9A227]/30 bg-[#C9A227]/[0.12] px-3.5 py-1.5 text-xs font-bold text-[#C9A227] transition-all hover:bg-[#C9A227]/25 hover:shadow-[0_0_12px_rgba(201,162,39,.3)] sm:flex"
           >
             Entrenar
             <ArrowRight className="h-3.5 w-3.5" />
@@ -521,7 +520,7 @@ export default function LandingPage() {
           <button
             onClick={toggle}
             aria-label="Cambiar tema"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--cream-muted)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--cream)]"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] text-[#B8C2D6] transition-colors hover:border-white/[0.14] hover:text-[#F5F1E6]"
           >
             <AnimatePresence mode="wait" initial={false}>
               <motion.span key={theme}
