@@ -209,7 +209,7 @@ function HologramLogo({ theme }: { theme: "dark" | "light" }) {
           className="w-full"
           style={{
             filter: isLight
-              ? "brightness(0) sepia(1) saturate(3) hue-rotate(5deg) contrast(0.9) drop-shadow(0 0 14px rgba(120,70,5,.45)) drop-shadow(0 0 35px rgba(120,70,5,.25))"
+              ? "sepia(1) saturate(3) hue-rotate(-15deg) brightness(0.55) contrast(1.2) drop-shadow(0 0 14px rgba(120,70,5,.55)) drop-shadow(0 0 35px rgba(120,70,5,.3))"
               : "brightness(1.4) contrast(1.2) drop-shadow(0 0 22px rgba(201,162,39,.85)) drop-shadow(0 0 55px rgba(201,162,39,.5))",
             height: "auto",
           }}
@@ -616,7 +616,7 @@ export default function LandingPage() {
                   style={{
                     filter: theme === "dark"
                       ? "brightness(1.3) contrast(1.1) drop-shadow(0 0 14px rgba(201,162,39,.7)) drop-shadow(0 0 28px rgba(201,162,39,.35))"
-                      : "brightness(0) sepia(1) saturate(2.5) hue-rotate(5deg) contrast(0.85) drop-shadow(0 0 10px rgba(120,70,5,.4))",
+                      : "sepia(1) saturate(3) hue-rotate(-15deg) brightness(0.55) contrast(1.2) drop-shadow(0 0 10px rgba(120,70,5,.5))",
                     height: "auto",
                   }}
                 />
