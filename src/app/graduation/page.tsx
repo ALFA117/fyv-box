@@ -90,7 +90,7 @@ export default function GraduationPage() {
           </h1>
           <p className="mt-2 text-sm text-[var(--cream-muted)]">
             {hasCredentials
-              ? "Credenciales on-chain emitidas en Stellar testnet"
+              ? "Credenciales verificables asociadas a tu dirección Stellar testnet"
               : "Completa un track completo para obtener tu primera credencial"}
           </p>
         </motion.div>

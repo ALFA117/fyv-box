@@ -15,9 +15,12 @@ interface VerifyResult {
 }
 
 const moduleLabels: Record<string, string> = {
-  phishing:             "Phishing e Impersonación",
-  "fake-assets":        "Activos y Airdrops Falsos",
-  "social-engineering": "Ingeniería Social",
+  "phishing":             "Phishing e Impersonación",
+  "fake-assets":          "Activos y Airdrops Falsos",
+  "social-engineering":   "Ingeniería Social",
+  "dangerous-approvals":  "Aprobaciones Peligrosas",
+  "presale-scam":         "Estafas de Preventa",
+  "key-hygiene":          "Higiene de Llaves",
 };
 
 function midTruncate(addr: string, head = 8, tail = 6) {
