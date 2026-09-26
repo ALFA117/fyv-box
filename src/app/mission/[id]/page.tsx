@@ -406,8 +406,25 @@ export default function MissionPage({ params }: { params: Promise<{ id: string }
   }
 
   if (loading) return (
-    <div className="flex min-h-dvh items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-[var(--gold)]" />
+    <div className="min-h-dvh pb-24">
+      <div className="sticky top-0 z-40 h-14 border-b border-[var(--border)] bg-[var(--navy)]/90" />
+      <div className="sticky top-14 z-30 h-10 border-b border-[var(--border)] bg-[var(--navy)]/90" />
+      <div className="px-4 py-7 sm:px-6">
+        <div className="mx-auto max-w-5xl space-y-6">
+          <div className="skeleton h-7 w-48 rounded-xl" />
+          <div className="skeleton h-9 w-2/3 rounded-xl" />
+          <div className="lg:grid lg:grid-cols-5 lg:gap-8">
+            <div className="mb-6 lg:col-span-3 lg:mb-0">
+              <div className="skeleton h-80 rounded-2xl" />
+            </div>
+            <div className="space-y-3 lg:col-span-2">
+              <div className="skeleton h-5 w-28 rounded-lg" />
+              {[0,1,2,3].map(i => <div key={i} className="skeleton h-16 rounded-2xl" />)}
+              <div className="skeleton h-11 rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
