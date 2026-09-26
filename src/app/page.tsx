@@ -515,7 +515,7 @@ export default function LandingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.5 }}
-              className="mt-10 flex gap-8 border-t border-[var(--border)] pt-6"
+              className="mt-7 flex gap-8 border-t border-[var(--border)] pt-5"
             >
               {[
                 { n: "22+", label: "simulacros reales" },
@@ -591,7 +591,7 @@ export default function LandingPage() {
       </Reveal>
 
       {/* ══ AUTH CTA — justo debajo del hero ═══════════════════════════ */}
-      <section id="auth" className="px-4 py-16 sm:px-8">
+      <section id="auth" className="px-4 py-10 sm:px-8 sm:py-16">
         <div className="mx-auto max-w-md">
           <Reveal className="mb-8 text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
@@ -620,9 +620,9 @@ export default function LandingPage() {
       </section>
 
       {/* ══ QUIÉNES SOMOS ═══════════════════════════════════════════════ */}
-      <section id="about" className="px-4 py-24 sm:px-8">
+      <section id="about" className="px-4 py-14 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-5xl">
-          <Reveal className="mb-14 text-center">
+          <Reveal className="mb-10 text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
               Quiénes somos
             </p>
@@ -660,9 +660,9 @@ export default function LandingPage() {
       </section>
 
       {/* ══ POR QUÉ NO SOMOS ESCUELA ════════════════════════════════════ */}
-      <section id="why-not" className="px-4 py-24 sm:px-8">
+      <section id="why-not" className="px-4 py-14 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-5xl">
-          <Reveal className="mb-14 text-center">
+          <Reveal className="mb-10 text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
               Por qué no somos una escuela
             </p>
@@ -701,9 +701,9 @@ export default function LandingPage() {
       </section>
 
       {/* ══ A QUIÉN ═════════════════════════════════════════════════════ */}
-      <section id="who" className="px-4 py-24 sm:px-8">
+      <section id="who" className="px-4 py-14 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-5xl">
-          <Reveal className="mb-14 text-center">
+          <Reveal className="mb-10 text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
               ¿A quién le puede interesar?
             </p>
@@ -757,9 +757,9 @@ export default function LandingPage() {
       </section>
 
       {/* ══ FAUCETS ═════════════════════════════════════════════════════ */}
-      <section id="faucets" className="px-4 py-24 sm:px-8">
+      <section id="faucets" className="px-4 py-14 sm:px-8 sm:py-24">
         <div className="mx-auto max-w-5xl">
-          <Reveal className="mb-14 text-center">
+          <Reveal className="mb-10 text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
               Faucets & Herramientas
             </p>
