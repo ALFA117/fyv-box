@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { CheckCircle, Lock, ChevronRight, Star } from "lucide-react";
 import Link from "next/link";
 import type { Mission } from "@/missions/schema";
@@ -29,12 +29,13 @@ export function MissionCard({ mission, completed, locked = false }: Props) {
   const isClickable = !locked && !mission.comingSoon;
   const diff = difficultyMeta[mission.difficulty];
   const accentBar = trackAccent[mission.track];
+  const reduce = useReducedMotion();
 
   const inner = (
     <motion.div
-      whileHover={isClickable ? { x: 3, boxShadow: "0 0 0 1px rgba(201,162,39,.25)" } : {}}
-      whileTap={isClickable ? { scale: 0.98 } : {}}
-      transition={{ type: "spring", stiffness: 380, damping: 28 }}
+      whileHover={isClickable && !reduce ? { x: 3, boxShadow: "0 0 0 1px rgba(201,162,39,.25)" } : {}}
+      whileTap={isClickable && !reduce ? { scale: 0.98 } : {}}
+      transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 28 }}
       className={[
         "group relative flex items-center gap-4 overflow-hidden rounded-2xl border p-4 pl-5 transition-all duration-150",
         completed

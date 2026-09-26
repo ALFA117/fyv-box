@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { TrendingUp, Users, AlertTriangle, Loader2, BarChart3, Flame } from "lucide-react";
 import { TrackMeta } from "@/missions/schema";
 import type { Mission } from "@/missions/schema";
@@ -24,6 +24,7 @@ const itemVariants = {
 };
 
 export default function StatsPage() {
+  const reduce = useReducedMotion();
   const [stats, setStats]             = useState<TrackStat[]>([]);
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
   const [loading, setLoading]         = useState(true);
@@ -57,7 +58,12 @@ export default function StatsPage() {
         <div className="mx-auto max-w-lg">
 
           {/* Header */}
-          <div className="mb-6">
+          <motion.div
+            className="mb-6"
+            initial={reduce ? false : { opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          >
             <div className="mb-1 flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-[var(--gold)]" strokeWidth={1.75} />
               <h1 className="font-playfair text-2xl font-bold text-[var(--cream)]">Estadísticas</h1>
@@ -68,7 +74,7 @@ export default function StatsPage() {
                 Actualizado {new Date(generatedAt).toLocaleString("es-MX")}
               </p>
             )}
-          </div>
+          </motion.div>
 
           {loading ? (
             <div className="space-y-4">
@@ -100,9 +106,9 @@ export default function StatsPage() {
             <div className="space-y-5">
               {/* Summary cards */}
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={reduce ? false : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
+                transition={reduce ? { duration: 0 } : { duration: 0.4 }}
                 className="grid grid-cols-3 gap-3"
               >
                 {[
@@ -123,9 +129,9 @@ export default function StatsPage() {
 
               {/* Per-track bars */}
               <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="show"
+                variants={reduce ? undefined : containerVariants}
+                initial={reduce ? false : "hidden"}
+                animate={reduce ? undefined : "show"}
                 className="space-y-3"
               >
                 {stats
@@ -162,9 +168,9 @@ export default function StatsPage() {
                         <div className="relative h-2 w-full overflow-hidden rounded-full bg-white/8">
                           <motion.div
                             className={`h-full rounded-full ${barColor}`}
-                            initial={{ width: 0 }}
+                            initial={reduce ? false : { width: 0 }}
                             animate={{ width: `${stat.trapRate}%` }}
-                            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                            transition={reduce ? { duration: 0 } : { duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                           />
                         </div>
 

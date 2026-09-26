@@ -126,9 +126,10 @@ function VerifyContent() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex justify-center py-12"
+                className="space-y-3"
               >
-                <Loader2 className="h-8 w-8 animate-spin text-[var(--gold)]" />
+                <div className="skeleton h-20 rounded-2xl" />
+                <div className="skeleton h-36 rounded-2xl" />
               </motion.div>
             )}
 

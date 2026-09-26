@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Shield, ArrowLeft, BarChart2, LogOut, Sun, Moon } from "lucide-react";
 import { WalletIndicator } from "./WalletIndicator";
 import type { WalletIdentity } from "@/identity/interface";
@@ -17,6 +17,7 @@ interface Props {
 
 function ThemeToggle() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     try {
@@ -41,10 +42,10 @@ function ThemeToggle() {
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
           key={theme}
-          initial={{ opacity: 0, rotate: -90, scale: 0.6 }}
+          initial={reduce ? false : { opacity: 0, rotate: -90, scale: 0.6 }}
           animate={{ opacity: 1, rotate: 0, scale: 1 }}
-          exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          exit={reduce ? {} : { opacity: 0, rotate: 90, scale: 0.6 }}
+          transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 20 }}
           className="block"
         >
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

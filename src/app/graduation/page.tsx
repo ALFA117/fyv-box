@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Award, Shield, ExternalLink, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { getWallet, type WalletIdentity } from "@/identity";
@@ -31,6 +31,7 @@ function midTruncate(addr: string, head = 12, tail = 8) {
 }
 
 export default function GraduationPage() {
+  const reduce = useReducedMotion();
   const [wallet, setWallet]         = useState<WalletIdentity | null>(null);
   const [completions, setCompletions] = useState<ModuleCompletion[]>([]);
   const [loading, setLoading]       = useState(true);
@@ -76,15 +77,15 @@ export default function GraduationPage() {
         <>
         {/* Hero */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={reduce ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={reduce ? { duration: 0 } : { duration: 0.5 }}
           className="mb-8 text-center"
         >
           <motion.div
-            initial={{ scale: 0.6, opacity: 0 }}
+            initial={reduce ? false : { scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1, type: "spring", stiffness: 260, damping: 20 }}
+            transition={reduce ? { duration: 0 } : { delay: 0.1, type: "spring", stiffness: 260, damping: 20 }}
             className={[
               "mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl",
               hasCredentials
@@ -111,9 +112,9 @@ export default function GraduationPage() {
 
         {hasCredentials && wallet ? (
           <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
+            variants={reduce ? undefined : containerVariants}
+            initial={reduce ? false : "hidden"}
+            animate={reduce ? undefined : "show"}
             className="mx-auto max-w-sm space-y-4"
           >
             {completions.map((c) => (

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Star, Award, AlertCircle, Trophy, Flame, Shield, TrendingUp, Zap } from "lucide-react";
 import Link from "next/link";
 import { getWallet, type WalletIdentity } from "@/identity";
@@ -57,6 +57,7 @@ const TRACK_BAR: Record<Mission["track"], string> = {
 };
 
 export default function DashboardPage() {
+  const reduce = useReducedMotion();
   const [wallet,    setWallet]    = useState<WalletIdentity | null>(null);
   const [groups,    setGroups]    = useState<TrackGroup[]>([]);
   const [totalXP,   setTotalXP]   = useState(0);
@@ -135,9 +136,9 @@ export default function DashboardPage() {
 
             {/* ── XP + Progress card ── */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={reduce ? false : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              transition={reduce ? { duration: 0 } : { duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               className="relative overflow-hidden rounded-3xl border border-[var(--border-gold)] bg-gradient-to-br from-[var(--surface)] to-[var(--surface-card)] shadow-[0_0_40px_rgba(201,162,39,.12)]"
             >
               {/* Ambient glows */}
@@ -243,9 +244,9 @@ export default function DashboardPage() {
 
             {/* ── Track groups ── */}
             <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="show"
+              variants={reduce ? undefined : containerVariants}
+              initial={reduce ? false : "hidden"}
+              animate={reduce ? undefined : "show"}
               className="space-y-6"
             >
               <AnimatePresence>
