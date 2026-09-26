@@ -235,16 +235,80 @@ html,body{height:100%;overflow:hidden;background:#03060E;color:#EEEADF;font-fami
 .s7-meta{font-size:12px;color:rgba(238,234,223,.22);font-family:'IBM Plex Mono',monospace;line-height:1.9}
 .s7-chips{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
 
-/* responsive */
+/* ── MOBILE ── */
 @media(max-width:700px){
-  .s0,.s3,.s5{flex-direction:column;gap:24px}
-  .s0-left,.s3-left,.s5-right{max-width:100%;width:100%}
-  .s0-right,.s5-badge-wrap{width:160px;height:160px}
-  .s2-flow{flex-direction:column;align-items:center}
+  /* slide area: menos padding, espacio libre para contenido */
+  .s{padding:58px 16px 62px}
+  .chrome{padding:12px 16px}
+  .chrome-name{font-size:13px}
+  .chrome-icon{width:26px;height:26px}
+
+  /* todos los splits se vuelven columna */
+  .s0{flex-direction:column;gap:0;justify-content:center}
+  .s0-left{width:100%;padding-right:0;text-align:center;align-items:center;display:flex;flex-direction:column}
+  .s0-h{font-size:clamp(22px,7vw,36px);margin:6px 0 10px}
+  .s0-sub{font-size:12px;max-width:280px;margin-bottom:14px}
+  .s0-tags{justify-content:center;gap:5px}
+  .s0-right{width:120px;height:120px;flex-shrink:0;margin:0 auto 10px}
+  .shield-wrap{width:120px;height:120px}
+
+  /* S1 problema */
+  .s1{gap:6px}
+  .s1-num{font-size:clamp(52px,16vw,90px)}
+  .s1-label{font-size:12px;margin:8px auto 10px}
+  .s1-kicker{font-size:12px}
+
+  /* S2 solución: columna 2x2 grid */
+  .s2{gap:10px}
+  .s2-h{font-size:clamp(17px,5vw,26px)}
+  .s2-flow{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
   .s2-arr{display:none}
-  .s4-grid{grid-template-columns:repeat(2,1fr)}
-  .s{padding:64px 18px 72px}
-  .chrome{padding:14px 18px}
+  .s2-step{padding:0 4px}
+  .s2-icon{width:36px;height:36px;font-size:16px;margin-bottom:6px}
+  .s2-sname{font-size:12px}
+  .s2-sdesc{font-size:10px}
+
+  /* S3 producto: solo lista, ocultar mockup */
+  .s3{flex-direction:column;gap:10px}
+  .s3-left{flex:none;width:100%}
+  .s3-h{font-size:clamp(16px,5vw,24px);margin-bottom:10px}
+  .mockup{display:none}
+
+  /* S4 tracks: 2 columnas */
+  .s4{gap:10px}
+  .s4-h{font-size:clamp(16px,5vw,24px)}
+  .s4-grid{grid-template-columns:repeat(2,1fr);gap:6px;max-width:100%}
+  .tc{padding:12px 10px}
+  .tc-icon{font-size:20px;margin-bottom:6px}
+  .tc-name{font-size:11px}
+  .tc-desc{display:none}
+
+  /* S5 credencial */
+  .s5{flex-direction:column;gap:12px;align-items:center}
+  .s5-badge-wrap{width:120px;height:120px}
+  .s5-right{align-items:center;text-align:center;max-width:100%}
+  .s5-h{font-size:clamp(15px,5vw,22px);margin:6px 0 10px}
+  .s5-pt{text-align:left}
+  .s5-code{display:none}
+
+  /* S6 hackathon */
+  .s6{gap:10px}
+  .s6-h{font-size:clamp(16px,5vw,24px)}
+  .s6t{padding:12px 14px;gap:10px}
+  .s6t-icon{font-size:20px}
+  .s6t-name{font-size:13px}
+  .s6t-desc{font-size:10px}
+  .s6t-prize{font-size:17px}
+  .s6-total{padding:10px 14px;gap:14px}
+  .s6-tn{font-size:22px}
+
+  /* S7 CTA */
+  .s7-url{font-size:clamp(18px,7vw,32px);margin:6px 0 2px}
+  .s7-note{font-size:10px;margin-bottom:14px}
+  .s7-btns{gap:8px;margin-bottom:14px}
+  .btn{padding:10px 18px;font-size:13px}
+  .s7-chips{gap:5px;margin-bottom:10px}
+  .s7-meta{font-size:10px}
 }
 </style>
 </head>
