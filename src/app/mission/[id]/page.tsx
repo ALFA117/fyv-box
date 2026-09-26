@@ -1,6 +1,6 @@
 "use client";
 import { use, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   CheckCircle, XCircle, Loader2, Award, ArrowRight,
   AlertTriangle, ExternalLink, Star, Shield, Zap,
@@ -375,6 +375,7 @@ const TRACK_ACCENT: Record<Mission["track"], { pill: string; bar: string; glow: 
 export default function MissionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const reduce = useReducedMotion();
 
   const [mission,    setMission]    = useState<Mission | null>(null);
   const [selected,   setSelected]   = useState<string | null>(null);
@@ -446,9 +447,9 @@ export default function MissionPage({ params }: { params: Promise<{ id: string }
       {/* ── Content ── */}
       <div className="px-4 py-7 sm:px-6">
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={reduce ? false : { opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          transition={reduce ? { duration: 0 } : { duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           className="mx-auto max-w-5xl"
         >
           {/* Mission title + meta */}
@@ -495,8 +496,8 @@ export default function MissionPage({ params }: { params: Promise<{ id: string }
                           <motion.button
                             key={opt.id}
                             onClick={() => setSelected(opt.id)}
-                            whileTap={{ scale: 0.985 }}
-                            transition={{ type: "spring", stiffness: 420, damping: 22 }}
+                            whileTap={reduce ? {} : { scale: 0.985 }}
+                            transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 22 }}
                             aria-pressed={isSel}
                             className={[
                               "group w-full cursor-pointer rounded-2xl border px-4 py-4 text-left transition-all duration-150",
