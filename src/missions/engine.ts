@@ -17,11 +17,14 @@ const CATALOG_MODULES: Record<string, unknown> = {
   "social-eng-004":           require("./catalog/social-eng-004.json"),
   "dangerous-approvals-001":  require("./catalog/dangerous-approvals-001.json"),
   "dangerous-approvals-002":  require("./catalog/dangerous-approvals-002.json"),
+  "dangerous-approvals-003":  require("./catalog/dangerous-approvals-003.json"),
   "presale-scam-001":         require("./catalog/presale-scam-001.json"),
   "presale-scam-002":         require("./catalog/presale-scam-002.json"),
   "key-hygiene-001":          require("./catalog/key-hygiene-001.json"),
   "key-hygiene-002":          require("./catalog/key-hygiene-002.json"),
   "key-hygiene-003":          require("./catalog/key-hygiene-003.json"),
+  "key-hygiene-004":          require("./catalog/key-hygiene-004.json"),
+  "social-eng-005":           require("./catalog/social-eng-005.json"),
 };
 
 let _catalog: Mission[] | null = null;

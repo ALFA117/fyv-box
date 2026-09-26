@@ -32,7 +32,8 @@ export function MissionCard({ mission, completed, locked = false }: Props) {
 
   const inner = (
     <motion.div
-      whileHover={isClickable ? { x: 3 } : {}}
+      whileHover={isClickable ? { x: 3, boxShadow: "0 0 0 1px rgba(201,162,39,.25)" } : {}}
+      whileTap={isClickable ? { scale: 0.98 } : {}}
       transition={{ type: "spring", stiffness: 380, damping: 28 }}
       className={[
         "group relative flex items-center gap-4 overflow-hidden rounded-2xl border p-4 pl-5 transition-all duration-150",

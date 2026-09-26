@@ -1,0 +1,26 @@
+{
+  "id": "dangerous-approvals-003",
+  "track": "dangerous-approvals",
+  "title": "El Script de Multifirma",
+  "narrative": "Estás en un proyecto DeFi de Stellar. El equipo comparte un script de Python 'para administrar la bóveda colectiva'. El script pide tu clave secreta y llama a `setOptions` con los siguientes cambios:\n\n- Agrega 3 firmantes desconocidos con peso 2\n- Reduce tu peso master a 1\n- Establece umbrales de quórum en: low=4, medium=4, high=4\n\nEl creador del script dice: 'Es necesario para la multifirma del DAO — sin esto no puedes participar en las votaciones de gobernanza.'\n\n¿Qué haces?",
+  "action": "simulate_dangerous_sign",
+  "actionParams": {
+    "txOperation": "setOptions",
+    "attackerSigners": ["GCATT4CK1...", "GCATT4CK2...", "GCATT4CK3..."],
+    "signerWeights": [2, 2, 2],
+    "masterWeightAfter": 1,
+    "thresholds": { "low": 4, "medium": 4, "high": 4 },
+    "attackVector": "script-key-theft-plus-account-takeover",
+    "socialContext": "equipo-defi-dao"
+  },
+  "options": [
+    { "id": "a", "label": "Ejecuto el script — un DAO legítimo necesita este tipo de configuración", "isCorrect": false },
+    { "id": "b", "label": "Ejecuto el script pero en una cuenta de prueba para verificar que funciona", "isCorrect": false },
+    { "id": "c", "label": "Rechazo: nunca paso mi clave secreta a ningún script, y bloquear mi propia cuenta es una red flag crítica", "isCorrect": true },
+    { "id": "d", "label": "Pido al creador del script que explique cada parámetro antes de ejecutarlo", "isCorrect": false }
+  ],
+  "explanation": "Este ataque combina tres vectores: (1) robo de clave secreta vía script malicioso, (2) instalación de firmantes del atacante con pesos altos, (3) configuración de umbrales imposibles de alcanzar sin los firmantes del atacante. Con masterWeight=1 y umbrales=4, tú solo tienes peso insuficiente: el atacante controla tu cuenta al 100%. Incluso si el script fuera legítimo, pasar tu clave secreta a cualquier script es siempre incorrecto. Los DAOs legítimos en Stellar usan contratos multifirma donde NUNCA necesitas exponer tu clave privada — la firma se hace localmente en tu wallet. Pedir explicaciones (opción D) también es incorrecto: un atacante puede dar explicaciones convincentes. La clave secreta nunca sale de tu dispositivo.",
+  "comingSoon": false,
+  "difficulty": "advanced",
+  "xp": 200
+}

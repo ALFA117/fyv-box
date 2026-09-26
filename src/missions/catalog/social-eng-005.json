@@ -1,0 +1,24 @@
+{
+  "id": "social-eng-005",
+  "track": "social-engineering",
+  "title": "El Rescate de Fondos",
+  "narrative": "Recibes un DM de alguien que dice ser del equipo de seguridad de Stellar Development Foundation:\n\n'Detectamos actividad sospechosa en tu cuenta GXXXX...XXXX. Para proteger tus fondos, debes transferirlos inmediatamente a nuestra cuenta de custodia segura GCUST0DY...SAFE. Una vez verificada tu identidad, te devolveremos los fondos en 24 horas. Si no actúas en los próximos 30 minutos, tus fondos serán congelados por protocolo de seguridad. Responde a este mensaje con tu clave secreta para acelerar el proceso.'\n\nTienes 1,500 XLM en esa cuenta. ¿Qué haces?",
+  "action": "refuse_seed_phrase",
+  "actionParams": {
+    "attackerIdentity": "Stellar Development Foundation Security Team",
+    "urgencyTactic": "30-minute-countdown",
+    "threatenedAction": "account-freeze",
+    "attackVector": "impersonation-urgency-key-theft",
+    "socialContext": "autoridad-urgencia-miedo"
+  },
+  "options": [
+    { "id": "a", "label": "Transfiero los fondos — si son de la SDF deben tener razón, es mejor prevenir", "isCorrect": false },
+    { "id": "b", "label": "Comparto mi clave secreta para acelerar la verificación y recuperar los fondos", "isCorrect": false },
+    { "id": "c", "label": "Ignoro el mensaje y verifico directamente en stellar.org si hay alguna alerta real sobre mi cuenta", "isCorrect": true },
+    { "id": "d", "label": "Pido más pruebas de que son de la SDF antes de hacer algo", "isCorrect": false }
+  ],
+  "explanation": "Este ataque usa tres técnicas clásicas de ingeniería social: (1) Autoridad — impersonar a una entidad legítima y confiable (SDF); (2) Urgencia — 30 minutos para actuar, creando pánico; (3) Miedo — amenazar con 'congelar' fondos. La realidad: la SDF no puede congelar cuentas individuales en Stellar (es un protocolo descentralizado), nunca te contactará por DM solicitando fondos o claves, y ninguna entidad legítima pedirá jamás tu clave secreta. La opción D (pedir pruebas) tampoco es segura — un atacante puede fabricar 'pruebas' convincentes o intensificar la presión. La única respuesta correcta: ignorar el mensaje y verificar de forma independiente en canales oficiales (stellar.org, @StellarOrg en Twitter). Las emergencias legítimas tienen canales oficiales verificables, no DMs urgentes.",
+  "comingSoon": false,
+  "difficulty": "advanced",
+  "xp": 200
+}

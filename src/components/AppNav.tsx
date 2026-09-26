@@ -71,7 +71,7 @@ export function AppNav({ back, wallet, showStats = false, showLogout = false }: 
         </Link>
       ) : (
         <Link href="/dashboard" className="flex items-center gap-2 focus-visible:rounded">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--gold-subtle)] ring-1 ring-[var(--gold-ring)]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border-gold)] bg-[var(--gold)]/[0.14] ring-1 ring-[var(--gold-ring)]">
             <Shield className="h-4 w-4 text-[var(--gold)]" strokeWidth={2} />
           </div>
           <span className="font-playfair text-base font-bold text-[var(--cream)]">

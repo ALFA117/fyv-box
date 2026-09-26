@@ -439,23 +439,28 @@ export default function LandingPage() {
         </div>
       </motion.nav>
 
-      {/* ══ HERO — split 50/50 ════════════════════════════════════════════ */}
-      <section className="relative flex h-dvh flex-row pt-16">
+      {/* ══ HERO — responsive: columna en mobile, split 50/50 en desktop ══ */}
+      <section className="relative flex min-h-dvh flex-col pt-16 lg:h-dvh lg:flex-row">
 
-        {/* ── Mitad izquierda: Copy ───────────────────────────────────────── */}
-        <div className="flex h-full w-1/2 items-center justify-center overflow-y-auto px-6 lg:px-16">
+        {/* ── Copy — full width en mobile, mitad en desktop ───────────────── */}
+        <div className="flex w-full items-center justify-center px-5 py-10 lg:h-full lg:w-1/2 lg:overflow-y-auto lg:px-16 lg:py-0">
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="w-full max-w-lg"
           >
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--amber-border)] bg-[var(--amber-subtle)] px-3.5 py-1.5 text-xs font-semibold text-[var(--amber)]">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.05, duration: 0.4 }}
+              className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--amber-border)] bg-[var(--amber-subtle)] px-3.5 py-1.5 text-xs font-semibold text-[var(--amber)]"
+            >
               <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2.5} />
               Stellar Testnet · Sin fondos reales
-            </div>
+            </motion.div>
 
-            <h1 className="font-playfair text-4xl font-bold leading-[1.1] tracking-tight text-[var(--cream)] lg:text-5xl">
+            <h1 className="font-playfair text-4xl font-bold leading-[1.1] tracking-tight text-[var(--cream)] sm:text-5xl lg:text-5xl">
               Aprende a no caer<br />
               <span
                 className="bg-clip-text text-transparent"
@@ -477,36 +482,57 @@ export default function LandingPage() {
               y certifícate on-chain al graduarte.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.5 }}
+              className="mt-8 flex flex-wrap items-center gap-3"
+            >
+              <motion.a
                 href="#auth"
-                className="group inline-flex items-center gap-2 rounded-xl bg-[var(--gold)] px-6 py-3.5 text-sm font-bold text-[var(--navy)] shadow-[0_0_24px_rgba(201,162,39,.35)] transition-all hover:bg-[var(--gold-hover)] hover:shadow-[0_0_36px_rgba(201,162,39,.55)]"
+                whileHover={{ scale: 1.03, boxShadow: "0 0 36px rgba(201,162,39,.55)" }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                className="group inline-flex items-center gap-2 rounded-xl bg-[var(--gold)] px-6 py-3.5 text-sm font-bold text-[var(--navy)] shadow-[0_0_24px_rgba(201,162,39,.35)] transition-colors hover:bg-[var(--gold-hover)]"
               >
                 Comenzar gratis
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 href="#who"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-strong)] px-5 py-3.5 text-sm text-[var(--cream-muted)] backdrop-blur-sm transition-colors hover:border-[var(--border-gold)] hover:text-[var(--cream)]"
               >
                 ¿Esto es para mí?
                 <ChevronDown className="h-4 w-4" />
-              </a>
-            </div>
+              </motion.a>
+            </motion.div>
 
             {/* mini stats en hero */}
-            <div className="mt-10 flex gap-8 border-t border-[var(--border)] pt-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="mt-10 flex gap-8 border-t border-[var(--border)] pt-6"
+            >
               {[
-                { n: "7+", label: "tipos de estafa" },
+                { n: "22+", label: "simulacros reales" },
                 { n: "100%", label: "gratis" },
                 { n: "0 XLM", label: "riesgo" },
-              ].map(({ n, label }) => (
-                <div key={label}>
+              ].map(({ n, label }, i) => (
+                <motion.div
+                  key={label}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.55 + i * 0.08, duration: 0.4 }}
+                >
                   <p className="font-playfair text-2xl font-bold text-[var(--gold)]">{n}</p>
                   <p className="text-xs text-[var(--cream-muted)]">{label}</p>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </motion.div>
         </div>
 
@@ -519,18 +545,23 @@ export default function LandingPage() {
           }}
         />
 
-        {/* ── Mitad derecha: Logo ─────────────────────────────────────────── */}
-        <div className="flex h-full w-1/2 items-center justify-center">
+        {/* ── Logo holográfico — abajo en mobile, mitad derecha en desktop ── */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="flex w-full items-center justify-center py-6 lg:h-full lg:w-1/2 lg:py-0"
+        >
           <HologramLogo theme={theme} />
-        </div>
+        </motion.div>
 
-        {/* Scroll hint */}
+        {/* Scroll hint — solo desktop */}
         <motion.a
           href="#about"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.4 }}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-xs text-[var(--cream-muted)] hover:text-[var(--gold)] transition-colors"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden flex-col items-center gap-1 text-xs text-[var(--cream-muted)] transition-colors hover:text-[var(--gold)] lg:flex"
         >
           <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
             <ChevronDown className="h-5 w-5" />
