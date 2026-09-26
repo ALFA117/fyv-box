@@ -497,10 +497,10 @@ export default function MissionPage({ params }: { params: Promise<{ id: string }
                   {!result ? (
                     <motion.div
                       key="options"
-                      initial={{ opacity: 0, y: 8 }}
+                      initial={reduce ? false : { opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.2 }}
+                      exit={reduce ? {} : { opacity: 0, y: -8 }}
+                      transition={reduce ? { duration: 0 } : { duration: 0.2 }}
                       className="space-y-3"
                     >
                       <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--gold)]">
@@ -558,9 +558,9 @@ export default function MissionPage({ params }: { params: Promise<{ id: string }
                   ) : (
                     <motion.div
                       key="result"
-                      initial={{ opacity: 0, y: 12 }}
+                      initial={reduce ? false : { opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 26 }}
+                      transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 26 }}
                       className="space-y-4"
                     >
                       {/* Verdict */}
@@ -599,9 +599,9 @@ export default function MissionPage({ params }: { params: Promise<{ id: string }
                       {/* New certification */}
                       {result.newCertifications.length > 0 && (
                         <motion.div
-                          initial={{ opacity: 0, scale: 0.95 }}
+                          initial={reduce ? false : { opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.3, type: "spring", stiffness: 280, damping: 24 }}
+                          transition={reduce ? { duration: 0 } : { delay: 0.3, type: "spring", stiffness: 280, damping: 24 }}
                           className="flex flex-col items-center gap-3 rounded-2xl border border-[var(--border-gold)] bg-[var(--gold-subtle)] p-5 text-center shadow-[var(--shadow-gold)]"
                         >
                           <Award className="h-8 w-8 text-[var(--gold)]" strokeWidth={1.5} />
