@@ -1,0 +1,22 @@
+{
+  "id": "phishing-004",
+  "track": "phishing",
+  "title": "La Extensión Trampa",
+  "narrative": "Recibes un correo: 'Nueva versión de Stellar Wallet Browser Extension disponible. Instala ahora para mayor seguridad.' El link lleva a chrome-stellar-wallets.io, no a la Chrome Web Store oficial.\n\nAl instalarla, la extensión pide tu frase de recuperación 'para migrar tu cuenta a la nueva versión'. ¿Qué haces?",
+  "action": "identify_phishing_domain",
+  "actionParams": {
+    "fakeDomain": "chrome-stellar-wallets.io",
+    "attackVector": "fake-browser-extension",
+    "redFlag": "pide frase de recuperación en instalación"
+  },
+  "options": [
+    { "id": "a", "label": "Ingreso mi frase — es necesario para migrar la cuenta", "isCorrect": false },
+    { "id": "b", "label": "Instalo la extensión pero no ingreso la frase, a ver qué pasa", "isCorrect": false },
+    { "id": "c", "label": "Cierro el correo y busco la extensión directamente en la Chrome Web Store oficial", "isCorrect": true },
+    { "id": "d", "label": "Verifico si el dominio tiene HTTPS antes de instalar", "isCorrect": false }
+  ],
+  "explanation": "Las extensiones de wallet legítimas NUNCA te piden la frase de recuperación durante la instalación o una 'migración' — eso es una estafa diseñada para robar tus fondos de inmediato. Los dominios falsos como 'chrome-stellar-wallets.io' imitan a las Web Stores oficiales. HTTPS no garantiza legitimidad. La única forma segura: instala extensiones únicamente desde la tienda oficial de tu navegador, buscando el nombre exacto, y verifica que el desarrollador sea el oficial.",
+  "comingSoon": false,
+  "difficulty": "intermediate",
+  "xp": 150
+}

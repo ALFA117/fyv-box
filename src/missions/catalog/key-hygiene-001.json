@@ -1,0 +1,22 @@
+{
+  "id": "key-hygiene-001",
+  "track": "key-hygiene",
+  "title": "La Foto de Emergencia",
+  "narrative": "Acabas de crear una nueva Stellar wallet. Tienes tu frase de 12 palabras escrita en un papel pero te preocupa perderlo.\n\nPiensas: 'Voy a fotografiar el papel y guardarlo en Google Photos como respaldo en la nube. Así si pierdo el papel, siempre tendré el backup.'\n\n¿Es buena idea?",
+  "action": "identify_phishing_domain",
+  "actionParams": {
+    "riskAction": "photo-to-cloud",
+    "cloudService": "Google Photos",
+    "attackVector": "cloud-breach-seed-exposure"
+  },
+  "options": [
+    { "id": "a", "label": "Sí — Google Photos es seguro y encripta mis archivos", "isCorrect": false },
+    { "id": "b", "label": "Sí — pero la foto estará en un álbum privado con contraseña fuerte", "isCorrect": false },
+    { "id": "c", "label": "No — cualquier foto subida a la nube puede ser expuesta por brechas, phishing o acceso no autorizado a mi cuenta de Google", "isCorrect": true },
+    { "id": "d", "label": "Depende — está bien si activo la verificación en dos pasos en Google", "isCorrect": false }
+  ],
+  "explanation": "Tu frase de recuperación en la nube vale lo mismo que tu frase a la vista del público: si tu cuenta de Google es hackeada (phishing, brecha de datos, sesión robada), tus fondos crypto también lo son. Los servicios de nube, aunque encriptados, tienen múltiples vectores de ataque: credenciales robadas, acceso de empleados, órdenes judiciales, brechas del proveedor. El papel es analógico — no puede ser hackeado remotamente. Almacenamiento correcto: papel en lugar físico seguro (caja fuerte), preferiblemente en metal grabado, nunca en dispositivos conectados a internet.",
+  "comingSoon": false,
+  "difficulty": "beginner",
+  "xp": 100
+}

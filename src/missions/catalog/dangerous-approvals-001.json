@@ -1,0 +1,25 @@
+{
+  "id": "dangerous-approvals-001",
+  "track": "dangerous-approvals",
+  "title": "La Firma Inocente",
+  "narrative": "Un DApp en Stellar testnet te pide firmar una transacción 'para verificar que eres el dueño de tu cuenta'.\n\nAl revisar los detalles de la transacción antes de firmar, ves:\n\nOperación: Set Options\n— Add Signer: GCATT4CK3R... (Peso: 10)\n— Master Weight: 1\n\nEl DApp dice que es 'solo un test y los cambios se revierten automáticamente'.",
+  "action": "simulate_dangerous_sign",
+  "actionParams": {
+    "txOperation": "setOptions",
+    "dangerDetail": "Add Signer con peso 10 sobre tu cuenta",
+    "attackerSigner": "GCATT4CK3R...",
+    "masterWeightAfter": 1,
+    "attackerWeightAfter": 10,
+    "claim": "transacción reversible de test"
+  },
+  "options": [
+    { "id": "a", "label": "Firmo — el DApp dice que es reversible y necesito verificar mi cuenta", "isCorrect": false },
+    { "id": "b", "label": "Firmo pero cambio mi clave inmediatamente después", "isCorrect": false },
+    { "id": "c", "label": "Rechazo la transacción — agregar un firmante con más peso que yo en mi propia cuenta es peligroso", "isCorrect": true },
+    { "id": "d", "label": "Firmo en testnet ya que no hay fondos reales", "isCorrect": false }
+  ],
+  "explanation": "Esta transacción es un 'account takeover': al agregar un firmante con peso 10 mientras tu master weight queda en 1, esa dirección desconocida tiene control absoluto sobre tu cuenta. Las transacciones en blockchain NO son reversibles — nadie puede 'revertir' un cambio de firmantes una vez confirmado. En testnet tampoco es 'seguro' practicar esto porque el patrón de firma es idéntico a mainnet y te entrena a ignorar advertencias peligrosas. Regla: NUNCA firmes una transacción que agregue signatarios a tu cuenta a menos que tú mismo lo hayas iniciado.",
+  "comingSoon": false,
+  "difficulty": "beginner",
+  "xp": 100
+}

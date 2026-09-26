@@ -1,0 +1,24 @@
+{
+  "id": "social-eng-004",
+  "track": "social-engineering",
+  "title": "La Colaboración de Arte",
+  "narrative": "Un artista digital con 50,000 seguidores en X te escribe por Discord:\n\n'Hola! Vi tu trabajo y me encantaría colaborar en un NFT conjunto. Para enviarte los archivos del proyecto necesito verificar que eres el dueño de tu wallet. Entra a nft-collab-studio.io, conecta tu wallet e ingresa tu frase de recuperación para autenticar. Es el proceso estándar de la plataforma.'\n\nLa plataforma tiene un diseño muy profesional.",
+  "action": "refuse_seed_phrase",
+  "actionParams": {
+    "attackerName": "ArtistaPro_NFT",
+    "socialContext": "Discord DM",
+    "fakeSite": "nft-collab-studio.io",
+    "attackVector": "seed-phrase-harvest",
+    "urgency": "baja"
+  },
+  "options": [
+    { "id": "a", "label": "Ingreso mi frase — es un artista famoso y el sitio se ve profesional", "isCorrect": false },
+    { "id": "b", "label": "Conecto mi wallet (sin ingresar la frase) para ver qué pasa", "isCorrect": false },
+    { "id": "c", "label": "Me niego — ninguna plataforma legítima de NFTs pide tu frase de recuperación para 'autenticar'", "isCorrect": true },
+    { "id": "d", "label": "Pido al artista que me autentique de otra forma", "isCorrect": false }
+  ],
+  "explanation": "La autenticación en Web3 funciona con firma de mensajes (tu wallet firma un mensaje sin revelar la clave) — NUNCA requiere tu frase de recuperación. Cualquier sitio que la pida está robándola. El número de seguidores y el diseño profesional son irrelevantes — son fáciles de falsificar o comprar. Las plataformas legítimas como OpenSea, Magic Eden, etc. usan 'Connect Wallet' + firma de mensaje. Si alguna vez ves un campo que pide '12 palabras', cierra la pestaña inmediatamente.",
+  "comingSoon": false,
+  "difficulty": "intermediate",
+  "xp": 150
+}

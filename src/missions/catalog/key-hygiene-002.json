@@ -1,0 +1,22 @@
+{
+  "id": "key-hygiene-002",
+  "track": "key-hygiene",
+  "title": "El Email de Respaldo",
+  "narrative": "Tienes tu frase de 12 palabras en papel pero te preocupa que se pierda o dañe.\n\nConsideras enviarte un email con asunto 'IMPORTANTE - backup wallet' con las 12 palabras en el cuerpo, a tu cuenta de Gmail personal.\n\nPiensas: 'Nadie sabe que ese email existe, y Gmail tiene buena seguridad.' ¿Lo haces?",
+  "action": "identify_phishing_domain",
+  "actionParams": {
+    "riskAction": "email-seed-phrase",
+    "emailService": "Gmail",
+    "attackVector": "email-account-compromise"
+  },
+  "options": [
+    { "id": "a", "label": "Sí — Gmail usa encriptación TLS y es muy seguro", "isCorrect": false },
+    { "id": "b", "label": "Sí — pero solo desde mi teléfono sin usar WiFi público", "isCorrect": false },
+    { "id": "c", "label": "No — el email es uno de los vectores de ataque más explotados; comprometer Gmail comprometería mi wallet", "isCorrect": true },
+    { "id": "d", "label": "Sí — pero borro el email después de memorizarlo", "isCorrect": false }
+  ],
+  "explanation": "El email es permanentemente vulnerable: los servidores de Google almacenan copias aunque borres el mensaje, el email viaja en texto por múltiples servidores antes de llegar (TLS solo cifra el tránsito, no el almacenamiento), y tu cuenta de Gmail es uno de los objetivos más atacados en internet por phishing. 'Nadie sabe que el email existe' es una falsa sensación de seguridad — los atacantes no buscan ese email específico, acceden a tu cuenta y leen todo. La frase de recuperación debe existir SOLO en formato físico, sin conexión digital.",
+  "comingSoon": false,
+  "difficulty": "beginner",
+  "xp": 100
+}

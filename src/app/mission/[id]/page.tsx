@@ -195,6 +195,120 @@ function WalletFrame({ mission }: { mission: Mission }) {
   );
 }
 
+function TxSignFrame({ mission }: { mission: Mission }) {
+  const params = (mission.actionParams ?? {}) as Record<string, unknown>;
+  const txOp          = String(params.txOperation ?? "setOptions");
+  const dangerDetail  = String(params.dangerDetail ?? "Operación desconocida");
+  const masterWeight  = params.masterWeightAfter !== undefined ? Number(params.masterWeightAfter) : null;
+  const attackerSign  = String(params.attackerSigner ?? "GCATT4CK3R...");
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[var(--border-strong)] shadow-[var(--shadow-lg)]">
+      {/* Window chrome */}
+      <div className="flex items-center gap-2 border-b border-[var(--border)] bg-[var(--navy)]/80 px-4 py-2.5">
+        <div className="flex gap-1.5" aria-hidden>
+          <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+        </div>
+        <span className="ml-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--cream-muted)]">
+          Solicitud de Firma — Stellar Wallet
+        </span>
+      </div>
+
+      <div className="bg-[var(--surface)]/60 p-5 space-y-4">
+        {/* Warning banner */}
+        <div className="flex items-start gap-2.5 rounded-xl border border-[var(--danger-border)] bg-[var(--danger-subtle)] px-3.5 py-3">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--danger)]" />
+          <div>
+            <p className="text-xs font-bold text-[var(--danger)]">Transacción de alto riesgo</p>
+            <p className="text-xs text-[var(--danger)]/80">{dangerDetail}</p>
+          </div>
+        </div>
+
+        {/* TX details */}
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--navy)]/60 p-3.5 font-mono text-xs space-y-2">
+          <div className="flex justify-between">
+            <span className="text-[var(--cream-muted)]">Operación</span>
+            <span className="font-bold text-[var(--cream)]">{txOp}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[var(--cream-muted)]">Add Signer</span>
+            <span className="text-[var(--danger)]">{attackerSign}</span>
+          </div>
+          {masterWeight !== null && (
+            <div className="flex justify-between">
+              <span className="text-[var(--cream-muted)]">Master Weight</span>
+              <span className={masterWeight === 0 ? "text-[var(--danger)] font-bold" : "text-[var(--cream)]"}>
+                {masterWeight}{masterWeight === 0 ? " ⚠ (sin control)" : ""}
+              </span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span className="text-[var(--cream-muted)]">Red</span>
+            <span className="text-[var(--cream-muted)]">Stellar Mainnet</span>
+          </div>
+        </div>
+
+        <p className="whitespace-pre-line text-xs leading-relaxed text-[var(--cream-muted)]">
+          {mission.narrative}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function PresaleFrame({ mission }: { mission: Mission }) {
+  const params        = (mission.actionParams ?? {}) as Record<string, unknown>;
+  const tokenCode     = String(params.tokenCode ?? "TOKEN");
+  const pricePerToken = String(params.pricePerToken ?? "0.001 USDC");
+  const returnPromise = String(params.promisedReturn ?? "1000×");
+  const deadline      = String(params.deadline ?? "24 horas");
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[var(--border-strong)] shadow-[var(--shadow-lg)]">
+      {/* Header bar — fake presale UI */}
+      <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--navy)] px-4 py-3">
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-full bg-[var(--success)]/30 ring-1 ring-[var(--success-border)] flex items-center justify-center">
+            <span className="text-[10px] font-black text-[var(--success)]">{tokenCode[0]}</span>
+          </div>
+          <span className="text-xs font-bold text-[var(--cream)]">{tokenCode} — Preventa Privada</span>
+        </div>
+        <span className="rounded-full bg-[var(--danger-subtle)] border border-[var(--danger-border)] px-2 py-0.5 text-[10px] font-bold text-[var(--danger)]">
+          ⏱ {deadline}
+        </span>
+      </div>
+
+      <div className="bg-[var(--surface)]/60 p-5 space-y-4">
+        {/* Price + return */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--navy)]/60 p-3 text-center">
+            <p className="text-[10px] text-[var(--cream-muted)] mb-1">Precio Preventa</p>
+            <p className="font-mono text-base font-bold text-[var(--gold)]">{pricePerToken}</p>
+          </div>
+          <div className="rounded-xl border border-[var(--success-border)] bg-[var(--success-subtle)] p-3 text-center">
+            <p className="text-[10px] text-[var(--cream-muted)] mb-1">Retorno Prometido</p>
+            <p className="font-mono text-base font-bold text-[var(--success)]">{returnPromise}</p>
+          </div>
+        </div>
+
+        {/* Warning flags */}
+        <div className="space-y-1.5 rounded-xl border border-[var(--danger-border)] bg-[var(--danger-subtle)] p-3.5 text-xs">
+          <p className="font-bold text-[var(--danger)] mb-2">⚠ Señales de alerta detectadas</p>
+          <p className="text-[var(--danger)]/80">• Retornos prometidos irreales para proyectos legítimos</p>
+          <p className="text-[var(--danger)]/80">• Urgencia artificial para forzar decisiones apresuradas</p>
+          <p className="text-[var(--danger)]/80">• Sin auditoría de seguridad verificable</p>
+        </div>
+
+        <p className="whitespace-pre-line text-xs leading-relaxed text-[var(--cream-muted)]">
+          {mission.narrative}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function GenericFrame({ mission }: { mission: Mission }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--border-strong)] shadow-[var(--shadow-md)]">
@@ -219,10 +333,12 @@ function GenericFrame({ mission }: { mission: Mission }) {
 
 function ScenarioFrame({ mission }: { mission: Mission }) {
   switch (mission.track) {
-    case "phishing":           return <EmailFrame mission={mission} />;
-    case "social-engineering": return <DiscordFrame mission={mission} />;
-    case "fake-assets":        return <WalletFrame mission={mission} />;
-    default:                   return <GenericFrame mission={mission} />;
+    case "phishing":             return <EmailFrame mission={mission} />;
+    case "social-engineering":   return <DiscordFrame mission={mission} />;
+    case "fake-assets":          return <WalletFrame mission={mission} />;
+    case "dangerous-approvals":  return <TxSignFrame mission={mission} />;
+    case "presale-scam":         return <PresaleFrame mission={mission} />;
+    default:                     return <GenericFrame mission={mission} />;
   }
 }
 

@@ -1,0 +1,24 @@
+{
+  "id": "social-eng-003",
+  "track": "social-engineering",
+  "title": "El Reclutador Cripto",
+  "narrative": "Un usuario en Discord te contacta sobre una oferta de trabajo:\n\n'Hola! Somos una startup de DeFi y buscamos devs. El sueldo es $8,000/mes remoto. Necesitas hacer una prueba técnica: descarga este script en Python y ejecútalo en tu máquina — solo instala las dependencias y corre main.py. Es una simulación de trading.'\n\nTe mandan un archivo main.py de 200 líneas. El archivo parece código de trading.",
+  "action": "refuse_seed_phrase",
+  "actionParams": {
+    "attackerName": "CryptoDev_Recruiter",
+    "socialContext": "Discord DM",
+    "attackVector": "malicious-script",
+    "urgency": "media",
+    "redFlag": "script ejecutable de fuente desconocida"
+  },
+  "options": [
+    { "id": "a", "label": "Ejecuto el script — es solo Python y quiero el trabajo", "isCorrect": false },
+    { "id": "b", "label": "Leo el código primero para asegurarme de que no haga nada malo", "isCorrect": false },
+    { "id": "c", "label": "Rechazo la tarea — empresas legítimas no piden ejecutar código de fuentes anónimas en tu máquina", "isCorrect": true },
+    { "id": "d", "label": "Lo ejecuto en una máquina virtual sin wallets instaladas", "isCorrect": false }
+  ],
+  "explanation": "Este ataque se llama 'job scam con malware'. Los scripts de 200 líneas son difíciles de auditar completamente (pueden ofuscar código, hacer llamadas a red, leer variables de entorno donde viven tus claves). Incluso una VM puede tener acceso a tu red local y a archivos compartidos. El patrón rojo: ningún proceso de contratación legítimo requiere ejecutar código no revisado de un reclutador anónimo de Discord. Si la oferta parece demasiado buena y el proceso es inusual, es una trampa.",
+  "comingSoon": false,
+  "difficulty": "intermediate",
+  "xp": 150
+}

@@ -1,0 +1,26 @@
+{
+  "id": "fake-assets-003",
+  "track": "fake-assets",
+  "title": "El Pool Millonario",
+  "narrative": "Un nuevo protocolo DeFi en Stellar ofrece un pool de liquidez de USDC con 950% APY anual.\n\nEl sitio muestra $2.4M en fondos bloqueados (TVL) y 1,200 usuarios activos. Solo necesitas enviar USDC al contrato para empezar a ganar.\n\nEl proyecto tiene 3 semanas de vida, no tiene stellar.toml, y el contrato no ha sido auditado.",
+  "action": "check_asset_domain",
+  "actionParams": {
+    "assetCode": "USDC",
+    "promisedAPY": "950%",
+    "tvlDisplay": "$2,400,000",
+    "ageWeeks": "3",
+    "hasAudit": false,
+    "hasStellarToml": false,
+    "attackVector": "yield-farm-rug"
+  },
+  "options": [
+    { "id": "a", "label": "Deposito — el TVL es alto y los rendimientos son increíbles", "isCorrect": false },
+    { "id": "b", "label": "Deposito una cantidad pequeña para probar si los rendimientos son reales", "isCorrect": false },
+    { "id": "c", "label": "No deposito — 950% APY es matemáticamente insostenible y las señales de riesgo son múltiples", "isCorrect": true },
+    { "id": "d", "label": "Espero un mes más para ver si el proyecto sobrevive antes de depositar", "isCorrect": false }
+  ],
+  "explanation": "950% APY requeriría que el protocolo generara casi 10× tu inversión en un año — no existe ningún mecanismo económico legítimo que lo sostenga. El TVL alto puede ser ficticio (el equipo deposita y retira sus propios fondos para aparentar). Sin auditoría + sin stellar.toml + 3 semanas de vida son señales clásicas de un 'rug pull': el equipo desaparece con todos los fondos depositados. Regla: APY superior al 30% anual en stablecoins debe tratarse como señal de alerta máxima.",
+  "comingSoon": false,
+  "difficulty": "intermediate",
+  "xp": 150
+}

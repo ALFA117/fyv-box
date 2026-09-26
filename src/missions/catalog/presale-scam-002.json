@@ -1,0 +1,25 @@
+{
+  "id": "presale-scam-002",
+  "track": "presale-scam",
+  "title": "La Lista Blanca VIP",
+  "narrative": "Un proyecto DeFi muy esperado anuncia su whitelist:\n\n'Para acceder a la whitelist exclusiva y recibir tokens APEX con 80% de descuento sobre el precio de listing, deposita 10 USDC como 'fee de verificación de identidad'. Los 10 USDC te serán devueltos junto con tus tokens APEX en el TGE (Token Generation Event) en 21 días.'\n\nYa hay 3,400 personas en la lista. El proyecto tiene partnerships anunciados con tres protocolos conocidos.",
+  "action": "identify_phishing_domain",
+  "actionParams": {
+    "tokenCode": "APEX",
+    "verificationFee": "10 USDC",
+    "promisedDiscount": "80%",
+    "waitDays": "21",
+    "fakePartnerships": true,
+    "attackVector": "advance-fee-whitelist-scam"
+  },
+  "options": [
+    { "id": "a", "label": "Pago el fee — 10 USDC es poco para asegurar mi lugar en el whitelist", "isCorrect": false },
+    { "id": "b", "label": "Verifico primero que los partnerships son reales y luego pago", "isCorrect": false },
+    { "id": "c", "label": "No pago — los whitelists legítimos nunca cobran fees de entrada", "isCorrect": true },
+    { "id": "d", "label": "Pido que me devuelvan el fee antes del TGE como garantía", "isCorrect": false }
+  ],
+  "explanation": "Este es un 'advance fee scam' clásico adaptado a crypto. Los whitelists legítimos de proyectos reales NO cobran fees de entrada — tú les das tu dirección y listo. El fee de 'verificación' es el robo real: pagas, el proyecto desaparece antes del TGE y los 'partnerships' son falsos o no autorizados (mencionan proyectos populares sin permiso). El número de personas en la lista y los 21 días de espera son detalles para hacer la estafa más creíble. Regla: si tienes que pagar para 'recibir' algo, es una estafa.",
+  "comingSoon": false,
+  "difficulty": "beginner",
+  "xp": 100
+}

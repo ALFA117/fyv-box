@@ -1,0 +1,25 @@
+{
+  "id": "dangerous-approvals-002",
+  "track": "dangerous-approvals",
+  "title": "El DApp del Bloqueo",
+  "narrative": "Un popular DApp de staking te pide aprobar una transacción para 'desbloquear rendimientos acumulados'.\n\nDetalles de la transacción:\n\nOperación: Set Options\n— Master Weight: 0\n— Add Signer: GDAPP000... (Peso: 1)\n— Low Threshold: 1 / Med Threshold: 1 / High Threshold: 1\n\nEl DApp asegura que 'esto es el proceso estándar de custodia compartida para proteger tus fondos'.",
+  "action": "simulate_dangerous_sign",
+  "actionParams": {
+    "txOperation": "setOptions",
+    "dangerDetail": "Master Weight 0 — tu propia cuenta quedaría sin control",
+    "masterWeightAfter": 0,
+    "attackerSigner": "GDAPP000...",
+    "attackerWeightAfter": 1,
+    "claim": "custodia compartida estándar"
+  },
+  "options": [
+    { "id": "a", "label": "Firmo — suena a protección adicional de mis fondos", "isCorrect": false },
+    { "id": "b", "label": "Firmo porque ya usé el DApp antes y confío en él", "isCorrect": false },
+    { "id": "c", "label": "Rechazo — Master Weight 0 significa que yo dejaría de controlar mi propia cuenta para siempre", "isCorrect": true },
+    { "id": "d", "label": "Firmo pero monitoreo la cuenta de cerca los próximos días", "isCorrect": false }
+  ],
+  "explanation": "Master Weight 0 es el 'kill switch' de tu cuenta: significa que tu clave original ya no puede firmar nada. Si el único firmante activo con weight ≥1 es la dirección del atacante, ellos tienen control total e irrecuperable de tu cuenta y todos tus fondos. Este ataque avanzado se disfraza de 'custodia' o 'protección multiclave'. Aunque hayas usado el DApp antes sin problemas — un contrato puede actualizarse y volverse malicioso. Regla crítica: nunca firmes setOptions que ponga tu Master Weight en 0.",
+  "comingSoon": false,
+  "difficulty": "intermediate",
+  "xp": 150
+}

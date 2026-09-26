@@ -1,0 +1,24 @@
+{
+  "id": "phishing-005",
+  "track": "phishing",
+  "title": "El Recuperador Oficial",
+  "narrative": "Recibes un correo de 'security@stellar-org.support' con logo oficial y formato profesional:\n\n'Hemos detectado intentos de acceso no autorizado a tu cuenta Stellar. Para proteger tus activos, verifica tu identidad en las próximas 24 horas o tu cuenta será suspendida. Ingresa tu clave secreta en el formulario seguro adjunto.'\n\nEl correo tiene el logo de Stellar.org y una firma digital. ¿Qué haces?",
+  "action": "identify_phishing_domain",
+  "actionParams": {
+    "fakeDomain": "stellar-org.support",
+    "fakeSender": "security@stellar-org.support",
+    "realDomainHint": "Stellar.org no controla tu clave secreta — es tu responsabilidad",
+    "attackVector": "spear-phishing",
+    "urgencyTactic": "24h suspension threat"
+  },
+  "options": [
+    { "id": "a", "label": "Ingreso mi clave — el logo es oficial y tiene firma digital", "isCorrect": false },
+    { "id": "b", "label": "Respondo al correo pidiendo más verificación antes de dar la clave", "isCorrect": false },
+    { "id": "c", "label": "Ignoro el correo — Stellar.org nunca puede pedirte tu clave secreta porque no la controla", "isCorrect": true },
+    { "id": "d", "label": "Envío solo los primeros 4 caracteres como verificación parcial", "isCorrect": false }
+  ],
+  "explanation": "Este es spear phishing avanzado: logos reales, dominio similar (stellar-org.support ≠ stellar.org), urgencia artificial. La razón por la que este ataque siempre falla si entiendes crypto: Stellar es una red descentralizada. stellar.org NO PUEDE 'suspender tu cuenta' porque no controla la blockchain. Tu clave secreta está en tu dispositivo, no en ningún servidor. Nadie puede pedirte tu clave secreta con un propósito legítimo — ever.",
+  "comingSoon": false,
+  "difficulty": "advanced",
+  "xp": 200
+}

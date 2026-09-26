@@ -1,0 +1,22 @@
+{
+  "id": "key-hygiene-003",
+  "track": "key-hygiene",
+  "title": "La Clave del Familiar",
+  "narrative": "Tu tío quiere aprender sobre crypto y te pide ayuda. Para mostrarle cómo funciona, inicias sesión con tu wallet en el teléfono de él.\n\nAl terminar la demostración, tu tío dice: 'Déjame la app abierta por si tengo preguntas más tarde. No te preocupes, confío en ti y tú confías en mí.'\n\n¿Qué haces?",
+  "action": "refuse_seed_phrase",
+  "actionParams": {
+    "riskAction": "leave-wallet-open-on-others-device",
+    "socialContext": "familiar de confianza",
+    "attackVector": "device-access-key-exposure"
+  },
+  "options": [
+    { "id": "a", "label": "La dejo abierta — es mi tío, confío en él completamente", "isCorrect": false },
+    { "id": "b", "label": "La dejo pero le pido que me avise antes de hacer cualquier transacción", "isCorrect": false },
+    { "id": "c", "label": "Cierro sesión y le enseño a crear su propia wallet desde cero en su dispositivo", "isCorrect": true },
+    { "id": "d", "label": "La dejo pero cambio mi contraseña de la app después", "isCorrect": false }
+  ],
+  "explanation": "La confianza personal no protege contra malware, apps de monitoreo, o accidentes. Si el teléfono de tu tío tiene keyloggers (sin que él lo sepa), cualquier interacción con tu wallet en ese dispositivo está comprometida. 'Confiar' en una persona no equivale a 'confiar en su dispositivo'. Además, dejar una wallet abierta en un dispositivo ajeno normaliza malas prácticas de seguridad. La regla: tu wallet solo existe en TUS dispositivos, que tú controlas, con TU clave. Para enseñar crypto a alguien, siempre se crea una wallet nueva en su propio dispositivo.",
+  "comingSoon": false,
+  "difficulty": "intermediate",
+  "xp": 150
+}

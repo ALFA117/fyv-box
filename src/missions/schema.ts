@@ -60,16 +60,16 @@ export const TrackMeta: Record<Mission["track"], { label: string; emoji: string;
   "dangerous-approvals": {
     label: "Aprobaciones Peligrosas",
     emoji: "⚠️",
-    description: "Qué ocurre cuando autorizas demasiado — coming soon",
+    description: "Qué ocurre cuando autorizas demasiado en una transacción",
   },
   "presale-scam": {
     label: "Preventa y Rendimiento Falso",
     emoji: "📈",
-    description: "Promesas irreales y esquemas ponzi — coming soon",
+    description: "Promesas irreales, FOMO y esquemas ponzi disfrazados de oportunidades",
   },
   "key-hygiene": {
     label: "Higiene de Llaves",
     emoji: "🔑",
-    description: "Cómo guardar y rotar secretos de forma segura — coming soon",
+    description: "Cómo guardar y proteger tus secretos de forma segura",
   },
 };
