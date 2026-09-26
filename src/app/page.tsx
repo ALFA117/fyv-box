@@ -455,7 +455,7 @@ export default function LandingPage() {
               Stellar Testnet · Sin fondos reales
             </div>
 
-            <h1 className="font-playfair text-4xl font-bold leading-[1.15] text-[var(--cream)] lg:text-5xl">
+            <h1 className="font-playfair text-4xl font-bold leading-[1.1] tracking-tight text-[var(--cream)] lg:text-5xl">
               Aprende a no caer<br />
               <span
                 className="bg-clip-text text-transparent"
@@ -545,7 +545,7 @@ export default function LandingPage() {
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
               Comienza ahora
             </p>
-            <h2 className="font-playfair text-3xl font-bold text-[var(--cream)]">
+            <h2 className="font-playfair text-3xl font-bold tracking-tight text-[var(--cream)]">
               ¿Listo para entrenar?
             </h2>
             <p className="mt-3 text-sm text-[var(--cream-muted)]">
@@ -583,7 +583,7 @@ export default function LandingPage() {
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
               Quiénes somos
             </p>
-            <h2 className="font-playfair text-3xl font-bold text-[var(--cream)] sm:text-4xl">
+            <h2 className="font-playfair text-3xl font-bold tracking-tight text-[var(--cream)] sm:text-4xl">
               Un proyecto de la comunidad,<br />para la comunidad
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-[var(--cream-muted)]">
@@ -623,7 +623,7 @@ export default function LandingPage() {
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
               Por qué no somos una escuela
             </p>
-            <h2 className="font-playfair text-3xl font-bold text-[var(--cream)] sm:text-4xl">
+            <h2 className="font-playfair text-3xl font-bold tracking-tight text-[var(--cream)] sm:text-4xl">
               Las escuelas enseñan teoría.<br />
               <span className="text-[var(--gold)]">Nosotros te ponemos en la trampa.</span>
             </h2>
@@ -664,7 +664,7 @@ export default function LandingPage() {
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
               ¿A quién le puede interesar?
             </p>
-            <h2 className="font-playfair text-3xl font-bold text-[var(--cream)] sm:text-4xl">
+            <h2 className="font-playfair text-3xl font-bold tracking-tight text-[var(--cream)] sm:text-4xl">
               Para humanos y para código
             </h2>
           </Reveal>
@@ -720,7 +720,7 @@ export default function LandingPage() {
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
               Faucets & Herramientas
             </p>
-            <h2 className="font-playfair text-3xl font-bold text-[var(--cream)] sm:text-4xl">
+            <h2 className="font-playfair text-3xl font-bold tracking-tight text-[var(--cream)] sm:text-4xl">
               Consigue XLM de prueba
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-[var(--cream-muted)]">

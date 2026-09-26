@@ -125,8 +125,10 @@ body {
 
 /* ─── Typography ────────────────────────────────────────────────────────── */
 h1, h2, h3, h4, .serif {
-  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
-  line-height: 1.2;
+  font-family: var(--font-playfair), 'Syne', sans-serif;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
 }
 
 /* Mono: for addresses, hashes, code */
@@ -242,7 +244,9 @@ code, pre, .mono, .font-mono {
 
 /* ─── Tailwind v4 custom utilities ─────────────────────────────────────── */
 @utility font-playfair {
-  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-family: var(--font-playfair), 'Syne', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 /* ─── Reduced motion ────────────────────────────────────────────────────── */

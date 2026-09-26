@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Playfair_Display, IBM_Plex_Mono } from "next/font/google";
+import { Inter, Syne, IBM_Plex_Mono } from "next/font/google";
 import { ToastProvider } from "@/components/Toast";
 import "./globals.css";
 
@@ -9,10 +9,11 @@ const inter = Inter({
   display: "swap",
 });
 
-const playfair = Playfair_Display({
+// Syne: geométrica, moderna, crypto-native — reemplaza Playfair para armonía total
+const syne = Syne({
   subsets: ["latin"],
-  variable: "--font-playfair",
-  weight: ["400", "600", "700"],
+  variable: "--font-playfair", // mismo token, cero cambios en componentes
+  weight: ["700", "800"],
   display: "swap",
 });
 
@@ -54,7 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${inter.variable} ${playfair.variable} ${plexMono.variable}`}
+      className={`${inter.variable} ${syne.variable} ${plexMono.variable}`}
       data-theme="dark"
     >
       <head>
