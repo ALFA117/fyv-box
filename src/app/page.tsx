@@ -492,6 +492,7 @@ export default function LandingPage() {
         initial={{ y: -56, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        data-theme="dark"
         className="fixed top-0 inset-x-0 z-50 flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--navy)]/80 px-5 py-3 backdrop-blur-lg sm:px-10"
       >
         <div className="flex items-center gap-2.5">

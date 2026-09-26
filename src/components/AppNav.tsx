@@ -59,7 +59,7 @@ export function AppNav({ back, wallet, showStats = false, showLogout = false }: 
   const backLabel = typeof back === "object"  ? back?.label : undefined;
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--navy)]/90 px-4 py-3 backdrop-blur-md sm:px-6">
+    <header data-theme="dark" className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--navy)]/90 px-4 py-3 backdrop-blur-md sm:px-6">
       {/* Left: logo or back */}
       {backHref ? (
         <Link

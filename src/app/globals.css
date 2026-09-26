@@ -74,6 +74,29 @@
   --dur-slow:  400ms;
 }
 
+/* ─── Explicit dark overrides (nested forced-dark regions, e.g. AppNav) ─── */
+[data-theme="dark"] {
+  --navy:          #0A1A33;
+  --surface:       #11284D;
+  --surface-2:     #162F58;
+  --surface-card:  #132248;
+  --gold:          #C9A227;
+  --gold-hover:    #E0C35A;
+  --gold-muted:    #9E7E1E;
+  --gold-subtle:   rgba(201,162,39,.10);
+  --gold-ring:     rgba(201,162,39,.40);
+  --cream:         #F5F1E6;
+  --cream-muted:   #B8C2D6;
+  --cream-dim:     rgba(245,241,230,.45);
+  --border:        rgba(255,255,255,.07);
+  --border-strong: rgba(255,255,255,.14);
+  --border-gold:   rgba(201,162,39,.30);
+  --shadow-sm:     0 1px 3px rgba(0,0,0,.35);
+  --shadow-md:     0 4px 16px rgba(0,0,0,.40);
+  --shadow-lg:     0 8px 32px rgba(0,0,0,.50);
+  --shadow-gold:   0 0 24px rgba(201,162,39,.15);
+}
+
 /* ─── Light mode overrides ──────────────────────────────────────────────── */
 [data-theme="light"] {
   --navy:          #F0EDE4;
