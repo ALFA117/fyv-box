@@ -4,6 +4,7 @@ import {
 } from "react";
 import {
   motion, useMotionValue, useTransform, AnimatePresence, useInView, useSpring,
+  useReducedMotion,
 } from "framer-motion";
 import {
   ArrowRight, CheckCircle, Zap, Users, BookOpen,
@@ -69,6 +70,10 @@ function ParticleCanvas() {
   const mouse = useRef({ x: -9999, y: -9999 });
   const particles = useRef<Particle[]>([]);
   const raf = useRef<number>(0);
+  const prefersReduced = typeof window !== "undefined"
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    : false;
+  if (prefersReduced) return null;
 
   const init = useCallback((w: number, h: number) => {
     const count = Math.min(Math.floor((w * h) / 12000), 90);
@@ -173,15 +178,17 @@ function ParticleCanvas() {
 /* ─── Holographic Logo ───────────────────────────────────────────────────── */
 function HologramLogo({ theme }: { theme: "dark" | "light" }) {
   const isLight = theme === "light";
+  const reduce = useReducedMotion();
   return (
     <div className="relative flex w-full items-center justify-center px-8">
       {/* glow de fondo pulsante */}
       <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
-        animate={{ opacity: [0.5, 1, 0.5], scale: [1, 1.08, 1] }}
+        animate={reduce ? {} : { opacity: [0.5, 1, 0.5], scale: [1, 1.08, 1] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         style={{
+          opacity: reduce ? 0.7 : undefined,
           background: isLight
             ? "radial-gradient(ellipse 80% 65% at 50% 50%, rgba(140,90,5,.18) 0%, rgba(140,90,5,.05) 50%, transparent 70%)"
             : "radial-gradient(ellipse 80% 65% at 50% 50%, rgba(201,162,39,.28) 0%, rgba(201,162,39,.08) 50%, transparent 70%)",
@@ -191,7 +198,7 @@ function HologramLogo({ theme }: { theme: "dark" | "light" }) {
       {/* logo con movimiento flotante */}
       <motion.div
         className="relative z-10 w-full max-w-[420px]"
-        animate={{ y: [0, -14, 0] }}
+        animate={reduce ? {} : { y: [0, -14, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       >
         <Image
@@ -217,8 +224,10 @@ function HologramLogo({ theme }: { theme: "dark" | "light" }) {
 function AnimCounter({ to, suffix = "" }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
-  const [val, setVal] = useState(0);
+  const reduce = useReducedMotion();
+  const [val, setVal] = useState(reduce ? to : 0);
   useEffect(() => {
+    if (reduce) { setVal(to); return; }
     if (!isInView) return;
     let start = 0;
     const step = to / 40;
@@ -228,7 +237,7 @@ function AnimCounter({ to, suffix = "" }: { to: number; suffix?: string }) {
       else setVal(Math.floor(start));
     }, 30);
     return () => clearInterval(timer);
-  }, [isInView, to]);
+  }, [isInView, to, reduce]);
   return <span ref={ref}>{val}{suffix}</span>;
 }
 
@@ -236,14 +245,15 @@ function AnimCounter({ to, suffix = "" }: { to: number; suffix?: string }) {
 function Reveal({ children, delay = 0, className = "" }: {
   children: React.ReactNode; delay?: number; className?: string
 }) {
-  const ref  = useRef<HTMLDivElement>(null);
+  const ref    = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
+  const reduce = useReducedMotion();
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      initial={reduce ? false : { opacity: 0, y: 32 }}
+      animate={reduce ? {} : (inView ? { opacity: 1, y: 0 } : {})}
+      transition={reduce ? { duration: 0 } : { delay, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
