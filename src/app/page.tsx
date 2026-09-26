@@ -439,11 +439,11 @@ export default function LandingPage() {
         </div>
       </motion.nav>
 
-      {/* ══ HERO — responsive: columna en mobile, split 50/50 en desktop ══ */}
-      <section className="relative flex min-h-dvh flex-col pt-16 lg:h-dvh lg:flex-row">
+      {/* ══ HERO — columna en mobile, split 50/50 en desktop ════════════ */}
+      <section className="relative flex flex-col pt-16 lg:h-dvh lg:flex-row">
 
         {/* ── Copy — full width en mobile, mitad en desktop ───────────────── */}
-        <div className="flex w-full items-center justify-center px-5 py-10 lg:h-full lg:w-1/2 lg:overflow-y-auto lg:px-16 lg:py-0">
+        <div className="flex min-h-[calc(100dvh-64px)] w-full items-center justify-center px-5 pb-8 pt-8 lg:min-h-0 lg:h-full lg:w-1/2 lg:overflow-y-auto lg:px-16 lg:py-0">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -545,12 +545,12 @@ export default function LandingPage() {
           }}
         />
 
-        {/* ── Logo holográfico — abajo en mobile, mitad derecha en desktop ── */}
+        {/* ── Logo holográfico — solo desktop ─────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="flex w-full items-center justify-center py-6 lg:h-full lg:w-1/2 lg:py-0"
+          className="hidden lg:flex lg:h-full lg:w-1/2 items-center justify-center"
         >
           <HologramLogo theme={theme} />
         </motion.div>
