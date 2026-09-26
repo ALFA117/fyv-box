@@ -32,6 +32,32 @@ function useTheme() {
   return { theme, toggle };
 }
 
+/* ─── Scroll Progress Bar ────────────────────────────────────────────────── */
+function ScrollProgress() {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    const update = () => {
+      const el  = document.documentElement;
+      const max = el.scrollHeight - el.clientHeight;
+      setPct(max > 0 ? (window.scrollY / max) * 100 : 0);
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+  return (
+    <div className="fixed top-0 inset-x-0 z-[60] h-[2px] bg-transparent">
+      <div
+        className="h-full rounded-full transition-none"
+        style={{
+          width: `${pct}%`,
+          background: "linear-gradient(90deg, var(--gold), #fff8e1, var(--gold-hover))",
+          boxShadow: "0 0 8px rgba(201,162,39,.6)",
+        }}
+      />
+    </div>
+  );
+}
+
 /* ─── Canvas Particle Network ────────────────────────────────────────────── */
 interface Particle {
   x: number; y: number; vx: number; vy: number;
@@ -340,10 +366,14 @@ const FAUCETS = [
 ];
 
 const WHY_NOT = [
-  { icon: Zap,           title: "Sin horarios ni tareas",    desc: "Una misión toma menos de 5 minutos. Cuando quieras, al ritmo que puedas." },
-  { icon: Code2,         title: "Todo real en testnet",      desc: "Cada simulacro usa transacciones reales. Aprendes haciendo, no leyendo." },
-  { icon: Shield,        title: "Credencial on-chain",       desc: "Al graduarte, tu credencial vive en la blockchain, no en un PDF falsificable." },
-  { icon: Sparkles,      title: "100% gratis",               desc: "Sin inscripción, sin mensualidad. FYV Box es un bien público para Web3 LATAM." },
+  { icon: Zap,      title: "Sin horarios ni tareas", desc: "Una misión toma menos de 5 minutos. Cuando quieras, al ritmo que puedas.",
+    iconCls: "text-[var(--gold)]",    bgCls: "border-[var(--border-gold)] bg-[var(--gold-subtle)]" },
+  { icon: Code2,    title: "Todo real en testnet",   desc: "Cada simulacro usa transacciones reales. Aprendes haciendo, no leyendo.",
+    iconCls: "text-blue-400",         bgCls: "border-blue-500/20 bg-blue-500/10" },
+  { icon: Shield,   title: "Credencial on-chain",    desc: "Al graduarte, tu credencial vive en la blockchain, no en un PDF falsificable.",
+    iconCls: "text-[var(--success)]", bgCls: "border-[var(--success-border)] bg-[var(--success-subtle)]" },
+  { icon: Sparkles, title: "100% gratis",            desc: "Sin inscripción, sin mensualidad. FYV Box es un bien público para Web3 LATAM.",
+    iconCls: "text-purple-400",       bgCls: "border-purple-500/20 bg-purple-500/10" },
 ];
 
 const WHO = [
@@ -358,6 +388,8 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-dvh overflow-x-hidden">
+
+      <ScrollProgress />
 
       {/* Particle canvas */}
       <ParticleCanvas />
@@ -478,6 +510,13 @@ export default function LandingPage() {
               {["Quiénes somos","Faucets"][i]}
             </a>
           ))}
+          <a
+            href="/dashboard"
+            className="hidden items-center gap-1.5 rounded-lg border border-[var(--border-gold)] bg-[var(--gold)]/[0.12] px-3.5 py-1.5 text-xs font-bold text-[var(--gold)] transition-all hover:bg-[var(--gold)]/25 hover:shadow-[0_0_12px_rgba(201,162,39,.3)] sm:flex"
+          >
+            Entrenar
+            <ArrowRight className="h-3.5 w-3.5" />
+          </a>
           <button
             onClick={toggle}
             aria-label="Cambiar tema"
@@ -538,6 +577,40 @@ export default function LandingPage() {
               Web3. Enfrenta simulacros reales en Stellar testnet, gana experiencia
               y certifícate on-chain al graduarte.
             </p>
+
+            {/* Logo panther — solo mobile, decorativo */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.25, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-8 flex justify-center lg:hidden"
+            >
+              <div className="relative w-44">
+                <div
+                  className="pointer-events-none absolute inset-0 -z-10 rounded-full"
+                  style={{
+                    background: theme === "dark"
+                      ? "radial-gradient(ellipse 90% 70% at 50% 55%, rgba(201,162,39,.30) 0%, transparent 70%)"
+                      : "radial-gradient(ellipse 90% 70% at 50% 55%, rgba(140,90,5,.18) 0%, transparent 70%)",
+                    filter: "blur(18px)",
+                  }}
+                  aria-hidden
+                />
+                <Image
+                  src="/logo-panther.webp"
+                  alt="FYV Box Pantera"
+                  width={176}
+                  height={68}
+                  className="w-full"
+                  style={{
+                    filter: theme === "dark"
+                      ? "brightness(1.3) contrast(1.1) drop-shadow(0 0 14px rgba(201,162,39,.7)) drop-shadow(0 0 28px rgba(201,162,39,.35))"
+                      : "brightness(0) sepia(1) saturate(2.5) hue-rotate(5deg) contrast(0.85) drop-shadow(0 0 10px rgba(120,70,5,.4))",
+                    height: "auto",
+                  }}
+                />
+              </div>
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -735,15 +808,15 @@ export default function LandingPage() {
           </Reveal>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {WHY_NOT.map(({ icon: Icon, title, desc }, i) => (
+            {WHY_NOT.map(({ icon: Icon, title, desc, iconCls, bgCls }, i) => (
               <Reveal key={title} delay={i * 0.07}>
                 <motion.div
                   whileHover={{ y: -3 }}
                   transition={{ type: "spring", stiffness: 400, damping: 28 }}
                 >
                   <GlassCard className="flex gap-4 p-5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[var(--border-gold)] bg-[var(--gold-subtle)]">
-                      <Icon className="h-5 w-5 text-[var(--gold)]" strokeWidth={1.75} />
+                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border ${bgCls}`}>
+                      <Icon className={`h-5 w-5 ${iconCls}`} strokeWidth={1.75} />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-[var(--cream)]">{title}</p>
@@ -802,10 +875,30 @@ export default function LandingPage() {
                   <p className="mt-0.5 text-xs text-blue-300/60">
                     Un endpoint público, sin auth, CORS abierto:
                   </p>
-                  <pre className="mt-3 overflow-x-auto rounded-xl bg-[var(--navy)] p-4 text-xs text-[var(--gold)]/90">
-{`GET /api/verify?address=G...
-→ { "certified": true, "modules": ["phishing"] }`}
-                  </pre>
+                  <div className="mt-3 overflow-x-auto rounded-xl bg-[var(--navy)] p-4 font-mono text-xs leading-relaxed">
+                    <div>
+                      <span className="text-blue-400">GET</span>
+                      <span className="text-[var(--cream-muted)]"> /api/verify</span>
+                      <span className="text-[var(--cream-dim)]">?</span>
+                      <span className="text-[var(--gold)]">address</span>
+                      <span className="text-[var(--cream-dim)]">=</span>
+                      <span className="text-[var(--success)]">G…</span>
+                    </div>
+                    <div className="mt-2 text-[var(--cream-muted)]">→ {"{"}</div>
+                    <div className="ml-4">
+                      <span className="text-blue-300">&quot;certified&quot;</span>
+                      <span className="text-[var(--cream-dim)]">: </span>
+                      <span className="text-[var(--success)]">true</span>
+                      <span className="text-[var(--cream-dim)]">,</span>
+                    </div>
+                    <div className="ml-4">
+                      <span className="text-blue-300">&quot;modules&quot;</span>
+                      <span className="text-[var(--cream-dim)]">: [</span>
+                      <span className="text-[var(--amber)]">&quot;phishing&quot;</span>
+                      <span className="text-[var(--cream-dim)]">]</span>
+                    </div>
+                    <div className="text-[var(--cream-muted)]">{"}"}</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -888,6 +981,17 @@ export default function LandingPage() {
                   {label}
                 </a>
               ))}
+              <a
+                href="https://github.com/ALFA117/fyv-box"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--cream-muted)] transition-colors hover:border-[var(--border-gold)] hover:text-[var(--gold)]"
+              >
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden>
+                  <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+              </a>
             </div>
           </div>
 
