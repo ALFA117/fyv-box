@@ -102,10 +102,10 @@ function buildHtml() {
         <p class="eyebrow a1">La solución</p>
         <h2 class="title a2">Simula el fraude. <em>Antes de vivirlo.</em></h2>
         <ol class="steps a3">
-          <li><span class="step-ic">${icon("wallet")}</span><strong>Entra</strong><span>Una billetera de prueba real en Stellar testnet. Sin correo ni contraseña.</span></li>
+          <li><span class="step-ic">${icon("wallet")}</span><strong>Entra</strong><span>Con tu correo y un código (Pollar): tu billetera Stellar testnet sin contraseñas ni frase semilla.</span></li>
           <li><span class="step-ic">${icon("target")}</span><strong>Simula</strong><span>Phishing, airdrops falsos, ingeniería social y firmas peligrosas, sin riesgo.</span></li>
           <li><span class="step-ic">${icon("book")}</span><strong>Aprende</strong><span>Explicación inmediata de cada trampa, XP y progreso por módulo.</span></li>
-          <li><span class="step-ic">${icon("award")}</span><strong>Certifícate</strong><span>Credencial que cualquier wallet o dApp verifica con una API pública.</span></li>
+          <li><span class="step-ic">${icon("award")}</span><strong>Certifícate</strong><span>Credencial emitida on-chain en Stellar: cualquier wallet o dApp la verifica.</span></li>
         </ol>
       </div>
     </section>`,
@@ -120,6 +120,7 @@ function buildHtml() {
             <li>${icon("check", 18)}Cada misión recrea un correo, DM, wallet o solicitud de firma.</li>
             <li>${icon("check", 18)}Retroalimentación inmediata que explica la trampa.</li>
             <li>${icon("check", 18)}Respuestas firmadas con tu billetera: nadie responde por ti.</li>
+            <li>${icon("check", 18)}Incluye "El Drop de $PUMA": el airdrop falso que imita el drop de GOYA HACK.</li>
             <li>${icon("check", 18)}Diseñado primero para el teléfono.</li>
           </ul>
         </div>
@@ -162,11 +163,12 @@ function buildHtml() {
           <h2 class="title a3">Una prueba pública de que sabes detectar la trampa</h2>
           <ul class="points a4">
             <li><strong>Pública.</strong> Cualquiera consulta cualquier dirección Stellar.</li>
-            <li><strong>Firmada.</strong> Cada respuesta va firmada por la billetera dueña; nadie responde por ti desde la app.</li>
-            <li><strong>Lista para Soroban.</strong> Hoy vive en Supabase; el contrato ReadinessRegistry se activa con un flag.</li>
+            <li><strong>Firmada.</strong> Cada respuesta va firmada con SEP-53 por la billetera dueña (Pollar la firma si entraste con correo); nadie responde por ti.</li>
+            <li><strong>On-chain.</strong> Cada módulo aprobado es una transacción en Stellar testnet de la cuenta emisora de FYV Box (memo <span class="mono">FYV cert &lt;módulo&gt;</span>), abrible en Stellar Expert.</li>
           </ul>
           <pre class="code a4"><span class="k">GET</span> /api/verify?address=G…
-<span class="c">→ { "certified": true, "modules": [ … ] }</span></pre>
+<span class="c">→ { "certified": true,
+    "modules": [{ "txHash": "a50a76…" }] }</span></pre>
         </div>
       </div>
     </section>`,
@@ -175,21 +177,26 @@ function buildHtml() {
     `<section class="slide center" aria-label="Hackathon">
       <div class="wrap narrow">
         <p class="eyebrow a1">CriptoUNAM × Semana DIE 2026</p>
-        <h2 class="title a2">Postulando a <em>2 tracks</em></h2>
+        <h2 class="title a2">Postulando a <em>3 retos</em></h2>
         <ul class="prizes a3">
           <li class="prize main">
             <span class="prize-ic">${icon("code", 22)}</span>
-            <span><strong>Blockchain → Stellar</strong><span class="muted">Stellar SDK, Horizon y Friendbot desde el día uno; registro Soroban listo tras flag.</span></span>
-            <span class="amount">$530</span>
+            <span><strong>Blockchain → Stellar · BAF</strong><span class="muted">Cuentas reales en testnet, firmas SEP-53 y credencial emitida on-chain por módulo.</span></span>
+            <span class="amount">1.º $150</span>
+          </li>
+          <li class="prize">
+            <span class="prize-ic">${icon("wallet", 22)}</span>
+            <span><strong>Blockchain → Pollar</strong><span class="muted">Login con correo, billetera custodiada y firma SEP-53 de cada respuesta con Pollar.</span></span>
+            <span class="amount sm">1.º $125</span>
           </li>
           <li class="prize">
             <span class="prize-ic">${icon("book", 22)}</span>
             <span><strong>Contenido → Tangem</strong><span class="muted">Educación en español para la comunidad UNAM y LATAM.</span></span>
-            <span class="amount sm">hasta $85</span>
+            <span class="amount sm">1.º $50</span>
           </li>
         </ul>
         <dl class="totals a4">
-          <div><dt>premio potencial</dt><dd class="gold">$615</dd></div>
+          <div><dt>credenciales on-chain</dt><dd class="gold">testnet</dd></div>
           <div><dt>open source</dt><dd>100%</dd></div>
           <div><dt>fondos custodiados</dt><dd class="ok">0</dd></div>
         </dl>
@@ -345,6 +352,7 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
 .badge-label{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--gold);max-width:10ch;line-height:1.15}
 .badge-sub{font-size:12px;color:var(--dim)}
 .code{margin-top:20px;max-width:100%;overflow-x:auto;border:1px solid var(--line-gold);background:rgba(201,162,39,.06);border-radius:14px;padding:14px;font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--gold);white-space:pre}
+.split>*{min-width:0}
 .code .k{color:var(--info)}.code .c{color:var(--muted)}
 
 /* prizes */
