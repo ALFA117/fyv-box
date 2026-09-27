@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Star, Award, WifiOff, Trophy, Flame, Shield, Zap, ChevronRight } from "lucide-react";
+import { Star, Award, WifiOff, Trophy, Flame, Shield, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { getWallet, type WalletIdentity } from "@/identity";
 import { MissionCard } from "@/components/MissionCard";
@@ -38,6 +38,27 @@ const LEVELS = [
 function getXpLevel(xp: number) {
   const idx = LEVELS.reduce((acc, l, i) => (xp >= l.min ? i : acc), 0);
   return { ...LEVELS[idx], next: LEVELS[idx + 1] ?? null };
+}
+
+function LevelRing({ level, pct }: { level: number; pct: number }) {
+  const r = 24;
+  const c = 2 * Math.PI * r;
+  const clamped = Math.max(0, Math.min(1, pct));
+  return (
+    <div className="relative h-14 w-14 shrink-0" role="img" aria-label={`Nivel ${level}, ${Math.round(clamped * 100)}% hacia el siguiente`}>
+      <svg viewBox="0 0 56 56" className="h-14 w-14 -rotate-90" aria-hidden>
+        <circle cx="28" cy="28" r={r} fill="none" stroke="var(--border-strong)" strokeWidth="4" />
+        <circle
+          cx="28" cy="28" r={r} fill="none" stroke="var(--gold)" strokeWidth="4" strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={c * (1 - clamped)}
+          className="transition-[stroke-dashoffset] duration-700 ease-out motion-reduce:transition-none"
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold text-gold" aria-hidden>
+        {level}
+      </span>
+    </div>
+  );
 }
 
 async function fetchJson<T>(url: string, ms = 15000): Promise<T> {
@@ -133,9 +154,10 @@ export default function DashboardPage() {
 
               <div className="relative mb-4 flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-subtle ring-1 ring-line-gold" aria-hidden>
-                    <Zap className="h-5 w-5 text-gold" strokeWidth={2.25} />
-                  </div>
+                  <LevelRing
+                    level={lvl.level}
+                    pct={lvl.next ? (totalXP - lvl.min) / (lvl.next.min - lvl.min) : 1}
+                  />
                   <div className="min-w-0">
                     <p className={`text-label uppercase tracking-wider ${lvl.color}`}>Nivel {lvl.level} · {lvl.title}</p>
                     <p className="text-sm text-cream-muted">

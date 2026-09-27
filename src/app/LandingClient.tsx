@@ -16,11 +16,16 @@ import { useToast } from "@/components/Toast";
 import { TRACK_ORDER, TRACK_STYLE } from "@/components/trackStyle";
 import { TrackMeta, type Mission } from "@/missions/schema";
 import { getWallet, ensureWalletFunded } from "@/identity";
+import { HeroPreview, type HeroPreviewData } from "./HeroPreview";
 
 export interface LandingProps {
   missionCount: number;
   trackCounts: Record<Mission["track"], number>;
+  trackLevels: Record<Mission["track"], [number, number]>;
+  preview: HeroPreviewData;
 }
+
+const LEVEL_LABEL = ["Básico", "Intermedio", "Avanzado"];
 
 /* ─── Scroll progress ────────────────────────────────────────────────────── */
 function ScrollProgress() {
@@ -142,26 +147,6 @@ function HologramLogo() {
       </div>
     </div>
   );
-}
-
-/* ─── Animated counter ───────────────────────────────────────────────────── */
-function AnimCounter({ to, suffix = "" }: { to: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
-  const reduce = useReducedMotion();
-  const [val, setVal] = useState(to);
-  useEffect(() => {
-    if (reduce || !isInView || to === 0) { setVal(to); return; }
-    let cur = 0;
-    const step = Math.max(1, to / 30);
-    setVal(0);
-    const timer = setInterval(() => {
-      cur += step;
-      if (cur >= to) { setVal(to); clearInterval(timer); } else setVal(Math.floor(cur));
-    }, 30);
-    return () => clearInterval(timer);
-  }, [isInView, to, reduce]);
-  return <span ref={ref} className="tabular-nums">{val}{suffix}</span>;
 }
 
 /* ─── Scroll reveal (content stays visible without JS / reduced motion) ──── */
@@ -317,7 +302,7 @@ const NAV_LINKS = [
 ];
 
 /* ══════════════════════════════════════════════════════════════════════════ */
-export function LandingClient({ missionCount, trackCounts }: LandingProps) {
+export function LandingClient({ missionCount, trackCounts, trackLevels, preview }: LandingProps) {
   const trackTotal = TRACK_ORDER.length;
 
   return (
@@ -354,8 +339,8 @@ export function LandingClient({ missionCount, trackCounts }: LandingProps) {
         className="pt-safe fixed inset-x-0 top-0 z-50 border-b border-line bg-navy/85 backdrop-blur-lg"
       >
         <div className="px-gutter mx-auto flex h-[var(--header-h)] max-w-6xl items-center justify-between gap-3">
-          <Link href="/" aria-label="FYV Box — inicio" className="tap flex items-center rounded-xl">
-            <Wordmark size="sm" />
+          <Link href="/" aria-label="FYV Box — inicio" className="tap flex shrink-0 items-center rounded-xl">
+            <Wordmark size="md" />
           </Link>
           <nav aria-label="Principal" className="flex items-center gap-1.5 sm:gap-2">
             {NAV_LINKS.map(({ href, label }) => (
@@ -394,13 +379,6 @@ export function LandingClient({ missionCount, trackCounts }: LandingProps) {
                 ingeniería social y firmas peligrosas— y obtén una credencial verificable ligada a tu dirección Stellar.
               </p>
 
-              <div className="mt-8 flex justify-center lg:hidden" aria-hidden>
-                <div className="relative w-44">
-                  <div className="logo-halo pointer-events-none absolute -inset-4 -z-10 rounded-full blur-lg" />
-                  <Image src="/logo-panther.webp" alt="" width={176} height={69} sizes="176px" className="logo-panther-sm h-auto w-full" priority />
-                </div>
-              </div>
-
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <a
                   href="#start"
@@ -430,13 +408,24 @@ export function LandingClient({ missionCount, trackCounts }: LandingProps) {
                   </div>
                 ))}
               </dl>
+
+              <div className="mt-12 lg:hidden">
+                <div className="relative z-10 mx-auto mb-2 w-36" aria-hidden>
+                  <div className="logo-halo pointer-events-none absolute -inset-4 -z-10 rounded-full blur-lg" />
+                  <Image src="/logo-panther.webp" alt="" width={176} height={69} sizes="160px" className="logo-panther-sm h-auto w-full" priority />
+                </div>
+                <HeroPreview data={preview} />
+              </div>
             </div>
           </div>
 
           <div aria-hidden className="pointer-events-none absolute bottom-0 left-1/2 top-16 hidden w-px bg-gradient-to-b from-transparent via-line-gold to-transparent lg:block" />
 
-          <div className="hidden items-center justify-center lg:flex lg:w-1/2">
-            <HologramLogo />
+          <div className="hidden flex-col items-center justify-center px-12 py-16 lg:flex lg:w-1/2">
+            <div className="relative z-10 mb-4 w-full max-w-[280px]">
+              <HologramLogo />
+            </div>
+            <HeroPreview data={preview} />
           </div>
         </section>
 
@@ -460,6 +449,35 @@ export function LandingClient({ missionCount, trackCounts }: LandingProps) {
             </ul>
           </Reveal>
         </div>
+
+        {/* ══ CÓMO FUNCIONA ═════════════════════════════════════════════ */}
+        <section aria-labelledby="how-title" className="px-gutter pt-16 sm:pt-24">
+          <div className="mx-auto max-w-5xl">
+            <Reveal className="mb-10 text-center">
+              <Eyebrow>Cómo funciona</Eyebrow>
+              <h2 id="how-title" className="text-title-1 text-cream">Tres pasos, cinco minutos por misión</h2>
+            </Reveal>
+            <ol className="relative grid gap-6 sm:grid-cols-3">
+              <li aria-hidden className="pointer-events-none absolute bottom-10 left-7 top-10 w-px bg-line-gold sm:bottom-auto sm:left-[16%] sm:right-[16%] sm:top-7 sm:h-px sm:w-auto" />
+              {[
+                { icon: Wallet, title: "Entra sin registrarte", desc: "Creamos una billetera de prueba real en Stellar testnet. Sin correo ni contraseña." },
+                { icon: FlaskConical, title: "Enfrenta la trampa", desc: "Un correo, un DM, un airdrop o una firma que imitan ataques reales. Tú decides qué hacer." },
+                { icon: GraduationCap, title: "Aprende y certifícate", desc: "Cada respuesta explica la trampa. Completa un módulo y gana su credencial verificable." },
+              ].map(({ icon: Icon, title, desc }, i) => (
+                <Reveal as="li" key={title} delay={i * 0.08} className="relative flex gap-4 sm:flex-col sm:items-center sm:text-center">
+                  <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-line-gold bg-navy text-gold shadow-[var(--shadow-gold)]">
+                    <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+                    <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-xs font-bold text-on-gold">{i + 1}</span>
+                  </span>
+                  <div className="pt-1 sm:pt-0">
+                    <h3 className="text-title-3 text-cream">{title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-cream-muted">{desc}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </ol>
+          </div>
+        </section>
 
         {/* ══ START ═════════════════════════════════════════════════════ */}
         <section id="start" aria-labelledby="start-title" className="px-gutter py-14 sm:py-20">
@@ -487,7 +505,7 @@ export function LandingClient({ missionCount, trackCounts }: LandingProps) {
         </section>
 
         {/* ══ QUIÉNES SOMOS ═════════════════════════════════════════════ */}
-        <section id="about" aria-labelledby="about-title" className="px-gutter py-14 sm:py-20">
+        <section id="about" aria-labelledby="about-title" className="px-gutter border-y border-line bg-surface/35 py-14 sm:py-20">
           <div className="mx-auto max-w-5xl">
             <Reveal className="mb-10 text-center">
               <Eyebrow>Quiénes somos</Eyebrow>
@@ -499,23 +517,21 @@ export function LandingClient({ missionCount, trackCounts }: LandingProps) {
               </p>
             </Reveal>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
+            <dl className="grid grid-cols-3 gap-3 sm:gap-5">
               {[
-                { to: missionCount, suffix: "", desc: "simulacros de estafas reales", icon: Shield },
-                { to: trackTotal, suffix: "", desc: "módulos con credencial", icon: Sparkles },
-                { to: 0, suffix: " XLM", desc: "de riesgo durante el entrenamiento", icon: CheckCircle },
-              ].map(({ to, suffix, desc, icon: Icon }, i) => (
+                { value: String(missionCount), desc: "simulacros de estafas reales", icon: Shield },
+                { value: String(trackTotal), desc: "módulos con credencial", icon: Sparkles },
+                { value: "0 XLM", desc: "de riesgo al entrenar", icon: CheckCircle },
+              ].map(({ value, desc, icon: Icon }, i) => (
                 <Reveal key={desc} delay={i * 0.08}>
-                  <GlassCard className="flex items-center gap-4 p-5 sm:flex-col sm:p-6 sm:text-center">
-                    <Icon className="h-6 w-6 shrink-0 text-gold" strokeWidth={1.75} aria-hidden />
-                    <div>
-                      <p className="font-display text-3xl font-bold text-cream sm:text-4xl"><AnimCounter to={to} suffix={suffix} /></p>
-                      <p className="mt-1 text-sm text-cream-muted">{desc}</p>
-                    </div>
-                  </GlassCard>
+                  <div className="flex h-full flex-col items-center gap-2 rounded-2xl border border-line-strong bg-navy/60 px-2 py-5 text-center sm:p-6">
+                    <Icon className="h-5 w-5 text-gold sm:h-6 sm:w-6" strokeWidth={1.75} aria-hidden />
+                    <dd className="font-display text-2xl font-bold tabular-nums text-cream sm:text-4xl">{value}</dd>
+                    <dt className="text-xs leading-snug text-cream-muted sm:text-sm">{desc}</dt>
+                  </div>
                 </Reveal>
               ))}
-            </div>
+            </dl>
           </div>
         </section>
 
@@ -539,7 +555,8 @@ export function LandingClient({ missionCount, trackCounts }: LandingProps) {
                 return (
                   <Reveal as="li" key={track} delay={i * 0.05} className="h-full">
                       <Link href="/dashboard" className="group block h-full rounded-2xl">
-                        <GlassCard className="flex h-full flex-col p-5 group-hover:border-line-gold">
+                        <GlassCard className="relative flex h-full flex-col overflow-hidden p-5 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:border-line-gold motion-reduce:group-hover:translate-y-0">
+                          <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${s.bar}`} />
                           <div className="mb-4 flex items-center justify-between gap-3">
                             <TrackIconBadge track={track} size={44} />
                             <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${s.chip}`}>
@@ -548,6 +565,12 @@ export function LandingClient({ missionCount, trackCounts }: LandingProps) {
                           </div>
                           <h3 className={`text-title-3 ${s.text}`}>{TrackMeta[track].label}</h3>
                           <p className="mt-1.5 flex-1 text-sm leading-relaxed text-cream-muted">{TrackMeta[track].description}</p>
+                          <p className="mt-3 text-xs font-medium text-cream-dim">
+                            Nivel:{" "}
+                            {trackLevels[track][0] === trackLevels[track][1]
+                              ? LEVEL_LABEL[trackLevels[track][0]]
+                              : `${LEVEL_LABEL[trackLevels[track][0]]} → ${LEVEL_LABEL[trackLevels[track][1]]}`}
+                          </p>
                           <span className="mt-4 flex items-center gap-1 text-sm font-semibold text-cream-muted transition-colors group-hover:text-gold">
                             Empezar módulo
                             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
@@ -592,7 +615,7 @@ export function LandingClient({ missionCount, trackCounts }: LandingProps) {
         </section>
 
         {/* ══ A QUIÉN ═══════════════════════════════════════════════════ */}
-        <section id="who" aria-labelledby="who-title" className="px-gutter py-14 sm:py-20">
+        <section id="who" aria-labelledby="who-title" className="px-gutter border-y border-line bg-surface/35 py-14 sm:py-20">
           <div className="mx-auto max-w-5xl">
             <Reveal className="mb-10 text-center">
               <Eyebrow>¿A quién le sirve?</Eyebrow>

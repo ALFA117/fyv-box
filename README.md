@@ -97,10 +97,7 @@ No se encontraron desbordes horizontales; tras los cambios, la auditoría autom�
 
 ### 4. Pendientes que requieren acción manual (no se pudieron hacer desde aquí)
 
-- **Cerrar las escrituras anónimas en Supabase (crítico).** Las políticas de `001_fyv_tables.sql` permiten que la anon key pública (que viaja al navegador) inserte directamente en `fyv_module_completions`: cualquiera puede fabricar una credencial saltándose la API. El proyecto de Supabase vive en otra cuenta y no tuve acceso para aplicarlo. Pasos, **en este orden**:
-  1. Vercel → Settings → Environment Variables → agregar `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings → API → `service_role`) y redesplegar.
-  2. Supabase → SQL Editor → correr `supabase/migrations/002_lockdown_writes.sql`.
-  Si inviertes el orden, guardar respuestas deja de funcionar hasta que agregues la llave. Mientras tanto la app funciona igual que antes (el servidor avisa en logs que usa la anon key).
+- ~~Cerrar las escrituras anónimas en Supabase~~ **Hecho (2026-09-26):** `SUPABASE_SERVICE_ROLE_KEY` configurada en Vercel (Production, Sensitive) y migración `002_lockdown_writes.sql` aplicada. Verificado: la anon key recibe 401 al insertar en las tres tablas y la API guarda respuestas (200).
 - **Soroban `getReadiness`** sigue siendo un stub; el backend por defecto (`supabase`) es el que está en uso.
 - **Pollar SDK** no está publicado; el flag sigue apagado.
 - **Tests automatizados**: el proyecto no tiene suite. Lo prioritario sería cubrir `engine.ts` y la verificación de firma de `complete`.
@@ -223,3 +220,12 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - **Escenarios que contradecían su historia (bug previo):** el marco de phishing tenía fijos el remitente "Soporte Lumena" y el asunto "tu cuenta está comprometida" en las 5 misiones (incluida la del QR pegado en un evento); el airdrop de USDC mostraba "0 USDC"; el pool con 950% APY se pintaba como "balance recibido"; la whitelist APEX mostraba valores por defecto; y la firma decía "Red: Stellar Mainnet" en una misión de testnet. Los marcos se movieron a `src/app/mission/[id]/ScenarioFrames.tsx` y ahora leen todo de `actionParams` (se agregaron `channel`, `senderName`, `subject` y `amount` donde faltaban). Marcos nuevos: QR + formulario y pago con memo.
 - `/stats`: si dos módulos empatan como "donde más gente falla", se indica el empate.
 - La regla base de `h1–h4` pasó a `@layer base` para que las utilidades de Tailwind puedan sobrescribirla.
+
+### Pasada visual "menos sencillo" (2026-09-26)
+
+- **Hero:** vista previa real de la misión `phishing-001` (`src/app/HeroPreview.tsx`) con sus 3 señales de alerta numeradas y el resultado "+100 XP"; en escritorio acompaña a la pantera en la columna derecha, en móvil aparece bajo las cifras. Los datos salen del catálogo, no están inventados.
+- **Nueva sección "Cómo funciona":** 3 pasos numerados con línea conectora (vertical en móvil, horizontal en escritorio).
+- **Ritmo visual:** bandas de fondo alternadas en "Quiénes somos" y "¿A quién le sirve?".
+- **Tarjetas de módulo:** acento de color del módulo, rango de dificultad real ("Básico → Avanzado") y leve elevación al pasar el cursor (desactivada con reduced-motion).
+- **Bug:** los contadores animados de "Quiénes somos" podían quedarse en 0; ahora muestran el número real sin animación.
+- **Dashboard:** anillo de progreso hacia el siguiente nivel en lugar del ícono plano.

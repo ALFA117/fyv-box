@@ -21,6 +21,26 @@ export default function HomePage() {
     (Object.keys(TrackMeta) as Mission["track"][]).map((t) => [t, catalog.filter((m) => m.track === t).length]),
   ) as Record<Mission["track"], number>;
 
+  const order = { beginner: 0, intermediate: 1, advanced: 2 } as const;
+  const trackLevels = Object.fromEntries(
+    (Object.keys(TrackMeta) as Mission["track"][]).map((t) => {
+      const levels = catalog.filter((m) => m.track === t).map((m) => order[m.difficulty]);
+      return [t, [Math.min(...levels), Math.max(...levels)]];
+    }),
+  ) as Record<Mission["track"], [number, number]>;
+
+  const sample = catalog.find((m) => m.id === "phishing-001") ?? catalog[0];
+  const sp = (sample.actionParams ?? {}) as Record<string, unknown>;
+  const preview = {
+    id: sample.id,
+    title: sample.title,
+    xp: sample.xp,
+    senderName: String(sp.senderName ?? "Soporte"),
+    sender: String(sp.fakeSender ?? `soporte@${sp.fakeDomain ?? "sitio-falso.io"}`),
+    subject: String(sp.subject ?? sample.title),
+    domain: String(sp.fakeDomain ?? ""),
+  };
+
   const url = siteUrl();
   const jsonLd = {
     "@context": "https://schema.org",
@@ -59,7 +79,7 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
-      <LandingClient missionCount={catalog.length} trackCounts={trackCounts} />
+      <LandingClient missionCount={catalog.length} trackCounts={trackCounts} trackLevels={trackLevels} preview={preview} />
     </>
   );
 }
