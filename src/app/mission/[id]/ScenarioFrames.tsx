@@ -208,6 +208,7 @@ function WalletFrame({ mission, p }: { mission: PublicMission; p: Params }) {
   const amount = Number(str(p, "amount") ?? NaN);
   const issuer = str(p, "fakeIssuer");
   const hasToml = p.hasStellarToml === true;
+  const memo = str(p, "memo");
 
   return (
     <div className={frame}>
@@ -231,6 +232,7 @@ function WalletFrame({ mission, p }: { mission: PublicMission; p: Params }) {
         <div className="mb-4 space-y-2 rounded-xl bg-navy/60 p-3 font-mono text-xs">
           <Row k="Emisor" v={issuer ? midTruncate(issuer, 6, 4) : "Dirección desconocida"} danger />
           <Row k="stellar.toml" v={hasToml ? "Encontrado" : "No encontrado"} danger={!hasToml} />
+          {memo && <Row k="Memo" v={memo} />}
         </div>
         <Narrative text={mission.narrative} />
       </div>

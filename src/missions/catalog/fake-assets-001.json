@@ -1,39 +1,40 @@
 {
   "id": "fake-assets-001",
   "track": "fake-assets",
-  "title": "El Airdrop Misterioso",
-  "narrative": "Te llega un Claimable Balance a tu wallet: 1,000,000 LUNACOIN emitido por una dirección desconocida. El token no aparece en ningún exchange, pero en Telegram dicen que 'pronto valdrá mucho'.\n\nAparece como pendiente en tu wallet. ¿Lo reclamas?",
+  "title": "El Drop de $PUMA",
+  "narrative": "Acabas de entregar tu proyecto en GOYA HACK y te llega un Claimable Balance a tu wallet de Stellar: 50,000,000 PUMA, \"drop oficial para equipos con BUIDL\". Lo emitió una dirección que no reconoces y en un grupo de Telegram te dicen que lo reclames rápido \"antes de que cierre la ventana del drop\".\n\nAparece como pendiente en tu wallet. ¿Lo reclamas?",
   "action": "receive_claimable_balance",
   "actionParams": {
-    "assetCode": "LUNACOIN",
-    "amount": "1000000",
+    "assetCode": "PUMA",
+    "amount": "50000000",
     "claimableBalanceId": "FYVSIM-FAKE-001",
     "issuerIsFyvBox": true,
-    "testnetTx": true
+    "testnetTx": true,
+    "memo": "GOYA HACK drop · claim now"
   },
   "options": [
     {
       "id": "a",
-      "label": "Lo reclamo: un millón de tokens gratis podría valer algo pronto",
+      "label": "Lo reclamo ya: es el drop del hackathon y la ventana está por cerrar",
       "isCorrect": false
     },
     {
       "id": "b",
-      "label": "No lo reclamo hasta revisar quién lo emitió y si tiene su stellar.toml",
+      "label": "Primero confirmo con CriptoUNAM la red y el emisor oficial del drop",
       "isCorrect": true
     },
     {
       "id": "c",
-      "label": "Lo reclamo, pero en otra wallet aparte para no arriesgar nada",
+      "label": "Lo reclamo desde otra wallet aparte, así no arriesgo mis fondos principales",
       "isCorrect": false
     },
     {
       "id": "d",
-      "label": "Pregunto en el grupo de Telegram si alguien ya lo reclamó",
+      "label": "Pregunto en el grupo de Telegram si alguien ya lo reclamó sin problema",
       "isCorrect": false
     }
   ],
-  "explanation": "Reclamar un token falso tiene consecuencias: al establecer el trustline necesario para recibirlo, pagas comisiones (mínimas en Stellar, pero reales), y el token podría estar diseñado para drenar automáticamente fondos via scripts al interactuar con él. La regla de oro: cualquier token legítimo tiene un archivo stellar.toml en el dominio del emisor que lo valida. Sin stellar.toml verificado = no confíes.",
+  "explanation": "Cualquiera puede emitir un token llamado PUMA en Stellar: el nombre no prueba nada, lo que importa es quién lo emite y en qué red. Según la página oficial de GOYA HACK, el drop de $PUMA para equipos con entrega válida es en Avalanche, así que un \"drop\" en Stellar desde un emisor desconocido es una señal clara de suplantación. Reclamarlo implica abrir un trustline (pagas comisión y reservas XLM) y te pone en la mira de quien lo mandó: el siguiente paso suele ser un link para \"activar\" o \"canjear\" el drop que pide tu frase o una firma. Verifica siempre en el canal oficial del proyecto la red, el emisor y el stellar.toml del dominio.",
   "comingSoon": false,
   "difficulty": "beginner",
   "xp": 100

@@ -261,3 +261,8 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - **Modo invitado:** "Prefiero entrar sin correo" usa la billetera de prueba local de siempre. Sin `NEXT_PUBLIC_POLLAR_API_KEY` el sitio funciona exactamente como antes y `/entrar` ofrece solo el modo invitado.
 - **Sesión:** mapa, misiones y credenciales mandan a `/entrar?next=…` si el modo es correo y no hay sesión. En el nav aparece la etiqueta "correo" y un botón real de **Cerrar sesión** (también en móvil).
 - **Activarlo:** en [dashboard.pollar.xyz](https://dashboard.pollar.xyz) → Build → API Keys → Generate → tipo *publishable*, red *testnet* (`pub_testnet_…`, segura en el navegador; límite de 1,000 peticiones/día). Si el dashboard pide dominios permitidos, agregar `https://fyv-box.vercel.app` y `http://localhost:3000`. Luego `NEXT_PUBLIC_POLLAR_API_KEY` en Vercel (Production) y redeploy. **Nunca** usar la llave secreta `sec_…` en el frontend.
+
+### Misión "El Drop de $PUMA" (2026-09-27)
+
+- `fake-assets-001` (antes "El Airdrop Misterioso" con LUNACOIN) ahora simula un drop falso de **$PUMA**, el token de CriptoUNAM que reparte GOYA HACK: llegan 50,000,000 PUMA a Stellar desde un emisor desconocido con el memo "GOYA HACK drop · claim now". La lección: el nombre del token no prueba nada; según la página oficial del hackathon el drop real es en Avalanche, así que se confirma red y emisor en el canal oficial antes de abrir un trustline. Opciones de longitud pareja (67–75 caracteres) para no delatar la correcta.
+- `WalletFrame` acepta un `memo` opcional en `actionParams`.
