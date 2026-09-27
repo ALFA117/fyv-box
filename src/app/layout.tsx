@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Inter, Playfair_Display, IBM_Plex_Mono } from "next/font/google";
 import { ToastProvider } from "@/components/Toast";
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { BRAND, siteUrl } from "@/lib/brand";
 import "./globals.css";
 
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body>
         <Script id="fyv-theme" strategy="beforeInteractive">{THEME_SCRIPT}</Script>
+        <AmbientBackground />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[2000] focus:rounded-xl focus:bg-gold focus:px-4 focus:py-3 focus:text-on-gold"

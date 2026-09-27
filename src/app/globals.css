@@ -257,6 +257,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100dvh;
   overflow-x: clip;
+  /* Stacking context: lets the fixed ambient scene (negative z-index) paint above the body background */
+  isolation: isolate;
   transition: background-color var(--dur-base) ease, color var(--dur-base) ease;
 }
 
@@ -400,26 +402,118 @@ button, a, [role="button"] { touch-action: manipulation; }
   background: radial-gradient(ellipse 80% 65% at 50% 50%, rgba(140,90,5,.18) 0%, rgba(140,90,5,.05) 50%, transparent 70%);
 }
 
-/* ─── Fondo de la landing ───────────────────────────────────────────────── */
-.landing-bg {
-  background:
-    radial-gradient(ellipse 120% 70% at 50% -10%, var(--surface-card) 0%, transparent 60%),
-    radial-gradient(40rem 40rem at 30% 35%, var(--glow-gold), transparent 70%),
-    radial-gradient(34rem 34rem at 100% 55%, var(--glow-info), transparent 70%),
-    var(--navy);
-}
-.landing-grid {
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--decor-1) 100%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--decor-1) 100%, transparent) 1px, transparent 1px);
-  background-size: 60px 60px;
-  opacity: .035;
-}
 .text-gold-gradient {
   background-image: linear-gradient(90deg, var(--gold), var(--gold-hover), var(--gold));
     -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* ─── Escena ambiental 3D (AmbientBackground) ───────────────────────────── */
+.amb-root {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--navy);
+}
+.amb-calm .amb-stage,
+.amb-calm .amb-stars { opacity: 0.55; }
+.amb-calm .amb-aurora { opacity: 0.7; }
+/* En claro las líneas doradas contrastan más con el fondo crema: se atenúan para no competir con el texto */
+[data-theme="light"] .amb-stage { opacity: 0.6; }
+[data-theme="light"] .amb-calm .amb-stage { opacity: 0.35; }
+
+/* Aurora: gradientes suaves (sin filter: blur, barato en móvil) */
+.amb-aurora { position: absolute; inset: -20%; }
+.amb-blob {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  will-change: transform;
+}
+.amb-blob-1 { left: -10%; top: -20%; background: radial-gradient(circle, color-mix(in srgb, var(--gold) 34%, transparent), transparent 62%); }
+.amb-blob-2 { right: -20%; top: 10%;  background: radial-gradient(circle, color-mix(in srgb, var(--info) 30%, transparent), transparent 60%); }
+.amb-blob-3 { left: 20%; bottom: -35%; background: radial-gradient(circle, color-mix(in srgb, var(--violet) 26%, transparent), transparent 60%); }
+.amb-blob-1.amb-animate { animation: amb-drift-1 22s ease-in-out infinite alternate; }
+.amb-blob-2.amb-animate { animation: amb-drift-2 28s ease-in-out infinite alternate; }
+.amb-blob-3.amb-animate { animation: amb-drift-3 34s ease-in-out infinite alternate; }
+@keyframes amb-drift-1 { to { transform: translate3d(18vw, 12vh, 0) scale(1.15); } }
+@keyframes amb-drift-2 { to { transform: translate3d(-22vw, 18vh, 0) scale(0.9); } }
+@keyframes amb-drift-3 { to { transform: translate3d(12vw, -20vh, 0) scale(1.2); } }
+
+/* Haces de luz que barren la escena */
+.amb-beams { position: absolute; inset: 0; }
+.amb-beam {
+  position: absolute;
+  top: -30%;
+  width: 26vmax;
+  height: 160%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--gold) 9%, transparent), transparent);
+  transform: rotate(18deg) translate3d(-60vw, 0, 0);
+  will-change: transform;
+}
+.amb-beam.amb-animate { animation: amb-sweep 16s linear infinite; }
+.amb-beam:nth-child(2) { width: 14vmax; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--info) 8%, transparent), transparent); }
+.amb-beam:nth-child(2).amb-animate { animation-duration: 23s; animation-delay: -9s; }
+@keyframes amb-sweep {
+  from { transform: rotate(18deg) translate3d(-60vw, 0, 0); }
+  to   { transform: rotate(18deg) translate3d(160vw, 0, 0); }
+}
+
+/* Campo de estrellas (canvas) */
+.amb-stars { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* Objetos 3D */
+.amb-stage { position: absolute; inset: 0; perspective: 900px; perspective-origin: 50% 40%; }
+.amb-float { position: absolute; transform-style: preserve-3d; will-change: transform; }
+.amb-spin {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--tilt, 0deg)) rotateY(0deg);
+}
+.amb-spin.amb-animate { animation-name: amb-rotate; animation-timing-function: linear; animation-iteration-count: infinite; }
+@keyframes amb-rotate {
+  from { transform: rotateX(var(--tilt, 0deg)) rotateY(0deg) rotateZ(0deg); }
+  to   { transform: rotateX(calc(var(--tilt, 0deg) + 360deg)) rotateY(360deg) rotateZ(90deg); }
+}
+.amb-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 1.5px solid;
+  backface-visibility: visible;
+  box-shadow: 0 0 18px -4px currentColor, inset 0 0 22px -8px currentColor;
+}
+.amb-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid;
+  border-radius: 50%;
+  box-shadow: 0 0 22px -4px currentColor, inset 0 0 22px -6px currentColor;
+}
+.amb-core {
+  position: absolute;
+  border-radius: 50%;
+  box-shadow: 0 0 30px 10px color-mix(in srgb, var(--gold) 55%, transparent);
+}
+.amb-core.amb-animate { animation: amb-pulse 3.6s ease-in-out infinite; }
+@keyframes amb-pulse { 50% { transform: scale(1.35); opacity: 0.75; } }
+
+/* Grano fino + viñeta para dar profundidad y legibilidad */
+.amb-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.amb-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 45%, color-mix(in srgb, var(--navy-deep) 85%, transparent) 100%);
 }
 
 /* ─── Animaciones ───────────────────────────────────────────────────────── */

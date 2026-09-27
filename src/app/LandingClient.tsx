@@ -51,84 +51,6 @@ function ScrollProgress() {
   );
 }
 
-/* ─── Particle network (decorative, desktop pointer only) ────────────────── */
-function ParticleCanvas() {
-  const ref = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    // Decorative and continuous: only on large screens with a mouse, never on phones (battery).
-    if (!window.matchMedia("(min-width: 1024px) and (pointer: fine)").matches) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    type P = { x: number; y: number; vx: number; vy: number; r: number; a: number };
-    let ps: P[] = [];
-    let raf = 0;
-    const mouse = { x: -9999, y: -9999 };
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      const count = Math.min(Math.floor((canvas.width * canvas.height) / 14000), 80);
-      ps = Array.from({ length: count }, () => ({
-        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
-        r: Math.random() * 1.8 + 0.6, a: Math.random() * 0.5 + 0.2,
-      }));
-    };
-    const onMove = (e: PointerEvent) => { mouse.x = e.clientX; mouse.y = e.clientY; };
-
-    const draw = () => {
-      const color = getComputedStyle(document.documentElement).getPropertyValue("--decor-1").trim() || "#C9A227";
-      const w = canvas.width, h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = color;
-      ctx.strokeStyle = color;
-      for (const p of ps) {
-        const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
-        if (d < 100 && d > 0) { const f = ((100 - d) / 100) * 0.015; p.vx += (dx / d) * f; p.vy += (dy / d) * f; }
-        p.vx *= 0.99; p.vy *= 0.99; p.x += p.vx; p.y += p.vy;
-        if (p.x < 0) p.x = w; if (p.x > w) p.x = 0; if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
-        ctx.globalAlpha = p.a * 0.6;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
-      }
-      ctx.lineWidth = 0.7;
-      for (let i = 0; i < ps.length; i++) {
-        for (let j = i + 1; j < ps.length; j++) {
-          const d = Math.hypot(ps[i].x - ps[j].x, ps[i].y - ps[j].y);
-          if (d < 130) {
-            ctx.globalAlpha = (1 - d / 130) * 0.18;
-            ctx.beginPath(); ctx.moveTo(ps[i].x, ps[i].y); ctx.lineTo(ps[j].x, ps[j].y); ctx.stroke();
-          }
-        }
-      }
-      ctx.globalAlpha = 1;
-      raf = requestAnimationFrame(draw);
-    };
-    const onVisibility = () => {
-      cancelAnimationFrame(raf);
-      if (!document.hidden) raf = requestAnimationFrame(draw);
-    };
-
-    resize();
-    draw();
-    window.addEventListener("resize", resize);
-    window.addEventListener("pointermove", onMove, { passive: true });
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", onMove);
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
-  }, []);
-
-  return <canvas ref={ref} className="pointer-events-none fixed inset-0 -z-10" aria-hidden />;
-}
-
 /* ─── Logo pantera (desktop) ─────────────────────────────────────────────── */
 function HologramLogo() {
   return (
@@ -308,31 +230,6 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
   return (
     <div className="relative min-h-dvh overflow-x-clip">
       <ScrollProgress />
-
-      {/* Background */}
-      <div aria-hidden className="landing-bg pointer-events-none fixed inset-0 -z-20" />
-      <div aria-hidden className="landing-grid pointer-events-none fixed inset-0 -z-20" />
-      <ParticleCanvas />
-      <svg aria-hidden className="pointer-events-none fixed inset-0 -z-10 hidden h-full w-full sm:block" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
-        <g style={{ color: "var(--decor-1)", transformOrigin: "950px 160px" }} stroke="currentColor" fill="currentColor">
-          <polygon points="950,80 1030,118 950,156 870,118" fillOpacity=".08" strokeOpacity=".32" />
-          <polygon points="870,118 950,156 950,232 870,194" fillOpacity=".04" strokeOpacity=".22" />
-          <polygon points="1030,118 950,156 950,232 1030,194" fillOpacity=".06" strokeOpacity=".27" />
-        </g>
-        <g style={{ color: "var(--decor-2)", transformOrigin: "110px 420px" }} stroke="currentColor" fill="currentColor">
-          <polygon points="110,368 158,391 110,414 62,391" fillOpacity=".07" strokeOpacity=".26" />
-          <polygon points="62,391 110,414 110,461 62,438" fillOpacity=".03" strokeOpacity=".18" />
-          <polygon points="158,391 110,414 110,461 158,438" fillOpacity=".05" strokeOpacity=".22" />
-        </g>
-        <g style={{ color: "var(--decor-1)", transformOrigin: "155px 190px" }} stroke="currentColor" fill="none">
-          <polygon points="155,148 196,170 196,214 155,236 114,214 114,170" strokeOpacity=".26" strokeWidth="1.4" />
-        </g>
-        <g style={{ color: "var(--decor-3)", transformOrigin: "1050px 760px" }} stroke="currentColor" fill="currentColor">
-          <polygon points="1050,724 1084,742 1050,760 1016,742" fillOpacity=".07" strokeOpacity=".24" />
-          <polygon points="1016,742 1050,760 1050,796 1016,778" fillOpacity=".035" strokeOpacity=".17" />
-          <polygon points="1084,742 1050,760 1050,796 1084,778" fillOpacity=".05" strokeOpacity=".2" />
-        </g>
-      </svg>
 
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
       <header

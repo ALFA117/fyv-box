@@ -243,3 +243,11 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - **"Todas las respuestas correctas son la C" (bug de contenido grave):** confirmado, 18 de 22 eran C y en 19 de 22 la correcta era además la opción más larga y la única con justificación. Ahora `loadCatalog()` coloca la correcta en una posición rotativa y estable (6 A · 6 B · 5 C · 5 D; la evaluación usa ids, así que no afecta el guardado ni las estadísticas). Se reescribieron las 88 opciones: correctas concisas y distractores con un razonamiento creíble; la correcta ahora es la más larga en 8 misiones, la 2.ª en 3, la 3.ª en 6 y la más corta en 5.
 - **Faltaba "Siguiente misión":** el resultado ahora muestra un botón principal a la siguiente misión (o "Siguiente módulo" al terminar uno) y "Volver al mapa" como secundario. `MissionClient` se monta con `key={mission.id}` para que cada misión empiece limpia al navegar entre ellas.
 - **Faltaba pie de página en la app:** `AppFooter` en mapa, misiones, estadísticas, credenciales y verificador (en misiones deja espacio para la barra fija de "Confirmar").
+
+### Fondo ambiental 3D (2026-09-27)
+
+- `src/components/AmbientBackground.tsx`, montado una vez en `layout.tsx` detrás de todo (`position: fixed; z-index: -10`, `body { isolation: isolate }`). Capas: aurora de gradientes que deriva, haces de luz que barren la escena, campo de estrellas en canvas que viaja hacia la cámara y se une en constelaciones, y figuras 3D reales con CSS (cubos, prismas y giroscopios con núcleo que pulsa) con brillo, más grano y viñeta para legibilidad.
+- Parallax con el puntero (escritorio) y con el scroll (framer-motion `useScroll`/`useSpring`); cada figura se mueve según su profundidad.
+- **Variante completa** en la landing y **tranquila** en el resto de pantallas (menos figuras y estrellas, opacidad menor) para no distraer durante las misiones. En modo claro las figuras se atenúan.
+- **Rendimiento:** solo se animan `transform`/`opacity`, sin `filter: blur`; en móvil se muestran menos figuras y ~55% de las estrellas; el canvas se pausa cuando la pestaña está oculta. Con `prefers-reduced-motion` todo queda como una escena estática.
+- Sustituye al fondo de partículas que solo tenía la landing.
