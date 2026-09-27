@@ -1,17 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Star, Award, WifiOff, Trophy, Flame, Shield, ChevronRight } from "lucide-react";
+import { Star, Award, WifiOff, Trophy, Flame, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { getWallet, type WalletIdentity } from "@/identity";
-import { MissionCard } from "@/components/MissionCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { DashboardSkeleton } from "@/components/Skeleton";
-import { TrackIconBadge } from "@/components/TrackIcon";
+import { ModulePath } from "./ModulePath";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/Button";
-import { TRACK_ORDER, TRACK_STYLE } from "@/components/trackStyle";
-import { TrackMeta, type Mission } from "@/missions/schema";
+import { TRACK_ORDER } from "@/components/trackStyle";
+import type { Mission } from "@/missions/schema";
 import type { PublicMission } from "@/missions/engine";
 import { supabase } from "@/lib/supabase";
 import { AppNav } from "@/components/AppNav";
@@ -190,33 +189,6 @@ export default function DashboardPage() {
                 </p>
               )}
 
-              <h2 className="relative mt-5 font-sans text-label text-cream-muted">Misiones completadas por módulo</h2>
-
-              <ul className="relative mt-3 grid grid-cols-1 gap-x-6 gap-y-3.5 min-[400px]:grid-cols-2">
-                {groups.map((g) => {
-                  const done = g.missions.filter((m) => completed.has(m.id)).length;
-                  const total = g.missions.length;
-                  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-                  const isDone = pct === 100;
-                  return (
-                    <li key={g.track}>
-                      <div className="mb-1.5 flex items-center justify-between gap-2 text-xs">
-                        <span className={`truncate font-medium ${isDone ? "text-success" : "text-cream-muted"}`}>
-                          {isDone && "✓ "}{TrackMeta[g.track].label}
-                        </span>
-                        <span className="shrink-0 tabular-nums text-cream-muted">{done} de {total}</span>
-                      </div>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
-                        <div
-                          className={`h-full origin-left rounded-full transition-transform duration-700 ease-out ${isDone ? "bg-success" : TRACK_STYLE[g.track].bar}`}
-                          style={{ transform: `scaleX(${pct / 100})` }}
-                        />
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-
               {progressPct === 100 ? (
                 <Link
                   href="/graduation"
@@ -262,48 +234,13 @@ export default function DashboardPage() {
               variants={reduce ? undefined : containerVariants}
               initial={reduce ? false : "hidden"}
               animate={reduce ? undefined : "show"}
-              className="space-y-8"
+              className="space-y-10"
             >
-              {groups.map((group) => {
-                const meta = TrackMeta[group.track];
-                const done = group.missions.filter((m) => completed.has(m.id)).length;
-                const total = group.missions.length;
-                const isComplete = total > 0 && done === total;
-
-                return (
-                  <motion.section key={group.track} variants={reduce ? undefined : itemVariants} aria-labelledby={`track-${group.track}`}>
-                    <div className={`mb-3 flex items-center gap-3 rounded-2xl border p-3.5 ${isComplete ? "border-success-border bg-success-subtle" : "border-line bg-surface/50"}`}>
-                      <TrackIconBadge track={group.track} size={40} />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h2 id={`track-${group.track}`} className="text-title-3 text-cream">{meta.label}</h2>
-                          {isComplete ? (
-                            <span className="flex items-center gap-1 rounded-full border border-success-border bg-success/10 px-2 py-0.5 text-xs font-bold text-success">
-                              <Shield className="h-3 w-3" strokeWidth={2.5} aria-hidden />
-                              Completado
-                            </span>
-                          ) : (
-                            <span className="rounded-full border border-line px-2 py-0.5 text-xs tabular-nums text-cream-muted">{done} de {total} misiones</span>
-                          )}
-                        </div>
-                        <p className="mt-0.5 text-sm text-cream-muted">{meta.description}</p>
-                      </div>
-                    </div>
-
-                    {total === 0 ? (
-                      <p className="rounded-2xl border border-dashed border-line px-5 py-5 text-center text-sm text-cream-muted">
-                        Este track estará disponible próximamente.
-                      </p>
-                    ) : (
-                      <div className="space-y-2.5">
-                        {group.missions.map((mission) => (
-                          <MissionCard key={mission.id} mission={mission} completed={completed.has(mission.id)} />
-                        ))}
-                      </div>
-                    )}
-                  </motion.section>
-                );
-              })}
+              {groups.filter((g) => g.missions.length > 0).map((group) => (
+                <motion.div key={group.track} variants={reduce ? undefined : itemVariants}>
+                  <ModulePath track={group.track} missions={group.missions} completed={completed} nextId={nextMission?.id ?? null} />
+                </motion.div>
+              ))}
             </motion.div>
           </div>
         )}

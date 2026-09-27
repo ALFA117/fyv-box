@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Wordmark } from "@/components/Wordmark";
-import { TrackIconBadge } from "@/components/TrackIcon";
+import { TrackArt } from "@/components/TrackArt";
 import { useToast } from "@/components/Toast";
 import { TRACK_ORDER, TRACK_STYLE } from "@/components/trackStyle";
 import { TrackMeta, type Mission } from "@/missions/schema";
@@ -558,7 +558,7 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
                         <GlassCard className="relative flex h-full flex-col overflow-hidden p-5 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:border-line-gold motion-reduce:group-hover:translate-y-0">
                           <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${s.bar}`} />
                           <div className="mb-4 flex items-center justify-between gap-3">
-                            <TrackIconBadge track={track} size={44} />
+                            <TrackArt track={track} size={52} />
                             <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${s.chip}`}>
                               {trackCounts[track]} {trackCounts[track] === 1 ? "misión" : "misiones"}
                             </span>

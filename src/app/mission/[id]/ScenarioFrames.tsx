@@ -1,3 +1,5 @@
+"use client";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle, ExternalLink, Reply, Forward, Trash2, Clock, FlaskConical, QrCode, Lock, ArrowDownLeft,
 } from "lucide-react";
@@ -10,6 +12,51 @@ import { midTruncate } from "@/lib/ownership";
 type Params = Record<string, unknown>;
 const str = (p: Params, k: string) => (typeof p[k] === "string" || typeof p[k] === "number" ? String(p[k]) : undefined);
 const firstQuote = (text: string) => text.match(/'([^']+)'/)?.[1];
+
+/* ─── Live time helpers (client-only to avoid hydration mismatches) ───────── */
+const hhmm = (d: Date) => d.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+
+/** Wall-clock time N minutes ago, refreshed every 30 s. Null until mounted. */
+function useClockAgo(minutesAgo: number) {
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    setNow(new Date());
+    const id = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+  return now ? new Date(now.getTime() - minutesAgo * 60_000) : null;
+}
+
+/** "2 horas" / "30 minutos" / "45 min" → seconds. */
+function parseDuration(text?: string): number | null {
+  if (!text) return null;
+  const m = text.match(/(\d+(?:[.,]\d+)?)\s*(h|hora|horas|m|min|minuto|minutos)\b/i);
+  if (!m) return null;
+  const n = parseFloat(m[1].replace(",", "."));
+  return Math.round(/^h/i.test(m[2]) ? n * 3600 : n * 60);
+}
+
+/** Counts down once per second from `total` (restarts when it hits zero, like a scam page would). */
+function useCountdown(total: number | null) {
+  const [left, setLeft] = useState<number | null>(total);
+  useEffect(() => {
+    if (total === null) return;
+    const start = Date.now();
+    const tick = () => {
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      setLeft(total - (elapsed % total));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [total]);
+  return left;
+}
+
+const clock = (sec: number) => {
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s2 = sec % 60;
+  return [h, m, s2].map((v) => String(v).padStart(2, "0")).join(":");
+};
 
 export function SimBadge() {
   return (
@@ -51,6 +98,7 @@ const frame = "overflow-hidden rounded-2xl border border-line-strong bg-surface 
 
 /* ─── Phishing: email ─────────────────────────────────────────────────────── */
 function EmailFrame({ mission, p }: { mission: PublicMission; p: Params }) {
+  const sentAt = useClockAgo(2);
   const domain = str(p, "fakeDomain") ?? "soporte-urgente.io";
   const sender = str(p, "fakeSender") ?? `soporte@${domain}`;
   const senderName = str(p, "senderName") ?? "Soporte";
@@ -71,7 +119,7 @@ function EmailFrame({ mission, p }: { mission: PublicMission; p: Params }) {
             </div>
             <p className="mt-0.5 break-all font-mono text-xs text-danger">&lt;{sender}&gt;</p>
           </div>
-          <span className="flex shrink-0 items-center gap-1 text-xs text-cream-muted"><Clock className="h-3.5 w-3.5" aria-hidden />09:47</span>
+          <span className="flex shrink-0 items-center gap-1 text-xs tabular-nums text-cream-muted"><Clock className="h-3.5 w-3.5" aria-hidden />{sentAt ? hhmm(sentAt) : "ahora"}</span>
         </div>
         <p className="mt-3 flex items-start gap-2 text-sm font-bold text-cream">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber" aria-hidden />
@@ -127,6 +175,7 @@ function QrFrame({ mission, p }: { mission: PublicMission; p: Params }) {
 
 /* ─── Phishing: tiny payment with a malicious memo ────────────────────────── */
 function MemoTxFrame({ mission, p }: { mission: PublicMission; p: Params }) {
+  const receivedAt = useClockAgo(4);
   const amount = str(p, "amount") ?? "0.0000001";
   const asset = str(p, "asset") ?? "XLM";
   const memo = str(p, "memo") ?? "";
@@ -139,7 +188,7 @@ function MemoTxFrame({ mission, p }: { mission: PublicMission; p: Params }) {
             <ArrowDownLeft className="h-5 w-5 text-cream-muted" />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-cream">Pago recibido</p>
+            <p className="text-sm font-semibold text-cream">Pago recibido <span className="font-normal tabular-nums text-cream-muted">· hoy {receivedAt ? hhmm(receivedAt) : ""}</span></p>
             <p className="font-mono text-sm tabular-nums text-cream-muted">{amount} {asset}</p>
           </div>
         </div>
@@ -269,14 +318,21 @@ function PresaleFrame({ mission, p }: { mission: PublicMission; p: Params }) {
         { k: "Precio preventa", v: str(p, "pricePerToken") ?? "—", tone: "gold" },
         { k: "Retorno prometido", v: str(p, "promisedReturn") ?? "—", tone: "success" },
       ];
-  const badge = str(p, "deadline") ? `⏱ ${str(p, "deadline")}` : str(p, "waitDays") ? `Tokens en ${str(p, "waitDays")} días` : null;
+  const left = useCountdown(parseDuration(str(p, "deadline")));
+  const badge = left !== null
+    ? `⏱ Cierra en ${clock(left)}`
+    : str(p, "waitDays") ? `Tokens en ${str(p, "waitDays")} días` : null;
 
   return (
     <div className={frame}>
-      <div className="flex items-center justify-between gap-2 border-b border-line bg-navy px-4 py-3">
-        <span className="min-w-0 truncate text-sm font-bold text-cream">{token} — {fee ? "Whitelist exclusiva" : "Preventa privada"}</span>
-        <div className="flex shrink-0 items-center gap-1.5">
-          {badge && <span className="rounded-full border border-danger-border bg-danger-subtle px-2 py-0.5 text-xs font-bold text-danger">{badge}</span>}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-navy px-4 py-3">
+        <span className="min-w-[10rem] flex-1 text-sm font-bold text-cream">{token} — {fee ? "Whitelist exclusiva" : "Preventa privada"}</span>
+        <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+          {badge && (
+            <span className="rounded-full border border-danger-border bg-danger-subtle px-2 py-0.5 text-xs font-bold tabular-nums text-danger" aria-live="off">
+              {badge}
+            </span>
+          )}
           <SimBadge />
         </div>
       </div>
@@ -297,6 +353,7 @@ function PresaleFrame({ mission, p }: { mission: PublicMission; p: Params }) {
 
 /* ─── Social engineering: Discord DM ──────────────────────────────────────── */
 function DiscordFrame({ mission, p }: { mission: PublicMission; p: Params }) {
+  const sentAt = useClockAgo(1);
   const attackerName = str(p, "attackerName") ?? "Soporte_Oficial";
   const quotes = (mission.narrative.match(/'([^']+)'/g) ?? [])
     .map((q) => q.replace(/'/g, ""))
@@ -328,7 +385,7 @@ function DiscordFrame({ mission, p }: { mission: PublicMission; p: Params }) {
             <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
               <span className="break-all text-sm font-semibold text-sim-discord-text">{attackerName}</span>
               <span className="rounded-md border border-sim-discord-accent/40 bg-sim-discord-accent/20 px-1.5 py-0.5 text-xs font-bold text-sim-discord-muted">✓ VERIFICADO</span>
-              <span className="text-xs text-sim-discord-muted">Hoy 14:32</span>
+              <span className="text-xs tabular-nums text-sim-discord-muted">{sentAt ? `Hoy a las ${hhmm(sentAt)}` : "Ahora"}</span>
             </div>
             <p className="rounded-lg bg-sim-discord-panel p-3 text-sm leading-relaxed text-sim-discord-text">{dmMessage}</p>
           </div>

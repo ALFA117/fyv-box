@@ -12,6 +12,7 @@ import { TrackMeta } from "@/missions/schema";
 import type { PublicMission } from "@/missions/engine";
 import { completionMessage } from "@/lib/ownership";
 import { ScenarioFrame } from "./ScenarioFrames";
+import { MascotGuide, type MascotMood } from "./MascotGuide";
 
 interface MissionResult {
   isCorrect: boolean;
@@ -104,6 +105,11 @@ export function MissionClient({ mission }: { mission: PublicMission }) {
   const style = TRACK_STYLE[mission.track];
   const trackName = TrackMeta[mission.track]?.label ?? mission.track;
   const letters = ["A", "B", "C", "D", "E", "F"];
+  const mood: MascotMood = submitting
+    ? "saving"
+    : result
+      ? (result.isCorrect ? "correct" : "trap")
+      : error ? "error" : selected ? "selected" : "idle";
 
   const confirm = (
     <>
@@ -160,6 +166,7 @@ export function MissionClient({ mission }: { mission: PublicMission }) {
 
             <section aria-label="Tu respuesta" className="lg:col-span-2">
               <div className="lg:sticky" style={{ top: "calc(var(--header-h) + var(--safe-top) + 64px)" }}>
+                <MascotGuide mood={mood} />
                 <AnimatePresence mode="wait" initial={false}>
                   {!result ? (
                     <motion.div

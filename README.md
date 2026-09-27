@@ -229,3 +229,11 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - **Tarjetas de módulo:** acento de color del módulo, rango de dificultad real ("Básico → Avanzado") y leve elevación al pasar el cursor (desactivada con reduced-motion).
 - **Bug:** los contadores animados de "Quiénes somos" podían quedarse en 0; ahora muestran el número real sin animación.
 - **Dashboard:** anillo de progreso hacia el siguiente nivel en lugar del ícono plano.
+
+### Feedback de Morita (2026-09-27)
+
+- **Temporizadores estáticos:** la preventa ahora tiene una cuenta regresiva real (`⏱ Cierra en 01:59:57`, se reinicia al llegar a cero como haría una página fraudulenta) y las horas del correo, del DM de Discord y del pago con memo salen del reloj real del teléfono. Se calculan solo en el cliente para no provocar desajustes de hidratación.
+- **Mapa tipo "caminito":** `src/app/dashboard/ModulePath.tsx`. Cada módulo es un encabezado con ilustración y progreso, seguido de nodos en zigzag unidos por un camino (punteado pendiente, verde completado). La siguiente misión se destaca en dorado con la etiqueta "Siguiente". Se quitó la lista de barras por módulo del bloque superior para no mostrar todo de golpe.
+- **Mascota animada:** Stellar no tiene mascota oficial y sus ilustraciones son de su marca, así que se usa la mascota propia de FYV Box, la pantera (`public/panther-face.webp`, recortada del logo). En cada misión aparece como guía (`MascotGuide.tsx`) con un globo que cambia según el estado (leyendo, opción elegida, guardando, acierto, trampa, error) y reacciones de una sola vez: salta al acertar y sacude la cabeza al caer. Sin animaciones infinitas y sin movimiento con reduced-motion.
+- **Estilo de ilustración tipo Stellar:** ilustraciones propias por módulo (`src/components/TrackArt.tsx`): contorno en el color del texto más una forma dorada desplazada. Se usan en el camino y en las tarjetas de la landing. En modo claro quedan con trazo oscuro y relleno dorado.
+- `MissionCard` quedó sin uso y se eliminó.
