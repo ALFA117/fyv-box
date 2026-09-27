@@ -45,7 +45,8 @@ export function getPollarClient(): Promise<PollarClient> {
 export function authErrorMessage(state: Extract<AuthState, { step: "error" }>): string {
   switch (state.errorCode) {
     case "EMAIL_CODE_INVALID":
-      return "Ese código no es correcto. Revísalo e intenta de nuevo.";
+    case "EMAIL_VERIFY_FAILED":
+      return "Ese código no es correcto. Revísalo o pide uno nuevo.";
     case "EMAIL_CODE_EXPIRED":
       return "El código expiró. Pide uno nuevo.";
     case "EMAIL_SEND_FAILED":

@@ -177,7 +177,7 @@ function EntrarContent() {
       }
       case "error": {
         const msg = authErrorMessage(auth);
-        if (auth.previousStep === "verifying_email_code" || auth.errorCode.startsWith("EMAIL_CODE")) {
+        if (auth.previousStep === "verifying_email_code" || auth.errorCode.startsWith("EMAIL_CODE") || auth.errorCode === "EMAIL_VERIFY_FAILED") {
           setStep("code");
           setCodeError(msg);
           setCode("");
