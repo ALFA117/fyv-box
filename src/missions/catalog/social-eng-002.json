@@ -10,10 +10,26 @@
     "testnetTx": null
   },
   "options": [
-    { "id": "a", "label": "Envío 5 XLM — hay miles de comentarios positivos, debe ser real", "isCorrect": false },
-    { "id": "b", "label": "Envío solo 1 XLM para probar si es real", "isCorrect": false },
-    { "id": "c", "label": "No envío nada — los giveaways de 'envía X para recibir 10X' son siempre estafas", "isCorrect": true },
-    { "id": "d", "label": "Verifico en blockchain si las personas en los comentarios realmente recibieron fondos", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Envío 5 XLM: hay miles de comentarios de gente que recibió",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Envío solo 1 XLM para probar si de verdad me regresan más",
+      "isCorrect": false
+    },
+    {
+      "id": "c",
+      "label": "No envío nada: 'manda X y recibe 10X' siempre es estafa",
+      "isCorrect": true
+    },
+    {
+      "id": "d",
+      "label": "Reviso en el explorador si los que comentan sí recibieron",
+      "isCorrect": false
+    }
   ],
   "explanation": "El esquema 'send X get 10X' es una de las estafas más antiguas en crypto. Los comentarios positivos son bots o cuentas compradas. Los ticks azules pueden comprarse o ser cuentas hackeadas. Nadie en el mundo distribuye dinero gratis en redes sociales — si lo hiciera, estaría abrumado por millones de personas en segundos, no publicaría un 'giveaway' limitado. Regla: si tienes que enviar dinero para 'ganar' dinero, es una estafa.",
   "comingSoon": false,

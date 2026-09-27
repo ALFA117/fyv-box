@@ -17,22 +17,22 @@
   "options": [
     {
       "id": "a",
-      "label": "Ingreso mi clave — el logo es oficial y tiene firma digital",
+      "label": "Mando mi clave: el correo trae logo oficial y firma digital",
       "isCorrect": false
     },
     {
       "id": "b",
-      "label": "Respondo al correo pidiendo más verificación antes de dar la clave",
+      "label": "Respondo pidiendo que primero me demuestren que son de Stellar",
       "isCorrect": false
     },
     {
       "id": "c",
-      "label": "Ignoro el correo — Stellar.org nunca puede pedirte tu clave secreta porque no la controla",
+      "label": "Lo ignoro: Stellar.org no tiene ni pide mi clave secreta",
       "isCorrect": true
     },
     {
       "id": "d",
-      "label": "Envío solo los primeros 4 caracteres como verificación parcial",
+      "label": "Mando solo los primeros 4 caracteres como verificación",
       "isCorrect": false
     }
   ],

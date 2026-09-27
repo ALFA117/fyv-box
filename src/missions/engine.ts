@@ -29,12 +29,25 @@ const CATALOG_MODULES: Record<string, unknown> = {
 
 let _catalog: Mission[] | null = null;
 
+/**
+ * The JSON catalog was authored with the right answer almost always third, so the
+ * correct option is moved to a rotating, stable slot (A, B, C, D…). Grading uses
+ * option ids, so display order never affects scoring or stats.
+ */
+function placeCorrectAt(options: Mission["options"], slot: number): Mission["options"] {
+  const correct = options.find((o) => o.isCorrect);
+  if (!correct) return options;
+  const rest = options.filter((o) => o !== correct);
+  return [...rest.slice(0, slot), correct, ...rest.slice(slot)];
+}
+
 export function loadCatalog(): Mission[] {
   if (_catalog) return _catalog;
 
   _catalog = Object.values(CATALOG_MODULES)
     .map((raw) => MissionSchema.parse(raw))
-    .sort((a, b) => a.id.localeCompare(b.id));
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((m, i) => ({ ...m, options: placeCorrectAt(m.options, i % m.options.length) }));
 
   return _catalog;
 }

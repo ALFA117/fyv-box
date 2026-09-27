@@ -14,6 +14,7 @@ import type { Mission } from "@/missions/schema";
 import type { PublicMission } from "@/missions/engine";
 import { supabase } from "@/lib/supabase";
 import { AppNav } from "@/components/AppNav";
+import { AppFooter } from "@/components/AppFooter";
 
 interface TrackGroup {
   track: Mission["track"];
@@ -245,6 +246,7 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+      <AppFooter />
     </div>
   );
 }

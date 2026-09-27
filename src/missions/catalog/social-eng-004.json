@@ -12,10 +12,26 @@
     "urgency": "baja"
   },
   "options": [
-    { "id": "a", "label": "Ingreso mi frase — es un artista famoso y el sitio se ve profesional", "isCorrect": false },
-    { "id": "b", "label": "Conecto mi wallet (sin ingresar la frase) para ver qué pasa", "isCorrect": false },
-    { "id": "c", "label": "Me niego — ninguna plataforma legítima de NFTs pide tu frase de recuperación para 'autenticar'", "isCorrect": true },
-    { "id": "d", "label": "Pido al artista que me autentique de otra forma", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Pongo mi frase: el artista es famoso y el sitio se ve profesional",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Conecto mi wallet sin escribir la frase, solo para ver el proyecto",
+      "isCorrect": false
+    },
+    {
+      "id": "c",
+      "label": "Me niego: ningún sitio de NFTs necesita mi frase de recuperación para nada",
+      "isCorrect": true
+    },
+    {
+      "id": "d",
+      "label": "Le pido al artista que me verifique de otra forma y continúo",
+      "isCorrect": false
+    }
   ],
   "explanation": "La autenticación en Web3 funciona con firma de mensajes (tu wallet firma un mensaje sin revelar la clave) — NUNCA requiere tu frase de recuperación. Cualquier sitio que la pida está robándola. El número de seguidores y el diseño profesional son irrelevantes — son fáciles de falsificar o comprar. Las plataformas legítimas como OpenSea, Magic Eden, etc. usan 'Connect Wallet' + firma de mensaje. Si alguna vez ves un campo que pide '12 palabras', cierra la pestaña inmediatamente.",
   "comingSoon": false,

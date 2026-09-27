@@ -6,18 +6,46 @@
   "action": "simulate_dangerous_sign",
   "actionParams": {
     "txOperation": "setOptions",
-    "attackerSigners": ["GCATT4CK1...", "GCATT4CK2...", "GCATT4CK3..."],
-    "signerWeights": [2, 2, 2],
+    "attackerSigners": [
+      "GCATT4CK1...",
+      "GCATT4CK2...",
+      "GCATT4CK3..."
+    ],
+    "signerWeights": [
+      2,
+      2,
+      2
+    ],
     "masterWeightAfter": 1,
-    "thresholds": { "low": 4, "medium": 4, "high": 4 },
+    "thresholds": {
+      "low": 4,
+      "medium": 4,
+      "high": 4
+    },
     "attackVector": "script-key-theft-plus-account-takeover",
     "socialContext": "equipo-defi-dao"
   },
   "options": [
-    { "id": "a", "label": "Ejecuto el script — un DAO legítimo necesita este tipo de configuración", "isCorrect": false },
-    { "id": "b", "label": "Ejecuto el script pero en una cuenta de prueba para verificar que funciona", "isCorrect": false },
-    { "id": "c", "label": "Rechazo: nunca paso mi clave secreta a ningún script, y bloquear mi propia cuenta es una red flag crítica", "isCorrect": true },
-    { "id": "d", "label": "Pido al creador del script que explique cada parámetro antes de ejecutarlo", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Lo ejecuto: una DAO seria necesita multifirma para su bóveda",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Lo pruebo primero en una cuenta de prueba y luego en la real",
+      "isCorrect": false
+    },
+    {
+      "id": "c",
+      "label": "Me niego: no le doy mi clave secreta a ningún script, aunque sea de mi equipo",
+      "isCorrect": true
+    },
+    {
+      "id": "d",
+      "label": "Le pido al creador que me explique cada parámetro y luego lo corro",
+      "isCorrect": false
+    }
   ],
   "explanation": "Este ataque combina tres vectores: (1) robo de clave secreta vía script malicioso, (2) instalación de firmantes del atacante con pesos altos, (3) configuración de umbrales imposibles de alcanzar sin los firmantes del atacante. Con masterWeight=1 y umbrales=4, tú solo tienes peso insuficiente: el atacante controla tu cuenta al 100%. Incluso si el script fuera legítimo, pasar tu clave secreta a cualquier script es siempre incorrecto. Los DAOs legítimos en Stellar usan contratos multifirma donde NUNCA necesitas exponer tu clave privada — la firma se hace localmente en tu wallet. Pedir explicaciones (opción D) también es incorrecto: un atacante puede dar explicaciones convincentes. La clave secreta nunca sale de tu dispositivo.",
   "comingSoon": false,

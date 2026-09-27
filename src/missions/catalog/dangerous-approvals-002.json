@@ -13,10 +13,26 @@
     "claim": "custodia compartida estándar"
   },
   "options": [
-    { "id": "a", "label": "Firmo — suena a protección adicional de mis fondos", "isCorrect": false },
-    { "id": "b", "label": "Firmo porque ya usé el DApp antes y confío en él", "isCorrect": false },
-    { "id": "c", "label": "Rechazo — Master Weight 0 significa que yo dejaría de controlar mi propia cuenta para siempre", "isCorrect": true },
-    { "id": "d", "label": "Firmo pero monitoreo la cuenta de cerca los próximos días", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Firmo: bloquear la cuenta suena a protección extra para mis fondos",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Firmo: ya usé este DApp antes y nunca tuve problemas",
+      "isCorrect": false
+    },
+    {
+      "id": "c",
+      "label": "Rechazo: con Master Weight 0 pierdo el control de mi cuenta",
+      "isCorrect": true
+    },
+    {
+      "id": "d",
+      "label": "Firmo y vigilo la cuenta de cerca durante los próximos días",
+      "isCorrect": false
+    }
   ],
   "explanation": "Master Weight 0 es el 'kill switch' de tu cuenta: significa que tu clave original ya no puede firmar nada. Si el único firmante activo con weight ≥1 es la dirección del atacante, ellos tienen control total e irrecuperable de tu cuenta y todos tus fondos. Este ataque avanzado se disfraza de 'custodia' o 'protección multiclave'. Aunque hayas usado el DApp antes sin problemas — un contrato puede actualizarse y volverse malicioso. Regla crítica: nunca firmes setOptions que ponga tu Master Weight en 0.",
   "comingSoon": false,

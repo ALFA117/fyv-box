@@ -14,22 +14,22 @@
   "options": [
     {
       "id": "a",
-      "label": "Lo reclamo — 1 millón de tokens podría valer algo",
+      "label": "Lo reclamo: un millón de tokens gratis podría valer algo pronto",
       "isCorrect": false
     },
     {
       "id": "b",
-      "label": "No lo reclamo — primero verifico quién emitió el token y si tiene dominio stellar.toml",
+      "label": "No lo reclamo hasta revisar quién lo emitió y si tiene su stellar.toml",
       "isCorrect": true
     },
     {
       "id": "c",
-      "label": "Lo reclamo y lo guardo en una wallet diferente por si acaso",
+      "label": "Lo reclamo, pero en otra wallet aparte para no arriesgar nada",
       "isCorrect": false
     },
     {
       "id": "d",
-      "label": "Pregunto en el grupo de Telegram si es legítimo antes de reclamar",
+      "label": "Pregunto en el grupo de Telegram si alguien ya lo reclamó",
       "isCorrect": false
     }
   ],

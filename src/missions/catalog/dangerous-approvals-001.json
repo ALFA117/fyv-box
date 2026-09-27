@@ -13,10 +13,26 @@
     "claim": "transacción reversible de test"
   },
   "options": [
-    { "id": "a", "label": "Firmo — el DApp dice que es reversible y necesito verificar mi cuenta", "isCorrect": false },
-    { "id": "b", "label": "Firmo pero cambio mi clave inmediatamente después", "isCorrect": false },
-    { "id": "c", "label": "Rechazo la transacción — agregar un firmante con más peso que yo en mi propia cuenta es peligroso", "isCorrect": true },
-    { "id": "d", "label": "Firmo en testnet ya que no hay fondos reales", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Firmo: el DApp dice que es reversible y solo verifica que la cuenta es mía",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Firmo y justo después cambio mi clave, por si acaso",
+      "isCorrect": false
+    },
+    {
+      "id": "c",
+      "label": "Rechazo: ese firmante tendría más peso que yo en mi cuenta",
+      "isCorrect": true
+    },
+    {
+      "id": "d",
+      "label": "Firmo sin miedo: es testnet y aquí no hay fondos reales que perder",
+      "isCorrect": false
+    }
   ],
   "explanation": "Esta transacción es un 'account takeover': al agregar un firmante con peso 10 mientras tu master weight queda en 1, esa dirección desconocida tiene control absoluto sobre tu cuenta. Las transacciones en blockchain NO son reversibles — nadie puede 'revertir' un cambio de firmantes una vez confirmado. En testnet tampoco es 'seguro' practicar esto porque el patrón de firma es idéntico a mainnet y te entrena a ignorar advertencias peligrosas. Regla: NUNCA firmes una transacción que agregue signatarios a tu cuenta a menos que tú mismo lo hayas iniciado.",
   "comingSoon": false,

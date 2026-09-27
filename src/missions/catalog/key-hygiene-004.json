@@ -11,10 +11,26 @@
     "socialContext": "oferta-limitada-fomo"
   },
   "options": [
-    { "id": "a", "label": "Ingreso mi frase semilla — quiero el hardware wallet y el sitio parece legítimo", "isCorrect": false },
-    { "id": "b", "label": "Conecto mi wallet pero no ingreso la frase — así puedo ver la oferta sin riesgo", "isCorrect": false },
-    { "id": "c", "label": "Cierro inmediatamente: ningún sitio legítimo pide tu frase semilla para comprar un producto", "isCorrect": true },
-    { "id": "d", "label": "Busco reseñas del sitio en Google antes de ingresar mi frase semilla", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Pongo mi frase: el sitio se ve oficial y la oferta es muy buena",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Conecto la wallet sin escribir la frase, solo para ver la oferta",
+      "isCorrect": false
+    },
+    {
+      "id": "c",
+      "label": "Salgo del sitio: comprar algo nunca requiere mi frase",
+      "isCorrect": true
+    },
+    {
+      "id": "d",
+      "label": "Busco reseñas del sitio en Google y, si salen bien, la pongo",
+      "isCorrect": false
+    }
   ],
   "explanation": "La frase de recuperación es la única defensa absoluta de tu wallet. Ningún proceso legítimo — compra, verificación, actualización, registro — jamás requiere que la ingreses en un sitio web. Los hardware wallets reales (Ledger, Trezor, Coldcard) generan su propia frase semilla en el dispositivo físico; nunca necesitan la tuya existente. El dominio 'ledger-stellar-promo.io' es claramente falso — Ledger opera solo desde ledger.com. Conectar la wallet (opción B) tampoco es seguro: algunos ataques solo necesitan la conexión para explotar permisos. Buscar reseñas (opción D) también es incorrecto — los atacantes pueden crear reseñas falsas o la urgencia del FOMO puede llevar a ignorarlas. La regla es absoluta: frase semilla → nunca en ningún sitio web.",
   "comingSoon": false,

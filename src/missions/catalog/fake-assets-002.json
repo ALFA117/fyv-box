@@ -14,22 +14,22 @@
   "options": [
     {
       "id": "a",
-      "label": "Lo acepto — tiene el mismo código 'USDC', debe ser legítimo",
+      "label": "Lo acepto: dice USDC igual que en cualquier exchange",
       "isCorrect": false
     },
     {
       "id": "b",
-      "label": "Verifico la dirección del emisor contra la oficial de Circle y los rechazo por ser distintos",
+      "label": "Comparo el emisor con el oficial de Circle y lo rechazo",
       "isCorrect": true
     },
     {
       "id": "c",
-      "label": "Intento venderlo en un DEX para convertirlo en XLM real",
+      "label": "Lo vendo rápido en un DEX para cambiarlo por XLM",
       "isCorrect": false
     },
     {
       "id": "d",
-      "label": "Contacto al vendedor para que me explique por qué el emisor es diferente",
+      "label": "Le pido al vendedor que me explique por qué el emisor es otro",
       "isCorrect": false
     }
   ],

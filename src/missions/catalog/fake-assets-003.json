@@ -14,10 +14,26 @@
     "attackVector": "yield-farm-rug"
   },
   "options": [
-    { "id": "a", "label": "Deposito — el TVL es alto y los rendimientos son increíbles", "isCorrect": false },
-    { "id": "b", "label": "Deposito una cantidad pequeña para probar si los rendimientos son reales", "isCorrect": false },
-    { "id": "c", "label": "No deposito — 950% APY es matemáticamente insostenible y las señales de riesgo son múltiples", "isCorrect": true },
-    { "id": "d", "label": "Espero un mes más para ver si el proyecto sobrevive antes de depositar", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Deposito: 2.4 millones en fondos bloqueados no pueden estar mal",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Deposito poquito para comprobar si los rendimientos son reales",
+      "isCorrect": false
+    },
+    {
+      "id": "c",
+      "label": "No deposito: 950% anual sin auditoría es insostenible",
+      "isCorrect": true
+    },
+    {
+      "id": "d",
+      "label": "Espero un mes a ver si el proyecto sigue vivo y luego deposito",
+      "isCorrect": false
+    }
   ],
   "explanation": "950% APY requeriría que el protocolo generara casi 10× tu inversión en un año — no existe ningún mecanismo económico legítimo que lo sostenga. El TVL alto puede ser ficticio (el equipo deposita y retira sus propios fondos para aparentar). Sin auditoría + sin stellar.toml + 3 semanas de vida son señales clásicas de un 'rug pull': el equipo desaparece con todos los fondos depositados. Regla: APY superior al 30% anual en stablecoins debe tratarse como señal de alerta máxima.",
   "comingSoon": false,

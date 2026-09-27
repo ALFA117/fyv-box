@@ -9,6 +9,7 @@ import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/Skeleton";
 import { AppNav } from "@/components/AppNav";
+import { AppFooter } from "@/components/AppFooter";
 
 interface TrackStat {
   track: string;
@@ -209,6 +210,7 @@ export default function StatsPage() {
           )}
         </div>
       </main>
+      <AppFooter />
     </div>
   );
 }

@@ -13,10 +13,26 @@
     "attackVector": "advance-fee-whitelist-scam"
   },
   "options": [
-    { "id": "a", "label": "Pago el fee — 10 USDC es poco para asegurar mi lugar en el whitelist", "isCorrect": false },
-    { "id": "b", "label": "Verifico primero que los partnerships son reales y luego pago", "isCorrect": false },
-    { "id": "c", "label": "No pago — los whitelists legítimos nunca cobran fees de entrada", "isCorrect": true },
-    { "id": "d", "label": "Pido que me devuelvan el fee antes del TGE como garantía", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Pago: 10 USDC es poco a cambio de un 80% de descuento",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Reviso que las alianzas del proyecto sean reales y luego pago",
+      "isCorrect": false
+    },
+    {
+      "id": "c",
+      "label": "No pago: ninguna whitelist legítima te cobra por darte un lugar",
+      "isCorrect": true
+    },
+    {
+      "id": "d",
+      "label": "Pago, pero exijo por escrito que me devuelvan los 10 USDC",
+      "isCorrect": false
+    }
   ],
   "explanation": "Este es un 'advance fee scam' clásico adaptado a crypto. Los whitelists legítimos de proyectos reales NO cobran fees de entrada — tú les das tu dirección y listo. El fee de 'verificación' es el robo real: pagas, el proyecto desaparece antes del TGE y los 'partnerships' son falsos o no autorizados (mencionan proyectos populares sin permiso). El número de personas en la lista y los 21 días de espera son detalles para hacer la estafa más creíble. Regla: si tienes que pagar para 'recibir' algo, es una estafa.",
   "comingSoon": false,

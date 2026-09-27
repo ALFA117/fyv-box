@@ -15,22 +15,22 @@
   "options": [
     {
       "id": "a",
-      "label": "Visito el sitio — la transacción es real, entonces la oferta también lo es",
+      "label": "Visito el sitio: si la transacción es real, la oferta también",
       "isCorrect": false
     },
     {
       "id": "b",
-      "label": "Ignoro el memo — recibir XLM no implica que el remitente sea confiable",
+      "label": "Ignoro el memo: recibir XLM no hace confiable al remitente",
       "isCorrect": true
     },
     {
       "id": "c",
-      "label": "Reporto la dirección remitente en el grupo de Telegram del proyecto",
+      "label": "Visito el sitio pero no conecto la wallet, solo para ver",
       "isCorrect": false
     },
     {
       "id": "d",
-      "label": "Envío 1 XLM de vuelta para 'desactivar el spam'",
+      "label": "Le regreso 1 XLM con un memo para que me dejen de mandar spam",
       "isCorrect": false
     }
   ],

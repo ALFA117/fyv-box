@@ -14,6 +14,7 @@ import { supabase } from "@/lib/supabase";
 import { midTruncate } from "@/lib/ownership";
 import { TrackMeta, type Mission } from "@/missions/schema";
 import { AppNav } from "@/components/AppNav";
+import { AppFooter } from "@/components/AppFooter";
 
 interface ModuleCompletion {
   module_id: Mission["track"];
@@ -194,6 +195,7 @@ export default function GraduationPage() {
           )}
         </div>
       </main>
+      <AppFooter />
     </div>
   );
 }

@@ -237,3 +237,9 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - **Mascota animada:** Stellar no tiene mascota oficial y sus ilustraciones son de su marca, así que se usa la mascota propia de FYV Box, la pantera (`public/panther-face.webp`, recortada del logo). En cada misión aparece como guía (`MascotGuide.tsx`) con un globo que cambia según el estado (leyendo, opción elegida, guardando, acierto, trampa, error) y reacciones de una sola vez: salta al acertar y sacude la cabeza al caer. Sin animaciones infinitas y sin movimiento con reduced-motion.
 - **Estilo de ilustración tipo Stellar:** ilustraciones propias por módulo (`src/components/TrackArt.tsx`): contorno en el color del texto más una forma dorada desplazada. Se usan en el camino y en las tarjetas de la landing. En modo claro quedan con trazo oscuro y relleno dorado.
 - `MissionCard` quedó sin uso y se eliminó.
+
+### Feedback de Eli (2026-09-27)
+
+- **"Todas las respuestas correctas son la C" (bug de contenido grave):** confirmado, 18 de 22 eran C y en 19 de 22 la correcta era además la opción más larga y la única con justificación. Ahora `loadCatalog()` coloca la correcta en una posición rotativa y estable (6 A · 6 B · 5 C · 5 D; la evaluación usa ids, así que no afecta el guardado ni las estadísticas). Se reescribieron las 88 opciones: correctas concisas y distractores con un razonamiento creíble; la correcta ahora es la más larga en 8 misiones, la 2.ª en 3, la 3.ª en 6 y la más corta en 5.
+- **Faltaba "Siguiente misión":** el resultado ahora muestra un botón principal a la siguiente misión (o "Siguiente módulo" al terminar uno) y "Volver al mapa" como secundario. `MissionClient` se monta con `key={mission.id}` para que cada misión empiece limpia al navegar entre ellas.
+- **Faltaba pie de página en la app:** `AppFooter` en mapa, misiones, estadísticas, credenciales y verificador (en misiones deja espacio para la barra fija de "Confirmar").

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getWallet } from "@/identity";
 import { Button } from "@/components/ui/Button";
 import { AppNav } from "@/components/AppNav";
+import { AppFooter } from "@/components/AppFooter";
 import { useToast } from "@/components/Toast";
 import { TRACK_STYLE, DIFFICULTY } from "@/components/trackStyle";
 import { TrackMeta } from "@/missions/schema";
@@ -24,7 +25,13 @@ interface MissionResult {
 
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
-export function MissionClient({ mission }: { mission: PublicMission }) {
+interface NextMission {
+  id: string;
+  title: string;
+  sameTrack: boolean;
+}
+
+export function MissionClient({ mission, next }: { mission: PublicMission; next: NextMission | null }) {
   const reduce = useReducedMotion();
   const { toast } = useToast();
 
@@ -149,7 +156,7 @@ export function MissionClient({ mission }: { mission: PublicMission }) {
         </div>
       </div>
 
-      <main id="main" tabIndex={-1} className={`outline-none px-gutter py-6 sm:py-8 ${result ? "pb-safe" : "pb-40 lg:pb-12"}`}>
+      <main id="main" tabIndex={-1} className={`outline-none px-gutter py-6 sm:py-8 pb-4`}>
         <div className="mx-auto max-w-5xl">
           <header className="mb-6">
             <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -278,10 +285,24 @@ export function MissionClient({ mission }: { mission: PublicMission }) {
                         </motion.div>
                       )}
 
-                      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
+                      <div className="grid gap-2.5">
+                        {next && (
+                          <Link
+                            href={`/mission/${next.id}`}
+                            className="flex min-h-[56px] items-center justify-between gap-3 rounded-xl bg-gold px-5 text-on-gold transition-colors hover:bg-gold-hover active:bg-gold-active"
+                          >
+                            <span className="min-w-0 text-left">
+                              <span className="block text-xs font-semibold opacity-80">
+                                {next.sameTrack ? "Siguiente misión" : "Siguiente módulo"}
+                              </span>
+                              <span className="block truncate text-sm font-bold">{next.title}</span>
+                            </span>
+                            <ArrowRight className="h-5 w-5 shrink-0" aria-hidden />
+                          </Link>
+                        )}
                         <Link
                           href="/dashboard"
-                          className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-gold px-5 text-sm font-semibold text-on-gold transition-colors hover:bg-gold-hover active:bg-gold-active"
+                          className={`flex min-h-[48px] items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold transition-colors ${next ? "border border-line-gold text-cream hover:bg-gold-subtle" : "bg-gold text-on-gold hover:bg-gold-hover"}`}
                         >
                           Volver al mapa de misiones
                         </Link>
@@ -300,6 +321,7 @@ export function MissionClient({ mission }: { mission: PublicMission }) {
           </div>
         </div>
       </main>
+      <AppFooter clearFixedBar={!result} />
 
       {/* Thumb-reachable confirm bar on phones (outside animated/transformed ancestors so `fixed` works) */}
       {!result && (

@@ -15,22 +15,22 @@
   "options": [
     {
       "id": "a",
-      "label": "Ingreso mis datos — el diseño se ve exactamente igual",
+      "label": "Inicio sesión: la página es idéntica a la oficial",
       "isCorrect": false
     },
     {
       "id": "b",
-      "label": "Cierro la página y verifico la URL oficial directamente en mis favoritos",
+      "label": "Cierro el correo y entro a la wallet desde mis favoritos, no desde el link",
       "isCorrect": true
     },
     {
       "id": "c",
-      "label": "Ingreso pero cambio mi contraseña inmediatamente después",
+      "label": "Inicio sesión y cambio la contraseña justo después",
       "isCorrect": false
     },
     {
       "id": "d",
-      "label": "Le pregunto al 'soporte' si el link es legítimo",
+      "label": "Le escribo a ese 'soporte' para confirmar que el link es real",
       "isCorrect": false
     }
   ],

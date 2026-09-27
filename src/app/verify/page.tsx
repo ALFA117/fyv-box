@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Search, CheckCircle, XCircle, ShieldCheck, Code2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { AppNav } from "@/components/AppNav";
+import { AppFooter } from "@/components/AppFooter";
 import { Skeleton } from "@/components/Skeleton";
 import { TrackMeta } from "@/missions/schema";
 import { isStellarAddress, midTruncate, STELLAR_EXPERT_ACCOUNT } from "@/lib/ownership";
@@ -239,6 +240,7 @@ function VerifyContent() {
           </section>
         </div>
       </main>
+      <AppFooter />
     </div>
   );
 }

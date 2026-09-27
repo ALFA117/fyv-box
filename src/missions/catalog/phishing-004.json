@@ -15,22 +15,22 @@
   "options": [
     {
       "id": "a",
-      "label": "Ingreso mi frase — es necesario para migrar la cuenta",
+      "label": "Pongo mi frase: la migración lo pide para no perder la cuenta",
       "isCorrect": false
     },
     {
       "id": "b",
-      "label": "Instalo la extensión pero no ingreso la frase, a ver qué pasa",
+      "label": "Instalo la extensión pero no escribo la frase, a ver qué pasa",
       "isCorrect": false
     },
     {
       "id": "c",
-      "label": "Cierro el correo y busco la extensión directamente en la Chrome Web Store oficial",
+      "label": "Busco la extensión directo en la Chrome Web Store oficial",
       "isCorrect": true
     },
     {
       "id": "d",
-      "label": "Verifico si el dominio tiene HTTPS antes de instalar",
+      "label": "Reviso que el sitio tenga candado HTTPS antes de instalarla",
       "isCorrect": false
     }
   ],

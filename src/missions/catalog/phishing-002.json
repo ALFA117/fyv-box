@@ -13,22 +13,22 @@
   "options": [
     {
       "id": "a",
-      "label": "Ingreso mi dirección y clave para recibir los XLM",
+      "label": "Lleno el formulario completo para recibir los 10 XLM",
       "isCorrect": false
     },
     {
       "id": "b",
-      "label": "Ingreso solo mi dirección pública — eso no debería ser peligroso",
+      "label": "Pongo solo mi dirección pública: compartirla no es peligroso",
       "isCorrect": false
     },
     {
       "id": "c",
-      "label": "Cierro el formulario: ninguna plataforma legítima pide tu clave secreta",
+      "label": "Cierro el formulario: nadie legítimo pide mi clave secreta",
       "isCorrect": true
     },
     {
       "id": "d",
-      "label": "Primero compruebo cuántos XLM están en la dirección del exchange",
+      "label": "Reviso cuántos XLM tiene el exchange antes de llenarlo",
       "isCorrect": false
     }
   ],
