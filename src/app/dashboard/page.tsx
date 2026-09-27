@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Star, Award, WifiOff, Trophy, Flame, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { getWallet, type WalletIdentity } from "@/identity";
+import { getWallet, sendToLoginIfNeeded, type WalletIdentity } from "@/identity";
 import { ProgressBar } from "@/components/ProgressBar";
 import { DashboardSkeleton } from "@/components/Skeleton";
 import { ModulePath } from "./ModulePath";
@@ -91,7 +91,8 @@ export default function DashboardPage() {
       let w: WalletIdentity;
       try {
         w = await getWallet();
-      } catch {
+      } catch (err) {
+        if (sendToLoginIfNeeded(err, "/dashboard")) return;
         throw new Error("No pudimos abrir tu billetera de prueba. Permite que el sitio guarde datos e intenta de nuevo.");
       }
       if (!cancelled) setWallet(w);

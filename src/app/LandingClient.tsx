@@ -15,7 +15,7 @@ import { TrackArt } from "@/components/TrackArt";
 import { useToast } from "@/components/Toast";
 import { TRACK_ORDER, TRACK_STYLE } from "@/components/trackStyle";
 import { TrackMeta, type Mission } from "@/missions/schema";
-import { getWallet, ensureWalletFunded } from "@/identity";
+import { getWallet, ensureWalletFunded, getIdentityMode, pollarEnabled } from "@/identity";
 import { HeroPreview, type HeroPreviewData } from "./HeroPreview";
 
 export interface LandingProps {
@@ -132,10 +132,26 @@ function StartTraining() {
   const { toast } = useToast();
   const [phase, setPhase] = useState<"idle" | "working" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
+  // Solo en cliente: el modo vive en localStorage.
+  const [guestWithEmailOption, setGuestWithEmailOption] = useState(false);
+  useEffect(() => { setGuestWithEmailOption(pollarEnabled && getIdentityMode() === "guest"); }, []);
 
   async function start() {
     if (phase === "working") return;
     setPhase("working");
+    if (pollarEnabled && getIdentityMode() === "email") {
+      // Con correo: si ya hay sesión verificada entra directo; si no, a verificar el correo.
+      setMessage("Revisando tu sesión…");
+      try {
+        await getWallet();
+        setPhase("done");
+        setMessage("¡Listo! Abriendo tu mapa de misiones…");
+        router.push("/dashboard");
+      } catch {
+        router.push("/entrar");
+      }
+      return;
+    }
     setMessage("Creando tu billetera de prueba en Stellar testnet…");
     try {
       const wallet = await getWallet();
@@ -161,8 +177,17 @@ function StartTraining() {
         role={phase === "error" ? "alert" : "status"}
         className={`min-h-[1.25rem] text-center text-sm ${phase === "error" ? "text-danger" : "text-cream-muted"}`}
       >
-        {message || "Sin correo ni contraseña · la llave de prueba vive solo en este navegador"}
+        {message || (pollarEnabled
+          ? "Entras con tu correo y un código · sin contraseñas"
+          : "Sin correo ni contraseña · la llave de prueba vive solo en este navegador")}
       </p>
+      {guestWithEmailOption && phase !== "working" && (
+        <p className="text-center text-sm">
+          <Link href="/entrar" className="tap inline-flex items-center rounded-xl px-2 font-semibold text-gold hover:text-gold-hover">
+            Entrar con mi correo
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

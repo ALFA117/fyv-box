@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Award, Shield, ExternalLink, Lock, ArrowRight, WifiOff, BadgeCheck, Plug, PenLine, Info } from "lucide-react";
 import Link from "next/link";
-import { getWallet, type WalletIdentity } from "@/identity";
+import { getWallet, sendToLoginIfNeeded, type WalletIdentity } from "@/identity";
 import { CredentialBadge } from "@/components/CredentialBadge";
 import { TrackIconBadge } from "@/components/TrackIcon";
 import { StatePanel } from "@/components/StatePanel";
@@ -43,7 +43,8 @@ export default function GraduationPage() {
       let w: WalletIdentity;
       try {
         w = await getWallet();
-      } catch {
+      } catch (err) {
+        if (sendToLoginIfNeeded(err, "/graduation")) return;
         throw new Error("No pudimos abrir tu billetera de prueba.");
       }
       if (!cancelled) setWallet(w);

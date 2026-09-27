@@ -1,10 +1,13 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { ArrowLeft, BarChart2, LogOut } from "lucide-react";
 import { WalletIndicator } from "./WalletIndicator";
 import { ThemeToggle } from "./ThemeToggle";
 import { Wordmark } from "./Wordmark";
 import type { WalletIdentity } from "@/identity/interface";
+import { signOut } from "@/identity";
 
 type BackProp = string | { href: string; label?: string };
 
@@ -18,12 +21,23 @@ interface Props {
 const iconBtnBase =
   "tap items-center justify-center rounded-xl border border-line text-cream-muted transition-colors hover:border-line-strong hover:text-cream active:bg-surface-2";
 const iconBtn = `flex ${iconBtnBase}`;
-// Same destination as the wordmark, so it only shows where there is room.
+// Guest mode: same destination as the wordmark, so it only shows where there is room.
 const logoutBtn = `hidden sm:flex ${iconBtnBase}`;
 
 export function AppNav({ back, wallet, showStats = false, showLogout = false }: Props) {
   const backHref  = typeof back === "string" ? back : back?.href;
   const backLabel = (typeof back === "object" ? back?.label : undefined) ?? "Volver";
+  const router = useRouter();
+  const [leaving, setLeaving] = useState(false);
+  // With a verified email the button really signs out, so it shows on every size.
+  const emailSession = wallet?.provider === "pollar";
+
+  async function handleSignOut() {
+    if (leaving) return;
+    setLeaving(true);
+    await signOut();
+    router.push("/");
+  }
 
   return (
     <header className="pt-safe sticky top-0 z-40 border-b border-line bg-navy/90 backdrop-blur-md">
@@ -51,7 +65,12 @@ export function AppNav({ back, wallet, showStats = false, showLogout = false }: 
             </Link>
           )}
           <ThemeToggle />
-          {showLogout && (
+          {showLogout && emailSession && (
+            <button type="button" onClick={handleSignOut} disabled={leaving} aria-label="Cerrar sesión" title="Cerrar sesión" className={`${iconBtn} disabled:opacity-50`}>
+              <LogOut className="h-[18px] w-[18px]" aria-hidden />
+            </button>
+          )}
+          {showLogout && !emailSession && (
             <Link href="/" aria-label="Salir al inicio" className={logoutBtn}>
               <LogOut className="h-[18px] w-[18px]" aria-hidden />
             </Link>

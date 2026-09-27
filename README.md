@@ -23,6 +23,7 @@ SUPABASE_SERVICE_ROLE_KEY=    # SOLO servidor. Necesaria para cerrar las escritu
 REGISTRY_BACKEND=supabase     # "supabase" (default) | "soroban"
 FYV_ISSUER_SECRET=            # solo si REGISTRY_BACKEND=soroban
 SOROBAN_CONTRACT_ID=          # solo si REGISTRY_BACKEND=soroban
+NEXT_PUBLIC_POLLAR_API_KEY=   # opcional: llave PUBLICABLE pub_testnet_… de Pollar. Activa el login con correo; vacía = solo modo invitado
 NEXT_PUBLIC_SITE_URL=         # opcional: dominio canónico para SEO (default: dominio de producción de Vercel)
 ```
 
@@ -66,7 +67,7 @@ _Corrida de reparación y pulido móvil — 2026-09-26. Evaluado en viewport de 
 | `/api/verify` | Funciona; el log escribía en una tabla **que no existe** (`fyv_verify_log`) sin avisar | Log best-effort que nunca rompe la verificación; la tabla se crea en la migración 002; valida `module` |
 | Estadísticas `/stats` + `/api/stats` | Funciona a medias: "Usuarios" era el máximo por track, no personas únicas; un error se mostraba como "Sin datos aún" | Cuenta personas únicas reales, primer intento ordenado por fecha, estado de error distinto del vacío |
 | `/pitch` | Funciona; afirmaba "NFT Soroban", marcaba 3 tracks existentes como "Próximamente" y mostraba un JSON de API que no existe | Datos corregidos para que coincidan con el producto actual |
-| Pollar / Soroban / rampa Etherfuse | Tras flags apagados (`NEXT_PUBLIC_IDENTITY_PROVIDER`, `REGISTRY_BACKEND`, `NEXT_PUBLIC_ENABLE_RAMP`) | Sin cambios: siguen apagados y documentados; no se muestran en la UI |
+| Pollar / Soroban / rampa Etherfuse | Tras flags apagados (`REGISTRY_BACKEND`, `NEXT_PUBLIC_ENABLE_RAMP`) | Soroban y rampa siguen apagados. Pollar ya está integrado (ver "Verificación por correo con Pollar") |
 | Escenarios de misión | Simulaciones de UI (correo, Discord, wallet, firma, preventa) sin decirlo; `fake-assets-001` afirmaba que "FYV Box te envió" un balance "ya en tu historial" | Cada escenario lleva la etiqueta visible **Simulación**; narrativa corregida |
 | SEO / compartir | Un solo título para todo el sitio, sin canonical, sin sitemap/robots/manifest, imagen OG con un emoji que se veía como cuadro y favicon `.ico` de Next por defecto | Ver sección SEO abajo |
 
@@ -99,7 +100,7 @@ No se encontraron desbordes horizontales; tras los cambios, la auditoría autom�
 
 - ~~Cerrar las escrituras anónimas en Supabase~~ **Hecho (2026-09-26):** `SUPABASE_SERVICE_ROLE_KEY` configurada en Vercel (Production, Sensitive) y migración `002_lockdown_writes.sql` aplicada. Verificado: la anon key recibe 401 al insertar en las tres tablas y la API guarda respuestas (200).
 - **Soroban `getReadiness`** sigue siendo un stub; el backend por defecto (`supabase`) es el que está en uso.
-- **Pollar SDK** no está publicado; el flag sigue apagado.
+- **Pollar** integrado (`@pollar/core`); se activa al configurar `NEXT_PUBLIC_POLLAR_API_KEY`.
 - **Tests automatizados**: el proyecto no tiene suite. Lo prioritario sería cubrir `engine.ts` y la verificación de firma de `complete`.
 
 ### 5. Decisiones tomadas
@@ -251,3 +252,12 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - **Variante completa** en la landing y **tranquila** en el resto de pantallas (menos figuras y estrellas, opacidad menor) para no distraer durante las misiones. En modo claro las figuras se atenúan.
 - **Rendimiento:** solo se animan `transform`/`opacity`, sin `filter: blur`; en móvil se muestran menos figuras y ~55% de las estrellas; el canvas se pausa cuando la pestaña está oculta. Con `prefers-reduced-motion` todo queda como una escena estática.
 - Sustituye al fondo de partículas que solo tenía la landing.
+
+### Verificación por correo con Pollar (2026-09-27)
+
+- **Qué hace:** `/entrar` es un flujo de 3 pasos (Correo → Código → Listo). Pollar envía un código de un solo uso, al verificarlo crea una billetera Stellar **custodiada en testnet** ligada a ese correo, y el progreso se recupera desde cualquier dispositivo. Sin contraseñas.
+- **Firmas:** cada respuesta se sigue firmando con SEP-53; con Pollar la firma la hace su servidor (`client.stellar.sep53.signMessage`) con el mismo esquema, así que `/api/missions/complete` la verifica igual que la de la billetera de prueba. No cambió nada del backend.
+- **Pantalla:** indicador de pasos, código en 6 casillas con `autocomplete="one-time-code"` (el teléfono lo sugiere desde el correo) y envío automático al escribir el último dígito, reenvío con cuenta regresiva de 30 s, "Cambiar correo", errores en español (código incorrecto, expirado, sin conexión), y pantalla final con el correo y la dirección enlazada a Stellar Expert. `?next=` solo acepta rutas internas.
+- **Modo invitado:** "Prefiero entrar sin correo" usa la billetera de prueba local de siempre. Sin `NEXT_PUBLIC_POLLAR_API_KEY` el sitio funciona exactamente como antes y `/entrar` ofrece solo el modo invitado.
+- **Sesión:** mapa, misiones y credenciales mandan a `/entrar?next=…` si el modo es correo y no hay sesión. En el nav aparece la etiqueta "correo" y un botón real de **Cerrar sesión** (también en móvil).
+- **Activarlo:** en [dashboard.pollar.xyz](https://dashboard.pollar.xyz) → Build → API Keys → Generate → tipo *publishable*, red *testnet* (`pub_testnet_…`, segura en el navegador; límite de 1,000 peticiones/día). Si el dashboard pide dominios permitidos, agregar `https://fyv-box.vercel.app` y `http://localhost:3000`. Luego `NEXT_PUBLIC_POLLAR_API_KEY` en Vercel (Production) y redeploy. **Nunca** usar la llave secreta `sec_…` en el frontend.

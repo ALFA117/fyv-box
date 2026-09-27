@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { CheckCircle, XCircle, Award, ArrowRight, Star, ChevronRight, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { getWallet } from "@/identity";
+import { getWallet, sendToLoginIfNeeded } from "@/identity";
 import { Button } from "@/components/ui/Button";
 import { AppNav } from "@/components/AppNav";
 import { AppFooter } from "@/components/AppFooter";
@@ -43,7 +43,9 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
   const resultRef = useRef<HTMLDivElement>(null);
 
   // Warm up the wallet (keypair + testnet funding) while the user reads the scenario.
-  useEffect(() => { getWallet().catch(() => {}); }, []);
+  useEffect(() => {
+    getWallet().catch((err) => { sendToLoginIfNeeded(err, `/mission/${mission.id}`); });
+  }, [mission.id]);
 
   useEffect(() => {
     if (result) resultRef.current?.focus({ preventScroll: true });
@@ -60,7 +62,8 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
       let wallet;
       try {
         wallet = await getWallet();
-      } catch {
+      } catch (err) {
+        if (sendToLoginIfNeeded(err, `/mission/${mission.id}`)) return;
         throw new Error("No pudimos abrir tu billetera de prueba. Revisa que tu navegador permita guardar datos del sitio.");
       }
 
