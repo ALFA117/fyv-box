@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Award, Shield, ExternalLink, Lock, ArrowRight, WifiOff } from "lucide-react";
+import { Award, Shield, ExternalLink, Lock, ArrowRight, WifiOff, BadgeCheck, Plug, PenLine, Info } from "lucide-react";
 import Link from "next/link";
 import { getWallet, type WalletIdentity } from "@/identity";
 import { CredentialBadge } from "@/components/CredentialBadge";
@@ -109,9 +109,31 @@ export default function GraduationPage() {
                 <p className="mx-auto mt-2 max-w-sm text-body-sm text-cream-muted">
                   {hasCredentials
                     ? "Credenciales verificables ligadas a tu dirección Stellar de prueba. Cualquiera puede comprobarlas."
-                    : "Completa todas las misiones de un track para obtener su credencial verificable."}
+                    : "Completa todas las misiones de un módulo para obtener su credencial verificable."}
                 </p>
               </motion.header>
+
+              <section aria-labelledby="why-cred" className="mb-8 rounded-2xl border border-line bg-surface p-4 sm:p-5">
+                <h2 id="why-cred" className="text-title-3 text-cream">¿Para qué sirve una credencial?</h2>
+                <ul className="mt-3 space-y-3 text-sm leading-relaxed text-cream-muted">
+                  <li className="flex gap-3">
+                    <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-gold" aria-hidden />
+                    <span><strong className="text-cream">Demuestra que practicaste</strong> detectar estafas, sin dar tu nombre ni tu correo: solo se liga a tu dirección de prueba.</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <Plug className="mt-0.5 h-5 w-5 shrink-0 text-gold" aria-hidden />
+                    <span><strong className="text-cream">Cualquier app puede comprobarla en segundos.</strong> Una wallet, un exchange o tu comunidad puede consultarla antes de darte acceso a algo, por ejemplo un taller avanzado o una función de riesgo.</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <PenLine className="mt-0.5 h-5 w-5 shrink-0 text-gold" aria-hidden />
+                    <span><strong className="text-cream">Va firmada por tu billetera.</strong> Cada respuesta que la genera se firma con tu llave de prueba, así que nadie puede responder por ti desde la app.</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <Info className="mt-0.5 h-5 w-5 shrink-0 text-gold" aria-hidden />
+                    <span>Es de <strong className="text-cream">testnet</strong>: prueba práctica, no tiene valor monetario.</span>
+                  </li>
+                </ul>
+              </section>
 
               {hasCredentials && wallet && (
                 <motion.div

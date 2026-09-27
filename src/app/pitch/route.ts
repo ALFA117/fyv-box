@@ -162,7 +162,7 @@ function buildHtml() {
           <h2 class="title a3">Una prueba pública de que sabes detectar la trampa</h2>
           <ul class="points a4">
             <li><strong>Pública.</strong> Cualquiera consulta cualquier dirección Stellar.</li>
-            <li><strong>Imposible de suplantar.</strong> Cada respuesta va firmada por la billetera dueña.</li>
+            <li><strong>Firmada.</strong> Cada respuesta va firmada por la billetera dueña; nadie responde por ti desde la app.</li>
             <li><strong>Lista para Soroban.</strong> Hoy vive en Supabase; el contrato ReadinessRegistry se activa con un flag.</li>
           </ul>
           <pre class="code a4"><span class="k">GET</span> /api/verify?address=G…

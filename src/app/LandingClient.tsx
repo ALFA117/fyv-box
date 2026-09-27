@@ -299,7 +299,7 @@ const TOOLS = [
 const WHY_NOT = [
   { icon: Zap, title: "Sin horarios ni tareas", desc: "Una misión toma menos de 5 minutos. Cuando quieras, al ritmo que puedas.", tone: "text-gold border-line-gold bg-gold-subtle" },
   { icon: FlaskConical, title: "Escenarios realistas, cero riesgo", desc: "Correos, DMs, wallets y firmas que imitan ataques reales. Equivocarte aquí no cuesta nada.", tone: "text-info border-info-border bg-info-subtle" },
-  { icon: Shield, title: "Credencial verificable", desc: "Al completar un track, tu credencial queda ligada a tu dirección Stellar y cualquier app la puede consultar.", tone: "text-success border-success-border bg-success-subtle" },
+  { icon: Shield, title: "Credencial verificable", desc: "Al completar un módulo obtienes una prueba pública de que sabes detectar esa estafa. Una wallet, exchange o comunidad puede consultarla antes de darte acceso, sin pedirte nombre ni correo.", tone: "text-success border-success-border bg-success-subtle" },
   { icon: Sparkles, title: "100% gratis", desc: "Sin inscripción ni mensualidad. Un bien público para Web3 en LATAM.", tone: "text-violet border-violet-border bg-violet-subtle" },
 ];
 

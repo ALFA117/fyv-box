@@ -205,3 +205,15 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - Ninguna pantalla se sirve con contenido en `opacity: 0` desde el servidor (landing y misión).
 - `/pitch` rehecho con el sistema de marca: Playfair + Inter + Plex Mono, íconos SVG (sin emojis ni escudo), conteos reales del catálogo, swipe nativo con scroll-snap, controles de 44 px, áreas seguras, teclado, `prefers-reduced-motion` y enlace directo a diapositiva (`/pitch#4`). El dato "$3.2B en LATAM" no tenía fuente y se reemplazó por una afirmación verificable.
 - Pendiente: en Chrome headless dentro de un iframe el dashboard se quedó en esqueleto; en el navegador normal carga bien. Revisar en el celular (paso 2–3 del checklist).
+
+### Feedback de prueba con usuarios (2026-09-26)
+
+| Observación | Cambio |
+|---|---|
+| "100% caen" no dice de quién ni cuándo | Chips dicen "X% falló" y cada módulo explica "N de M personas que lo intentaron cayeron en la trampa en su primer intento". Recuadro "Cómo leer estos números" arriba de `/stats`. |
+| "Track más difícil" es ambiguo | Ahora "módulo donde más gente falla", con el nombre del módulo debajo. |
+| "0/5" no es obvio | "0 de 5 misiones" en encabezados y "0 de 5" en las barras, bajo el título "Misiones completadas por módulo". |
+| Todo en cero parece vacío | "Siguiente meta: nivel N · te faltan X XP", botón "Empieza aquí / Tu siguiente misión" con la primera misión pendiente y mensaje "Es normal empezar en cero". |
+| No queda claro para qué sirve la credencial | Bloque "¿Para qué sirve una credencial?" en `/graduation` (prueba sin datos personales, verificable por wallets/exchanges/comunidades, firmada por tu billetera, sin valor monetario) y texto concreto en la landing. |
+| "Datos reales" con 3 personas | Se explica qué son (respuestas guardadas por la app, billeteras de prueba anónimas) y aparece un aviso de "muestra pequeña" mientras haya menos de 30 personas. |
+| Mezcla de "track" y "módulo" | Toda la UI dice "módulo" (en el pitch "tracks" solo se usa para los tracks del hackathon). |

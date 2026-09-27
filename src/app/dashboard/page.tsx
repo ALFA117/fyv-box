@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Star, Award, WifiOff, Trophy, Flame, Shield, Zap } from "lucide-react";
+import { Star, Award, WifiOff, Trophy, Flame, Shield, Zap, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { getWallet, type WalletIdentity } from "@/identity";
 import { MissionCard } from "@/components/MissionCard";
@@ -27,12 +27,17 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 280, damping: 26 } },
 };
 
+const LEVELS = [
+  { level: 1, min: 0,    title: "Novato crypto",      color: "text-cream-muted" },
+  { level: 2, min: 200,  title: "Guardián básico",    color: "text-info" },
+  { level: 3, min: 500,  title: "Cazador de estafas", color: "text-amber" },
+  { level: 4, min: 1000, title: "Detector élite",     color: "text-gold" },
+  { level: 5, min: 1800, title: "Maestro FYV",        color: "text-success" },
+];
+
 function getXpLevel(xp: number) {
-  if (xp < 200)  return { level: 1, title: "Novato crypto",      color: "text-cream-muted" };
-  if (xp < 500)  return { level: 2, title: "Guardián básico",    color: "text-info" };
-  if (xp < 1000) return { level: 3, title: "Cazador de estafas", color: "text-amber" };
-  if (xp < 1800) return { level: 4, title: "Detector élite",     color: "text-gold" };
-  return           { level: 5, title: "Maestro FYV",             color: "text-success" };
+  const idx = LEVELS.reduce((acc, l, i) => (xp >= l.min ? i : acc), 0);
+  return { ...LEVELS[idx], next: LEVELS[idx + 1] ?? null };
 }
 
 async function fetchJson<T>(url: string, ms = 15000): Promise<T> {
@@ -95,6 +100,7 @@ export default function DashboardPage() {
   const totalXP = allMissions.filter((m) => completed.has(m.id)).reduce((a, m) => a + m.xp, 0);
   const progressPct = totalMissions > 0 ? Math.round((completedCount / totalMissions) * 100) : 0;
   const lvl = getXpLevel(totalXP);
+  const nextMission = groups.flatMap((g) => g.missions).find((m) => !completed.has(m.id)) ?? null;
 
   return (
     <div className="min-h-dvh">
@@ -133,7 +139,7 @@ export default function DashboardPage() {
                   <div className="min-w-0">
                     <p className={`text-label uppercase tracking-wider ${lvl.color}`}>Nivel {lvl.level} · {lvl.title}</p>
                     <p className="text-sm text-cream-muted">
-                      <span className="tabular-nums">{completedCount}</span> de <span className="tabular-nums">{totalMissions}</span> misiones
+                      <span className="tabular-nums">{completedCount}</span> de <span className="tabular-nums">{totalMissions}</span> misiones completadas
                     </p>
                   </div>
                 </div>
@@ -152,9 +158,19 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <ProgressBar value={progressPct} color={progressPct === 100 ? "success" : "gold"} />
+              <ProgressBar value={progressPct} label="Progreso total" color={progressPct === 100 ? "success" : "gold"} />
 
-              <ul className="relative mt-5 grid grid-cols-1 gap-x-6 gap-y-3.5 min-[400px]:grid-cols-2">
+              {lvl.next && (
+                <p className="relative mt-3 text-sm text-cream-muted">
+                  <span className="font-semibold text-cream">Siguiente meta:</span> nivel {lvl.next.level} · {lvl.next.title}.{" "}
+                  Te faltan <span className="tabular-nums font-semibold text-gold">{lvl.next.min - totalXP} XP</span>
+                  {" "}(cada misión correcta da 100–200 XP).
+                </p>
+              )}
+
+              <h2 className="relative mt-5 text-label text-cream-muted">Misiones completadas por módulo</h2>
+
+              <ul className="relative mt-3 grid grid-cols-1 gap-x-6 gap-y-3.5 min-[400px]:grid-cols-2">
                 {groups.map((g) => {
                   const done = g.missions.filter((m) => completed.has(m.id)).length;
                   const total = g.missions.length;
@@ -166,7 +182,7 @@ export default function DashboardPage() {
                         <span className={`truncate font-medium ${isDone ? "text-success" : "text-cream-muted"}`}>
                           {isDone && "✓ "}{TrackMeta[g.track].label}
                         </span>
-                        <span className="shrink-0 tabular-nums text-cream-muted">{done}/{total}</span>
+                        <span className="shrink-0 tabular-nums text-cream-muted">{done} de {total}</span>
                       </div>
                       <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
                         <div
@@ -197,13 +213,26 @@ export default function DashboardPage() {
                     Mis credenciales
                   </Link>
                   <span className="text-xs text-cream-muted">
-                    Te faltan {totalMissions - completedCount} misiones para graduarte
+                    Te faltan {totalMissions - completedCount} misiones para completar todo
                   </span>
                 </div>
               ) : (
                 <p className="relative mt-5 text-sm text-cream-muted">
-                  Empieza por cualquier misión. Cada track completo te da una credencial verificable.
+                  Es normal empezar en cero. Completa todas las misiones de un módulo para ganar su credencial.
                 </p>
+              )}
+
+              {nextMission && (
+                <Link
+                  href={`/mission/${nextMission.id}`}
+                  className="relative mt-4 flex min-h-[52px] items-center justify-between gap-3 rounded-xl bg-gold px-4 text-on-gold transition-colors hover:bg-gold-hover active:bg-gold-active"
+                >
+                  <span className="min-w-0">
+                    <span className="block text-xs font-semibold opacity-80">{completedCount === 0 ? "Empieza aquí" : "Tu siguiente misión"}</span>
+                    <span className="block truncate text-sm font-bold">{nextMission.title}</span>
+                  </span>
+                  <ChevronRight className="h-5 w-5 shrink-0" aria-hidden />
+                </Link>
               )}
             </motion.section>
 
@@ -232,7 +261,7 @@ export default function DashboardPage() {
                               Completado
                             </span>
                           ) : (
-                            <span className="rounded-full border border-line px-2 py-0.5 text-xs tabular-nums text-cream-muted">{done}/{total}</span>
+                            <span className="rounded-full border border-line px-2 py-0.5 text-xs tabular-nums text-cream-muted">{done} de {total} misiones</span>
                           )}
                         </div>
                         <p className="mt-0.5 text-sm text-cream-muted">{meta.description}</p>

@@ -90,7 +90,7 @@ function VerifyContent() {
               <h1 className="text-title-1 text-cream">Verificar credencial</h1>
             </div>
             <p className="text-body-sm text-cream-muted">
-              Consulta si una dirección Stellar completó algún track de FYV Box.
+              Consulta si una dirección Stellar completó algún módulo de FYV Box.
             </p>
           </header>
 
@@ -195,7 +195,7 @@ function VerifyContent() {
 
                   {result.modules.length > 0 && (
                     <div className="rounded-2xl border border-line bg-surface p-4">
-                      <p className="mb-3 text-eyebrow text-cream-muted">Tracks certificados</p>
+                      <p className="mb-3 text-eyebrow text-cream-muted">Módulos certificados</p>
                       <ul className="space-y-2.5">
                         {result.modules.map((m) => (
                           <li key={m.module} className="flex items-center justify-between gap-3">
