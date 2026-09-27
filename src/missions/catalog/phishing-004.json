@@ -7,13 +7,32 @@
   "actionParams": {
     "fakeDomain": "chrome-stellar-wallets.io",
     "attackVector": "fake-browser-extension",
-    "redFlag": "pide frase de recuperación en instalación"
+    "redFlag": "pide frase de recuperación en instalación",
+    "channel": "email",
+    "senderName": "Stellar Wallet",
+    "subject": "Nueva versión de la extensión disponible"
   },
   "options": [
-    { "id": "a", "label": "Ingreso mi frase — es necesario para migrar la cuenta", "isCorrect": false },
-    { "id": "b", "label": "Instalo la extensión pero no ingreso la frase, a ver qué pasa", "isCorrect": false },
-    { "id": "c", "label": "Cierro el correo y busco la extensión directamente en la Chrome Web Store oficial", "isCorrect": true },
-    { "id": "d", "label": "Verifico si el dominio tiene HTTPS antes de instalar", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Ingreso mi frase — es necesario para migrar la cuenta",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Instalo la extensión pero no ingreso la frase, a ver qué pasa",
+      "isCorrect": false
+    },
+    {
+      "id": "c",
+      "label": "Cierro el correo y busco la extensión directamente en la Chrome Web Store oficial",
+      "isCorrect": true
+    },
+    {
+      "id": "d",
+      "label": "Verifico si el dominio tiene HTTPS antes de instalar",
+      "isCorrect": false
+    }
   ],
   "explanation": "Las extensiones de wallet legítimas NUNCA te piden la frase de recuperación durante la instalación o una 'migración' — eso es una estafa diseñada para robar tus fondos de inmediato. Los dominios falsos como 'chrome-stellar-wallets.io' imitan a las Web Stores oficiales. HTTPS no garantiza legitimidad. La única forma segura: instala extensiones únicamente desde la tienda oficial de tu navegador, buscando el nombre exacto, y verifica que el desarrollador sea el oficial.",
   "comingSoon": false,

@@ -168,7 +168,7 @@ export default function DashboardPage() {
                 </p>
               )}
 
-              <h2 className="relative mt-5 text-label text-cream-muted">Misiones completadas por módulo</h2>
+              <h2 className="relative mt-5 font-sans text-label text-cream-muted">Misiones completadas por módulo</h2>
 
               <ul className="relative mt-3 grid grid-cols-1 gap-x-6 gap-y-3.5 min-[400px]:grid-cols-2">
                 {groups.map((g) => {

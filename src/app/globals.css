@@ -262,12 +262,14 @@ body {
 
 img, svg, video, canvas { max-width: 100%; }
 
-h1, h2, h3, h4 {
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  text-wrap: balance;
+@layer base {
+  h1, h2, h3, h4 {
+    font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
 }
 
 p { text-wrap: pretty; }

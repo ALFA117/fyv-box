@@ -9,13 +9,30 @@
     "asset": "XLM",
     "memo": "Reclama tus 500 XLM en novastellar-drop.com",
     "fakeSite": "novastellar-drop.com",
-    "testnetTx": true
+    "testnetTx": true,
+    "channel": "tx"
   },
   "options": [
-    { "id": "a", "label": "Visito el sitio — la transacción es real, entonces la oferta también lo es", "isCorrect": false },
-    { "id": "b", "label": "Ignoro el memo — recibir XLM no implica que el remitente sea confiable", "isCorrect": true },
-    { "id": "c", "label": "Reporto la dirección remitente en el grupo de Telegram del proyecto", "isCorrect": false },
-    { "id": "d", "label": "Envío 1 XLM de vuelta para 'desactivar el spam'", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Visito el sitio — la transacción es real, entonces la oferta también lo es",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Ignoro el memo — recibir XLM no implica que el remitente sea confiable",
+      "isCorrect": true
+    },
+    {
+      "id": "c",
+      "label": "Reporto la dirección remitente en el grupo de Telegram del proyecto",
+      "isCorrect": false
+    },
+    {
+      "id": "d",
+      "label": "Envío 1 XLM de vuelta para 'desactivar el spam'",
+      "isCorrect": false
+    }
   ],
   "explanation": "Este ataque se llama 'dusting': enviar cantidades microscópicas con memos que dirigen a sitios falsos. Que la transacción sea real no valida el memo — cualquiera puede enviar XLM a tu dirección. El sitio al que apunta pedirá tu clave secreta o intentará instalar malware. La regla: ignora cualquier instrucción que llegue en un memo de una dirección desconocida.",
   "comingSoon": false,

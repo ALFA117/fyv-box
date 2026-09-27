@@ -217,3 +217,9 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 | No queda claro para qué sirve la credencial | Bloque "¿Para qué sirve una credencial?" en `/graduation` (prueba sin datos personales, verificable por wallets/exchanges/comunidades, firmada por tu billetera, sin valor monetario) y texto concreto en la landing. |
 | "Datos reales" con 3 personas | Se explica qué son (respuestas guardadas por la app, billeteras de prueba anónimas) y aparece un aviso de "muestra pequeña" mientras haya menos de 30 personas. |
 | Mezcla de "track" y "módulo" | Toda la UI dice "módulo" (en el pitch "tracks" solo se usa para los tracks del hackathon). |
+
+### Revisión en producción (2026-09-26)
+
+- **Escenarios que contradecían su historia (bug previo):** el marco de phishing tenía fijos el remitente "Soporte Lumena" y el asunto "tu cuenta está comprometida" en las 5 misiones (incluida la del QR pegado en un evento); el airdrop de USDC mostraba "0 USDC"; el pool con 950% APY se pintaba como "balance recibido"; la whitelist APEX mostraba valores por defecto; y la firma decía "Red: Stellar Mainnet" en una misión de testnet. Los marcos se movieron a `src/app/mission/[id]/ScenarioFrames.tsx` y ahora leen todo de `actionParams` (se agregaron `channel`, `senderName`, `subject` y `amount` donde faltaban). Marcos nuevos: QR + formulario y pago con memo.
+- `/stats`: si dos módulos empatan como "donde más gente falla", se indica el empate.
+- La regla base de `h1–h4` pasó a `@layer base` para que las utilidades de Tailwind puedan sobrescribirla.

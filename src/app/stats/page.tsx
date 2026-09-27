@@ -57,6 +57,7 @@ export default function StatsPage() {
   const stats = state.kind === "ready" ? [...state.data.stats].sort((a, b) => b.trapRate - a.trapRate) : [];
   const avgTrapRate = stats.length > 0 ? Math.round(stats.reduce((a, s) => a + s.trapRate, 0) / stats.length) : 0;
   const hardest = stats[0];
+  const tiedWithHardest = hardest ? stats.filter((s) => s.trapRate === hardest.trapRate).length - 1 : 0;
 
   return (
     <div className="min-h-dvh">
@@ -140,7 +141,9 @@ export default function StatsPage() {
                     icon: Flame,
                     value: hardest ? `${hardest.trapRate}%` : "—",
                     label: "módulo donde más gente falla",
-                    sub: hardest && hardest.track in TrackMeta ? TrackMeta[hardest.track as Mission["track"]].label : null,
+                    sub: hardest && hardest.track in TrackMeta
+                      ? `${TrackMeta[hardest.track as Mission["track"]].label}${tiedWithHardest > 0 ? ` (empata con ${tiedWithHardest} más)` : ""}`
+                      : null,
                     tone: "text-danger",
                   },
                 ].map(({ icon: Icon, value, label, sub, tone }) => (

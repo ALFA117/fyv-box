@@ -7,13 +7,30 @@
   "actionParams": {
     "fakeDomain": "astroexchange-gift.net",
     "redFlag": "piden clave secreta",
-    "testnetTx": null
+    "testnetTx": null,
+    "channel": "qr"
   },
   "options": [
-    { "id": "a", "label": "Ingreso mi dirección y clave para recibir los XLM", "isCorrect": false },
-    { "id": "b", "label": "Ingreso solo mi dirección pública — eso no debería ser peligroso", "isCorrect": false },
-    { "id": "c", "label": "Cierro el formulario: ninguna plataforma legítima pide tu clave secreta", "isCorrect": true },
-    { "id": "d", "label": "Primero compruebo cuántos XLM están en la dirección del exchange", "isCorrect": false }
+    {
+      "id": "a",
+      "label": "Ingreso mi dirección y clave para recibir los XLM",
+      "isCorrect": false
+    },
+    {
+      "id": "b",
+      "label": "Ingreso solo mi dirección pública — eso no debería ser peligroso",
+      "isCorrect": false
+    },
+    {
+      "id": "c",
+      "label": "Cierro el formulario: ninguna plataforma legítima pide tu clave secreta",
+      "isCorrect": true
+    },
+    {
+      "id": "d",
+      "label": "Primero compruebo cuántos XLM están en la dirección del exchange",
+      "isCorrect": false
+    }
   ],
   "explanation": "Tu clave secreta (Secret Key) es equivalente a la contraseña + el candado de tu wallet. NADIE legítimo la necesita jamás — ni exchanges, ni wallets, ni soporte técnico. Si un servicio te pide tu clave secreta, es una estafa sin excepciones. Tu dirección pública sí puedes compartirla, pero en este caso el formulario era solo el primer paso para ganarse tu confianza.",
   "comingSoon": false,
