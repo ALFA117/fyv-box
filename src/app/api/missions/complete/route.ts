@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getMission, evaluateMission, getCertifiableModules } from "@/missions/engine";
+import { after } from "next/server";
 import { getRegistry } from "@/registry";
+import { attestModule } from "@/lib/attest";
 import { supabaseServer } from "@/lib/supabase";
 import { OWNERSHIP_MAX_AGE_MS, STELLAR_ADDRESS_RE, completionMessage } from "@/lib/ownership";
 
@@ -94,6 +96,12 @@ export async function POST(req: NextRequest) {
         if (!existing.isCertified(module)) {
           await registry.recordCompletion({ stellarAddress, module, orgSlug });
           newCertifications.push(module);
+          // On-chain proof after the response is sent; /api/verify reads it back from Horizon.
+          after(() =>
+            attestModule(stellarAddress, module).catch((err) =>
+              console.error("[FYV] on-chain attestation failed:", err instanceof Error ? err.message : err),
+            ),
+          );
         }
       }
     } catch (err) {

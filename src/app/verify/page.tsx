@@ -8,12 +8,12 @@ import { AppNav } from "@/components/AppNav";
 import { AppFooter } from "@/components/AppFooter";
 import { Skeleton } from "@/components/Skeleton";
 import { TrackMeta } from "@/missions/schema";
-import { isStellarAddress, midTruncate, STELLAR_EXPERT_ACCOUNT } from "@/lib/ownership";
+import { isStellarAddress, midTruncate, STELLAR_EXPERT_ACCOUNT, STELLAR_EXPERT_TX } from "@/lib/ownership";
 
 interface VerifyResult {
   address: string;
   certified: boolean;
-  modules: { module: string; completedAt: string }[];
+  modules: { module: string; completedAt: string; txHash?: string | null }[];
   backend: string;
 }
 
@@ -199,14 +199,28 @@ function VerifyContent() {
                       <p className="mb-3 text-eyebrow text-cream-muted">Módulos certificados</p>
                       <ul className="space-y-2.5">
                         {result.modules.map((m) => (
-                          <li key={m.module} className="flex items-center justify-between gap-3">
-                            <span className="flex min-w-0 items-center gap-2 text-sm text-cream">
-                              <CheckCircle className="h-4 w-4 shrink-0 text-success" strokeWidth={2} aria-hidden />
-                              <span className="truncate">{TrackMeta[m.module as keyof typeof TrackMeta]?.label ?? m.module}</span>
-                            </span>
-                            <time dateTime={m.completedAt} className="shrink-0 text-xs tabular-nums text-cream-muted">
-                              {new Date(m.completedAt).toLocaleDateString("es-MX")}
-                            </time>
+                          <li key={m.module}>
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="flex min-w-0 items-center gap-2 text-sm text-cream">
+                                <CheckCircle className="h-4 w-4 shrink-0 text-success" strokeWidth={2} aria-hidden />
+                                <span className="truncate">{TrackMeta[m.module as keyof typeof TrackMeta]?.label ?? m.module}</span>
+                              </span>
+                              <time dateTime={m.completedAt} className="shrink-0 text-xs tabular-nums text-cream-muted">
+                                {new Date(m.completedAt).toLocaleDateString("es-MX")}
+                              </time>
+                            </div>
+                            {m.txHash ? (
+                              <a
+                                href={`${STELLAR_EXPERT_TX}/${m.txHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="tap ml-4 inline-flex items-center gap-1.5 rounded-lg px-2 font-mono text-xs text-success hover:underline"
+                              >
+                                on-chain · tx {midTruncate(m.txHash, 6, 4)} <ExternalLink className="h-3 w-3" aria-hidden />
+                              </a>
+                            ) : (
+                              <p className="ml-6 mt-0.5 text-xs text-cream-dim">Registro on-chain pendiente</p>
+                            )}
                           </li>
                         ))}
                       </ul>

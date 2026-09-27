@@ -2,7 +2,36 @@
 
 Simulador gratuito de estafas crypto en español. Las personas enfrentan escenarios realistas (phishing, airdrops falsos, ingeniería social, firmas peligrosas, preventas falsas, manejo de llaves) y, al completar un track, obtienen una credencial verificable ligada a su dirección de Stellar testnet.
 
-**Live:** [fyv-box.vercel.app](https://fyv-box.vercel.app) · **Pitch:** `/pitch`
+**Live:** [fyv-box.vercel.app](https://fyv-box.vercel.app) · **Pitch:** `/pitch` · **Licencia:** MIT
+
+## Qué comprobar en Stellar (para jueces)
+
+| Qué | Dónde abrirlo |
+|---|---|
+| Cuenta emisora de credenciales (testnet) | [GBQZNP6Y…7HPNI](https://stellar.expert/explorer/testnet/account/GBQZNP6YEBBOZ332OES6G4GTGEKBLT2BUCRINNXNIDZEPH4NNZN7HPNI) — cada transacción con memo `FYV cert <módulo>` es una credencial |
+| Una credencial on-chain de ejemplo (módulo phishing) | [tx a50a7632…](https://stellar.expert/explorer/testnet/tx/a50a76325c7714a45bf35a7e09e8f12518cff17af57bf3cfd0a61c9d7104eff3) |
+| Verificador público | [/verify](https://fyv-box.vercel.app/verify?address=GAMIQH3NJTXDD2HAAQOG6VX65ICTLCDQMRSNPX4AWGH6X64YZYBQYNCK) y `GET /api/verify?address=G…` (devuelve el `txHash` de cada módulo) |
+| Firma de cada respuesta | SEP-53 (`signMessage`), verificada en `src/app/api/missions/complete/route.ts` |
+| Login con correo | Pollar (`@pollar/core`): billetera custodiada en testnet, `/entrar` |
+
+**Por qué Stellar:** cada persona que entrena termina con una cuenta real en testnet (creada por Friendbot o por Pollar) y una credencial que otra wallet o dApp puede leer sin pedirle nada a FYV Box: basta consultar las transacciones de la cuenta emisora en Horizon. Las comisiones casi nulas permiten emitir una credencial por módulo a cada estudiante sin costo relevante.
+
+## Reproducirlo
+
+```
+git clone https://github.com/ALFA117/fyv-box && cd fyv-box
+npm install
+cp .env.example .env.local   # o crea .env.local con las variables de abajo
+npm run dev                   # http://localhost:3000
+```
+
+Sin `SUPABASE_SERVICE_ROLE_KEY` la app carga y se puede recorrer, pero no guarda respuestas. Sin `NEXT_PUBLIC_POLLAR_API_KEY` solo existe el modo invitado. Sin `FYV_ATTESTOR_SECRET` las credenciales se guardan pero no se emiten on-chain. Esquema de base: `supabase/migrations/`.
+
+## Uso de IA y código reutilizado
+
+- **IA:** el proyecto se desarrolló con asistencia de IA (Claude, de Anthropic, vía Claude Code) para escribir y revisar código, textos de las misiones, diseño y documentación. Las decisiones de producto, las pruebas con usuarios y la revisión final son del equipo.
+- **Código base:** plantilla de `create-next-app` (Next.js). Librerías de terceros vía npm: `@stellar/stellar-sdk`, `@pollar/core`, `@supabase/supabase-js`, `framer-motion`, `lucide-react`, `zod`, Tailwind CSS. Fuentes de Google Fonts (Playfair Display, Inter, IBM Plex Mono).
+- **Construido durante GOYA HACK (25–27 sep 2026):** todo el repositorio; el primer commit es del 25 de septiembre de 2026.
 
 ---
 
@@ -10,7 +39,7 @@ Simulador gratuito de estafas crypto en español. Las personas enfrentan escenar
 
 - Next.js 16 (App Router) · TypeScript · Tailwind v4
 - Supabase (Postgres) para progreso y credenciales
-- Stellar testnet para identidad: keypair generado en el navegador y fondeado con Friendbot (`@stellar/stellar-sdk`)
+- Stellar testnet: identidad con Pollar (correo + billetera custodiada) o keypair de invitado fondeado con Friendbot; firma SEP-53 de cada respuesta; credencial emitida on-chain como transacción de la cuenta emisora (`src/lib/attest.ts`)
 - Framer Motion para animaciones (siempre con `useReducedMotion`)
 - Vercel (deploy automático en cada push a `master`)
 
@@ -24,6 +53,8 @@ REGISTRY_BACKEND=supabase     # "supabase" (default) | "soroban"
 FYV_ISSUER_SECRET=            # solo si REGISTRY_BACKEND=soroban
 SOROBAN_CONTRACT_ID=          # solo si REGISTRY_BACKEND=soroban
 NEXT_PUBLIC_POLLAR_API_KEY=   # opcional: llave PUBLICABLE pub_testnet_… de Pollar. Activa el login con correo; vacía = solo modo invitado
+FYV_ATTESTOR_SECRET=          # SOLO servidor: cuenta testnet que emite las credenciales on-chain
+NEXT_PUBLIC_FYV_ATTESTOR=     # su dirección pública (G…), para leerlas desde /api/verify
 NEXT_PUBLIC_SITE_URL=         # opcional: dominio canónico para SEO (default: dominio de producción de Vercel)
 ```
 
@@ -266,3 +297,9 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 
 - `fake-assets-001` (antes "El Airdrop Misterioso" con LUNACOIN) ahora simula un drop falso de **$PUMA**, el token de CriptoUNAM que reparte GOYA HACK: llegan 50,000,000 PUMA a Stellar desde un emisor desconocido con el memo "GOYA HACK drop · claim now". La lección: el nombre del token no prueba nada; según la página oficial del hackathon el drop real es en Avalanche, así que se confirma red y emisor en el canal oficial antes de abrir un trustline. Opciones de longitud pareja (67–75 caracteres) para no delatar la correcta.
 - `WalletFrame` acepta un `memo` opcional en `actionParams`.
+
+### Credenciales on-chain (2026-09-27)
+
+- Al certificar un módulo, `/api/missions/complete` registra la credencial en Supabase y, después de responder (`after()`), la cuenta emisora envía a la dirección del usuario una transacción de testnet con memo `FYV cert <módulo>` (0.0000001 XLM, o `createAccount` si la cuenta no existe). Si Horizon falla, la credencial queda en Supabase y la UI dice "Registro on-chain pendiente".
+- `/api/verify` lee esas transacciones de Horizon (fuente = cuenta emisora) y devuelve `txHash` por módulo; `/verify` y la página de credenciales enlazan cada una a Stellar Expert.
+- `scripts/backfill-attestations.mjs` emitió on-chain las 6 credenciales que ya existían.

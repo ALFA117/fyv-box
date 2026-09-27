@@ -22,3 +22,4 @@ export function midTruncate(value: string, head = 6, tail = 4): string {
 }
 
 export const STELLAR_EXPERT_ACCOUNT = "https://stellar.expert/explorer/testnet/account";
+export const STELLAR_EXPERT_TX = "https://stellar.expert/explorer/testnet/tx";

@@ -3,6 +3,7 @@ import { getRegistry } from "@/registry";
 import { supabaseServer } from "@/lib/supabase";
 import { isStellarAddress } from "@/lib/ownership";
 import { TrackMeta } from "@/missions/schema";
+import { ATTESTOR_PUBLIC, getAttestations, type Attestation } from "@/lib/attest";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -22,7 +23,8 @@ function fail(status: number, error: string) {
 
 /**
  * GET /api/verify?address=G...&module=phishing
- * → { address, certified, modules: [{ module, completedAt }], backend }
+ * → { address, certified, modules: [{ module, completedAt, txHash }], attestor, network, backend }
+ * txHash: transacción en Stellar testnet enviada por la cuenta emisora (attestor) con memo "FYV cert <módulo>".
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -43,6 +45,15 @@ export async function GET(req: NextRequest) {
     return fail(503, "El registro de credenciales no respondió. Intenta en unos segundos.");
   }
 
+  // On-chain proof lives in Horizon; if Horizon is down the registry answer still stands.
+  let onchain: Attestation[] = [];
+  try {
+    onchain = await getAttestations(address);
+  } catch (err) {
+    console.error("[FYV] horizon attestations failed:", err instanceof Error ? err.message : err);
+  }
+  const txFor = (m: string) => onchain.find((a) => a.module === m)?.txHash ?? null;
+
   // Best-effort audit log: a missing table or a failed insert must never break verification.
   try {
     const requesterIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -59,7 +70,9 @@ export async function GET(req: NextRequest) {
     {
       address,
       certified: module ? readiness.isCertified(module) : readiness.modules.length > 0,
-      modules: readiness.modules.map((m) => ({ module: m.module, completedAt: m.completedAt })),
+      modules: readiness.modules.map((m) => ({ module: m.module, completedAt: m.completedAt, txHash: txFor(m.module) })),
+      attestor: ATTESTOR_PUBLIC || null,
+      network: "testnet",
       backend: process.env.REGISTRY_BACKEND ?? "supabase",
     },
     { headers: { ...CORS, "Cache-Control": "no-store" } },

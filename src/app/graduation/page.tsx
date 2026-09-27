@@ -33,6 +33,8 @@ export default function GraduationPage() {
   const reduce = useReducedMotion();
   const [wallet, setWallet] = useState<WalletIdentity | null>(null);
   const [completions, setCompletions] = useState<ModuleCompletion[]>([]);
+  // Hash on-chain por módulo (leído de Horizon vía /api/verify); ausente = aún consultando.
+  const [txByModule, setTxByModule] = useState<Record<string, string | null> | null>(null);
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [retryKey, setRetryKey] = useState(0);
 
@@ -59,6 +61,16 @@ export default function GraduationPage() {
         .sort((a, b) => TRACK_ORDER.indexOf(a.module_id) - TRACK_ORDER.indexOf(b.module_id));
       setCompletions(rows);
       setState({ kind: "ready" });
+      if (rows.length) {
+        // Prueba on-chain: no bloquea la pantalla; si Horizon falla, las credenciales se ven igual.
+        fetch(`/api/verify?address=${w.publicKey}`)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d: { modules?: { module: string; txHash: string | null }[] } | null) => {
+            if (cancelled || !d?.modules) return;
+            setTxByModule(Object.fromEntries(d.modules.map((m) => [m.module, m.txHash])));
+          })
+          .catch(() => {});
+      }
     })().catch((err: Error) => {
       if (!cancelled) setState({ kind: "error", message: err.message });
     });
@@ -146,7 +158,12 @@ export default function GraduationPage() {
                 >
                   {completions.map((c) => (
                     <motion.div key={c.module_id} variants={reduce ? undefined : itemVariants}>
-                      <CredentialBadge module={c.module_id} stellarAddress={wallet.publicKey} completedAt={c.completed_at} />
+                      <CredentialBadge
+                        module={c.module_id}
+                        stellarAddress={wallet.publicKey}
+                        completedAt={c.completed_at}
+                        txHash={txByModule ? (txByModule[c.module_id] ?? null) : undefined}
+                      />
                     </motion.div>
                   ))}
 

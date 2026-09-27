@@ -1,18 +1,20 @@
 "use client";
 import { motion, useReducedMotion } from "framer-motion";
-import { ShieldCheck, ExternalLink, Award } from "lucide-react";
+import { ShieldCheck, ExternalLink, Award, Link2 } from "lucide-react";
 import { TrackMeta } from "@/missions/schema";
 import type { Mission } from "@/missions/schema";
 import { TrackIconBadge } from "./TrackIcon";
-import { midTruncate, STELLAR_EXPERT_ACCOUNT } from "@/lib/ownership";
+import { midTruncate, STELLAR_EXPERT_ACCOUNT, STELLAR_EXPERT_TX } from "@/lib/ownership";
 
 interface Props {
   module: Mission["track"];
   stellarAddress: string;
   completedAt?: string;
+  /** Transacción on-chain de la credencial; undefined = aún consultando, null = sin registro on-chain. */
+  txHash?: string | null;
 }
 
-export function CredentialBadge({ module, stellarAddress, completedAt }: Props) {
+export function CredentialBadge({ module, stellarAddress, completedAt, txHash }: Props) {
   const meta = TrackMeta[module];
   const reduce = useReducedMotion();
 
@@ -56,6 +58,25 @@ export function CredentialBadge({ module, stellarAddress, completedAt }: Props) 
             {midTruncate(stellarAddress, 8, 8)}
           </p>
         </div>
+
+        {txHash && (
+          <a
+            href={`${STELLAR_EXPERT_TX}/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-2 flex items-center gap-3 rounded-xl border border-success-border bg-success-subtle px-3 py-2.5 transition-colors hover:border-success"
+          >
+            <Link2 className="h-4 w-4 shrink-0 text-success" aria-hidden />
+            <span className="min-w-0 flex-1">
+              <span className="block text-xs font-semibold text-success">Registrada on-chain en Stellar testnet</span>
+              <span className="block truncate font-mono text-xs text-cream-muted">tx {midTruncate(txHash, 8, 6)}</span>
+            </span>
+            <ExternalLink className="h-4 w-4 shrink-0 text-success" aria-hidden />
+          </a>
+        )}
+        {txHash === null && (
+          <p className="mb-2 text-xs text-cream-dim">Registro on-chain en proceso: aparece aquí en cuanto se confirma en Stellar.</p>
+        )}
 
         <a
           href={`${STELLAR_EXPERT_ACCOUNT}/${stellarAddress}`}
