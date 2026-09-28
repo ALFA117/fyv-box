@@ -297,13 +297,13 @@ const RULES: Rule[] = [
     id: "firma", weight: 2, mission: "dangerous-approvals-001",
     label: "Te pide conectar la wallet, firmar o aprobar",
     detail: "Una firma puede ceder permisos sobre tu cuenta. Nunca firmes desde un link que te mandaron.",
-    re: /(conecta(r)? (tu )?wallet|connect (your )?wallet|firma(r)?\b|\bsign\b|signing|aprueba|approve|valida(r)? (tu )?wallet|sincroniza(r)?|verify (your )?wallet|walletconnect)/,
+    re: /(conecta(r|ndo)? (tu )?(wallet|billetera|cartera)|connect (your )?wallet|firma(r)?\b|\bsign\b|signing|aprueba|approve|valida(r)? (tu )?wallet|sincroniza(r)?|verify (your )?wallet|walletconnect)/,
   },
   {
     id: "urgencia", weight: 2,
     label: "Te mete prisa",
     detail: "La urgencia es para que no pienses. Lo legítimo puede esperar a que lo verifiques.",
-    re: /(urgente|inmediat|ahora mismo|solo hoy|hoy mismo|expira|caduca|24 ?h|ultimas? horas|antes de que|se cierra|cierra en|ultima oportunidad|bloquead|suspendid|last chance|expires|act now|limited time)/,
+    re: /(urgente|inmediat|ahora mismo|d+ ?(horas|hrs|minutos|min)|solo hoy|hoy mismo|expira|caduca|24 ?h|ultimas? horas|antes de que|se cierra|cierra en|ultima oportunidad|bloquead|suspendid|last chance|expires|act now|limited time)/,
   },
   {
     id: "premio", weight: 2, mission: "fake-assets-001",

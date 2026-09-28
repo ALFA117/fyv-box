@@ -3,13 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { AlertTriangle, ArrowUpRight, MessageCircle, Send, ShieldAlert, ShieldCheck, X } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, MessageCircle, Send, ShieldAlert, ShieldCheck, Sparkles, X } from "lucide-react";
 import {
   ANALYZE_PROMPT, FALLBACK, analyzeMessage, chipsForPath, looksLikeMessage, matchTopic, topicById,
   type Analysis, type BotLink,
 } from "@/lib/helpBot";
 
-type Msg = { id: number; from: "bot" | "user"; text: string; links?: BotLink[]; analysis?: Analysis };
+/** `ai`: nombre del modelo gratuito que generó la respuesta (se etiqueta en la burbuja). */
+type Msg = { id: number; from: "bot" | "user"; text: string; links?: BotLink[]; analysis?: Analysis; ai?: string };
 
 const GREETING =
   "¡Hola! Soy la pantera de FYV Box. Te ayudo con dudas de la app y, si te llegó un mensaje o link raro, pégalo aquí y te digo qué señales de estafa tiene.";
@@ -135,9 +136,52 @@ export function HelpBot() {
     }, reduce ? 0 : 450);
   }
 
-  function sayAnalysis(text: string) {
+  /** Pregunta a la IA gratuita del servidor; si no responde, devuelve null y se queda lo predeterminado. */
+  async function askAI(message: string, mode: "chat" | "analyze"): Promise<{ text: string; provider: string } | null> {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 20_000);
+      const res = await fetch("/api/assistant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, mode }),
+        signal: ctrl.signal,
+      }).finally(() => clearTimeout(timer));
+      if (!res.ok) return null;
+      const d = (await res.json()) as { text?: string; provider?: string };
+      return d.text ? { text: d.text, provider: d.provider ?? "IA" } : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function sayAI(r: { text: string; provider: string }, nextChips: string[]) {
+    setMsgs((m) => [...m, { id: nextId.current++, from: "bot", text: r.text, ai: r.provider }]);
+    setChips(nextChips);
+  }
+
+  async function sayAnalysis(text: string) {
     const a = analyzeMessage(text);
-    botSay({ text: "", analysis: a, links: a.practice ? [a.practice] : undefined }, ANALYSIS_CHIPS);
+    botSay({ text: "", analysis: a, links: a.practice ? [a.practice] : undefined }, []);
+    // Segunda opinión con IA sobre ESTE mensaje, debajo del análisis por reglas.
+    setTimeout(() => setTyping(true), reduce ? 0 : 500);
+    const r = await askAI(text, "analyze");
+    setTyping(false);
+    if (r) sayAI(r, ANALYSIS_CHIPS);
+    else setChips(ANALYSIS_CHIPS);
+  }
+
+  async function sayFallback(question: string) {
+    setTyping(true);
+    setChips([]);
+    const r = await askAI(question, "chat");
+    setTyping(false);
+    if (r) {
+      sayAI(r, chipsForPath(pathname));
+    } else {
+      setMsgs((m) => [...m, { id: nextId.current++, from: "bot", text: FALLBACK }]);
+      setChips(chipsForPath(pathname));
+    }
   }
 
   function reply(question: string, topicId?: string) {
@@ -168,7 +212,8 @@ export function HelpBot() {
       sayAnalysis(question);
       return;
     }
-    botSay({ text: FALLBACK }, chipsForPath(pathname));
+    // Nada predeterminado encaja: responde la IA gratuita (o el mensaje de siempre si no está disponible).
+    void sayFallback(question);
   }
 
   function submit(e: React.FormEvent) {
@@ -201,7 +246,7 @@ export function HelpBot() {
               <Avatar />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-cream">Asistente FYV</p>
-                <p className="text-xs text-cream-muted">Respuestas predeterminadas · no es IA</p>
+                <p className="text-xs text-cream-muted">Respuestas guiadas + IA gratuita (Gemini)</p>
               </div>
               <button type="button" onClick={close} aria-label="Cerrar asistente" className="tap flex items-center justify-center rounded-xl text-cream-muted hover:text-cream">
                 <X className="h-5 w-5" aria-hidden />
@@ -223,6 +268,11 @@ export function HelpBot() {
                       m.from === "user" ? "rounded-br-md bg-gold text-on-gold" : "rounded-bl-md border border-line bg-navy text-cream"
                     }`}
                   >
+                    {m.ai && (
+                      <p className="mb-1 flex items-center gap-1 text-[0.75rem] font-semibold text-info">
+                        <Sparkles className="h-3 w-3" aria-hidden /> Opinión de IA · {m.ai} · puede equivocarse
+                      </p>
+                    )}
                     {m.text && <p className="line-clamp-[12] whitespace-pre-line break-words">{m.text}</p>}
                     {m.analysis && <AnalysisCard a={m.analysis} />}
                     {m.links && m.links.length > 0 && (

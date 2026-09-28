@@ -316,3 +316,10 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - **Sugerencias según la pantalla** (mapa, credenciales, verificador, entrar, estadísticas).
 - **Tolera errores de dedo** ("fraze semiya" encuentra frase semilla) y responde saludos.
 - **Aviso único** la primera visita ("¿Dudas o un mensaje raro? Pregúntame"), guardado en localStorage con try/catch.
+
+### Asistente con IA gratuita (2026-09-28)
+
+- `POST /api/assistant` responde preguntas libres y da una segunda opinión sobre mensajes pegados. Cadena: **Gemini** (`gemini-flash-lite-latest`, nivel gratuito, `thinkingLevel: minimal` para responder en 1–2 s, con un reintento) → **Pollinations** (gratis y sin llave) → respuestas predeterminadas y reglas. La llave de Gemini vive solo en el servidor.
+- Las respuestas guiadas siguen siendo lo primero; la IA solo entra cuando ningún tema coincide o para opinar sobre un mensaje pegado, y va etiquetada "Opinión de IA · Gemini · puede equivocarse".
+- Instrucciones del modelo: español de México, máximo 4 frases, nunca pedir frases semilla ni llaves (si alguien pega una, decirle que la considere comprometida), no dar respuestas de misiones, no dar consejos de inversión, no inventar funciones. Probado: se niega a dar la respuesta de "El Login de Lumena" y reacciona bien a una frase semilla pegada.
+- Límite de 12 preguntas por minuto por IP, 1,500 caracteres por mensaje, validación con zod. El texto del usuario no se guarda ni se registra.
