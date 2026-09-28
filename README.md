@@ -303,3 +303,8 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - Al certificar un módulo, `/api/missions/complete` registra la credencial en Supabase y, después de responder (`after()`), la cuenta emisora envía a la dirección del usuario una transacción de testnet con memo `FYV cert <módulo>` (0.0000001 XLM, o `createAccount` si la cuenta no existe). Si Horizon falla, la credencial queda en Supabase y la UI dice "Registro on-chain pendiente".
 - `/api/verify` lee esas transacciones de Horizon (fuente = cuenta emisora) y devuelve `txHash` por módulo; `/verify` y la página de credenciales enlazan cada una a Stellar Expert.
 - `scripts/backfill-attestations.mjs` emitió on-chain las 6 credenciales que ya existían.
+
+### Asistente de ayuda (2026-09-27)
+
+- `src/components/HelpBot.tsx` + `src/lib/helpBot.ts`: botón flotante con la pantera que abre un chat de **respuestas predeterminadas (no es IA)**. 17 temas (qué es, cómo empezar, login con correo, invitado, dinero real, credencial on-chain, verificar, Stellar, drop de $PUMA, mensajes sospechosos, frase semilla, firmas, preventas, progreso, estadísticas, privacidad, código). Entiende preguntas libres por palabras clave (sin acentos ni mayúsculas) y sugiere preguntas relacionadas; cada respuesta enlaza a la pantalla o misión útil.
+- No aparece dentro de las misiones para que no sirva de ayuda para contestar. Diálogo accesible (Esc cierra y regresa el foco al botón, aria-live), input de 16 px, 44 px de área táctil, animación con spring y sin movimiento con reduced-motion.

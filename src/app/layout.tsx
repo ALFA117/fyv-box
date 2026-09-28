@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Inter, Playfair_Display, IBM_Plex_Mono } from "next/font/google";
 import { ToastProvider } from "@/components/Toast";
 import { AmbientBackground } from "@/components/AmbientBackground";
+import { HelpBot } from "@/components/HelpBot";
 import { BRAND, siteUrl } from "@/lib/brand";
 import "./globals.css";
 
@@ -80,7 +81,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Saltar al contenido
         </a>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          {children}
+          <HelpBot />
+        </ToastProvider>
       </body>
     </html>
   );
