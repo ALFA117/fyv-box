@@ -323,3 +323,12 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - Las respuestas guiadas siguen siendo lo primero; la IA solo entra cuando ningún tema coincide o para opinar sobre un mensaje pegado, y va etiquetada "Opinión de IA · Gemini · puede equivocarse".
 - Instrucciones del modelo: español de México, máximo 4 frases, nunca pedir frases semilla ni llaves (si alguien pega una, decirle que la considere comprometida), no dar respuestas de misiones, no dar consejos de inversión, no inventar funciones. Probado: se niega a dar la respuesta de "El Login de Lumena" y reacciona bien a una frase semilla pegada.
 - Límite de 12 preguntas por minuto por IP, 1,500 caracteres por mensaje, validación con zod. El texto del usuario no se guarda ni se registra.
+
+### Pruebas automáticas (2026-09-28)
+
+`npm test` (Vitest, 31 pruebas) y GitHub Actions en cada push (`.github/workflows/test.yml`: tipos + pruebas).
+
+- `tests/engine.test.ts`: 22 misiones en 6 módulos, una sola correcta por misión, la correcta repartida entre posiciones y no siempre la más larga, el catálogo público no incluye `isCorrect` ni explicaciones, XP solo con la correcta, credencial solo al completar el módulo.
+- `tests/ownership.test.ts`: firma SEP-53 de cada respuesta de principio a fin; falla si cambian la opción o si firma otra cuenta.
+- `tests/helpBot.test.ts`: el analizador marca riesgo alto en 5 estafas reales y ninguna alarma en mensajes normales; dominios que imitan marcas, acortadores y punycode; temas del asistente con errores de dedo.
+- Las pruebas encontraron un error real: la regla de urgencia no reconocía "antes de 2 horas" por una expresión mal escapada. Corregido.

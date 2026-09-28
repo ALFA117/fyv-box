@@ -303,7 +303,7 @@ const RULES: Rule[] = [
     id: "urgencia", weight: 2,
     label: "Te mete prisa",
     detail: "La urgencia es para que no pienses. Lo legítimo puede esperar a que lo verifiques.",
-    re: /(urgente|inmediat|ahora mismo|d+ ?(horas|hrs|minutos|min)|solo hoy|hoy mismo|expira|caduca|24 ?h|ultimas? horas|antes de que|se cierra|cierra en|ultima oportunidad|bloquead|suspendid|last chance|expires|act now|limited time)/,
+    re: /(urgente|inmediat|ahora mismo|\d+ ?(horas|hrs|minutos|min)\b|solo hoy|hoy mismo|expira|caduca|24 ?h|ultimas? horas|antes de que|se cierra|cierra en|ultima oportunidad|bloquead|suspendid|last chance|expires|act now|limited time)/,
   },
   {
     id: "premio", weight: 2, mission: "fake-assets-001",
