@@ -4,7 +4,7 @@ import { ShieldCheck, ExternalLink, Award, Link2 } from "lucide-react";
 import { TrackMeta } from "@/missions/schema";
 import type { Mission } from "@/missions/schema";
 import { TrackIconBadge } from "./TrackIcon";
-import { midTruncate, STELLAR_EXPERT_ACCOUNT, STELLAR_EXPERT_TX } from "@/lib/ownership";
+import { midTruncate, STELLAR_EXPERT_ACCOUNT, STELLAR_EXPERT_CONTRACT, STELLAR_EXPERT_TX } from "@/lib/ownership";
 
 interface Props {
   module: Mission["track"];
@@ -12,9 +12,11 @@ interface Props {
   completedAt?: string;
   /** Transacción on-chain de la credencial; undefined = aún consultando, null = sin registro on-chain. */
   txHash?: string | null;
+  /** Contrato Soroban donde también está registrada, si aplica. */
+  contractId?: string | null;
 }
 
-export function CredentialBadge({ module, stellarAddress, completedAt, txHash }: Props) {
+export function CredentialBadge({ module, stellarAddress, completedAt, txHash, contractId }: Props) {
   const meta = TrackMeta[module];
   const reduce = useReducedMotion();
 
@@ -74,7 +76,22 @@ export function CredentialBadge({ module, stellarAddress, completedAt, txHash }:
             <ExternalLink className="h-4 w-4 shrink-0 text-success" aria-hidden />
           </a>
         )}
-        {txHash === null && (
+        {contractId && (
+          <a
+            href={`${STELLAR_EXPERT_CONTRACT}/${contractId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-2 flex items-center gap-3 rounded-xl border border-line bg-navy/60 px-3 py-2.5 transition-colors hover:border-line-gold"
+          >
+            <ShieldCheck className="h-4 w-4 shrink-0 text-gold" aria-hidden />
+            <span className="min-w-0 flex-1">
+              <span className="block text-xs font-semibold text-cream">Registrada en el contrato Soroban</span>
+              <span className="block truncate font-mono text-xs text-cream-muted">{midTruncate(contractId, 6, 4)}</span>
+            </span>
+            <ExternalLink className="h-4 w-4 shrink-0 text-cream-muted" aria-hidden />
+          </a>
+        )}
+        {txHash === null && !contractId && (
           <p className="mb-2 text-xs text-cream-dim">Registro on-chain en proceso: aparece aquí en cuanto se confirma en Stellar.</p>
         )}
 

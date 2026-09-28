@@ -35,6 +35,7 @@ export default function GraduationPage() {
   const [completions, setCompletions] = useState<ModuleCompletion[]>([]);
   // Hash on-chain por módulo (leído de Horizon vía /api/verify); ausente = aún consultando.
   const [txByModule, setTxByModule] = useState<Record<string, string | null> | null>(null);
+  const [contractByModule, setContractByModule] = useState<Record<string, string>>({});
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [retryKey, setRetryKey] = useState(0);
 
@@ -65,9 +66,12 @@ export default function GraduationPage() {
         // Prueba on-chain: no bloquea la pantalla; si Horizon falla, las credenciales se ven igual.
         fetch(`/api/verify?address=${w.publicKey}`)
           .then((r) => (r.ok ? r.json() : null))
-          .then((d: { modules?: { module: string; txHash: string | null }[] } | null) => {
+          .then((d: { modules?: { module: string; txHash: string | null; onContract?: boolean | null }[]; contract?: string | null } | null) => {
             if (cancelled || !d?.modules) return;
             setTxByModule(Object.fromEntries(d.modules.map((m) => [m.module, m.txHash])));
+            if (d.contract) {
+              setContractByModule(Object.fromEntries(d.modules.filter((m) => m.onContract).map((m) => [m.module, d.contract as string])));
+            }
           })
           .catch(() => {});
       }
@@ -163,6 +167,7 @@ export default function GraduationPage() {
                         stellarAddress={wallet.publicKey}
                         completedAt={c.completed_at}
                         txHash={txByModule ? (txByModule[c.module_id] ?? null) : undefined}
+                        contractId={contractByModule[c.module_id] ?? null}
                       />
                     </motion.div>
                   ))}

@@ -3,7 +3,7 @@ import { getRegistry } from "@/registry";
 import { supabaseServer } from "@/lib/supabase";
 import { isStellarAddress } from "@/lib/ownership";
 import { TrackMeta } from "@/missions/schema";
-import { ATTESTOR_PUBLIC, getAttestations, type Attestation } from "@/lib/attest";
+import { ATTESTOR_PUBLIC, CREDENTIAL_CONTRACT, getAttestations, getContractModules, type Attestation } from "@/lib/attest";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -54,6 +54,14 @@ export async function GET(req: NextRequest) {
   }
   const txFor = (m: string) => onchain.find((a) => a.module === m)?.txHash ?? null;
 
+  // Registro en el contrato Soroban (lectura por simulación); si el RPC falla, se informa null.
+  let contractModules: string[] | null = null;
+  try {
+    contractModules = await getContractModules(address);
+  } catch (err) {
+    console.error("[FYV] soroban read failed:", err instanceof Error ? err.message : err);
+  }
+
   // Best-effort audit log: a missing table or a failed insert must never break verification.
   try {
     const requesterIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -70,7 +78,8 @@ export async function GET(req: NextRequest) {
     {
       address,
       certified: module ? readiness.isCertified(module) : readiness.modules.length > 0,
-      modules: readiness.modules.map((m) => ({ module: m.module, completedAt: m.completedAt, txHash: txFor(m.module) })),
+      modules: readiness.modules.map((m) => ({ module: m.module, completedAt: m.completedAt, txHash: txFor(m.module), onContract: contractModules ? contractModules.includes(m.module) : null })),
+      contract: CREDENTIAL_CONTRACT || null,
       attestor: ATTESTOR_PUBLIC || null,
       network: "testnet",
       backend: process.env.REGISTRY_BACKEND ?? "supabase",

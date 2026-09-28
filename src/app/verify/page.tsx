@@ -8,12 +8,13 @@ import { AppNav } from "@/components/AppNav";
 import { AppFooter } from "@/components/AppFooter";
 import { Skeleton } from "@/components/Skeleton";
 import { TrackMeta } from "@/missions/schema";
-import { isStellarAddress, midTruncate, STELLAR_EXPERT_ACCOUNT, STELLAR_EXPERT_TX } from "@/lib/ownership";
+import { isStellarAddress, midTruncate, STELLAR_EXPERT_ACCOUNT, STELLAR_EXPERT_CONTRACT, STELLAR_EXPERT_TX } from "@/lib/ownership";
 
 interface VerifyResult {
   address: string;
   certified: boolean;
-  modules: { module: string; completedAt: string; txHash?: string | null }[];
+  modules: { module: string; completedAt: string; txHash?: string | null; onContract?: boolean | null }[];
+  contract?: string | null;
   backend: string;
 }
 
@@ -218,12 +219,30 @@ function VerifyContent() {
                               >
                                 on-chain · tx {midTruncate(m.txHash, 6, 4)} <ExternalLink className="h-3 w-3" aria-hidden />
                               </a>
-                            ) : (
+                            ) : null}
+                            {m.onContract && (
+                              <span className="ml-4 inline-flex items-center gap-1 px-2 font-mono text-xs text-success">
+                                <CheckCircle className="h-3 w-3" aria-hidden /> en contrato Soroban
+                              </span>
+                            )}
+                            {!m.txHash && !m.onContract && (
                               <p className="ml-6 mt-0.5 text-xs text-cream-dim">Registro on-chain pendiente</p>
                             )}
                           </li>
                         ))}
                       </ul>
+                      {result.contract && (
+                        <a
+                          href={`${STELLAR_EXPERT_CONTRACT}/${result.contract}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-3 flex items-center gap-2 border-t border-line pt-3 text-xs text-cream-muted hover:text-cream"
+                        >
+                          <span className="shrink-0">Contrato de credenciales:</span>
+                          <span className="truncate font-mono text-gold">{midTruncate(result.contract, 6, 4)}</span>
+                          <ExternalLink className="h-3 w-3 shrink-0" aria-hidden />
+                        </a>
+                      )}
                     </div>
                   )}
 

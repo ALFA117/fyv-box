@@ -8,6 +8,7 @@ Simulador gratuito de estafas crypto en español. Las personas enfrentan escenar
 
 | Qué | Dónde abrirlo |
 |---|---|
+| **Contrato Soroban de credenciales** | [CAR2YJ6G…T2KLX](https://stellar.expert/explorer/testnet/contract/CAR2YJ6GINTM6ZE4GJQFGAIGEH7JHCCSUUJDJPTLMTIWYVQOHFUT2KLX) — `issue` (solo la cuenta emisora), `is_certified`, `issued_at`, `modules`; evento `issued` por credencial. Código: `soroban/contracts/credential-registry` |
 | Cuenta emisora de credenciales (testnet) | [GBQZNP6Y…7HPNI](https://stellar.expert/explorer/testnet/account/GBQZNP6YEBBOZ332OES6G4GTGEKBLT2BUCRINNXNIDZEPH4NNZN7HPNI) — cada transacción con memo `FYV cert <módulo>` es una credencial |
 | Una credencial on-chain de ejemplo (módulo phishing) | [tx a50a7632…](https://stellar.expert/explorer/testnet/tx/a50a76325c7714a45bf35a7e09e8f12518cff17af57bf3cfd0a61c9d7104eff3) |
 | Verificador público | [/verify](https://fyv-box.vercel.app/verify?address=GAMIQH3NJTXDD2HAAQOG6VX65ICTLCDQMRSNPX4AWGH6X64YZYBQYNCK) y `GET /api/verify?address=G…` (devuelve el `txHash` de cada módulo) |
@@ -332,3 +333,11 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 - `tests/ownership.test.ts`: firma SEP-53 de cada respuesta de principio a fin; falla si cambian la opción o si firma otra cuenta.
 - `tests/helpBot.test.ts`: el analizador marca riesgo alto en 5 estafas reales y ninguna alarma en mensajes normales; dominios que imitan marcas, acortadores y punycode; temas del asistente con errores de dedo.
 - Las pruebas encontraron un error real: la regla de urgencia no reconocía "antes de 2 horas" por una expresión mal escapada. Corregido.
+
+### Contrato Soroban de credenciales (2026-09-28)
+
+- `soroban/contracts/credential-registry` (Rust, soroban-sdk 26), desplegado en testnet: **`CAR2YJ6GINTM6ZE4GJQFGAIGEH7JHCCSUUJDJPTLMTIWYVQOHFUT2KLX`**, inicializado con la cuenta emisora de FYV Box como admin.
+- `issue(holder, module)` requiere la firma del admin, valida que el módulo sea uno de los 6, es idempotente (no duplica ni cambia la fecha) y publica el evento `issued`. Lectura pública: `is_certified`, `issued_at`, `modules`. TTL extendido al escribir para que las credenciales no expiren.
+- 6 pruebas en Rust (`cargo test`): emitir y leer, idempotencia, módulos por dirección, módulo desconocido (error #3), no se puede inicializar dos veces, solo el admin emite. Corren en CI junto con Vitest.
+- La app registra cada módulo aprobado en el contrato además de la transacción con memo (en serie, después de responder). `/api/verify` devuelve `contract` y `onContract` por módulo leyendo el contrato por simulación; `/verify` y las credenciales enlazan al contrato en Stellar Expert. Las 6 credenciales existentes se registraron en el contrato.
+- Desplegar de nuevo: `cd soroban && stellar contract build && stellar contract deploy --wasm target/wasm32v1-none/release/credential_registry.wasm --source-account <emisora> --network testnet`, luego `init --admin <emisora>` y `NEXT_PUBLIC_FYV_CREDENTIAL_CONTRACT`.
