@@ -3,12 +3,24 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, MessageCircle, Send, X } from "lucide-react";
-import { FALLBACK, GREETING_CHIPS, matchTopic, topicById, type BotLink } from "@/lib/helpBot";
+import { AlertTriangle, ArrowUpRight, MessageCircle, Send, ShieldAlert, ShieldCheck, X } from "lucide-react";
+import {
+  ANALYZE_PROMPT, FALLBACK, analyzeMessage, chipsForPath, looksLikeMessage, matchTopic, topicById,
+  type Analysis, type BotLink,
+} from "@/lib/helpBot";
 
-type Msg = { id: number; from: "bot" | "user"; text: string; links?: BotLink[] };
+type Msg = { id: number; from: "bot" | "user"; text: string; links?: BotLink[]; analysis?: Analysis };
 
-const GREETING = "¡Hola! Soy la pantera de FYV Box. Te ayudo con dudas de la app y con estafas crypto. ¿Qué quieres saber?";
+const GREETING =
+  "¡Hola! Soy la pantera de FYV Box. Te ayudo con dudas de la app y, si te llegó un mensaje o link raro, pégalo aquí y te digo qué señales de estafa tiene.";
+const NUDGE_KEY = "fyv_helpbot_nudged";
+const ANALYSIS_CHIPS = ["analizar", "sospechoso", "frase"];
+
+const LEVEL_STYLE = {
+  alto:  { box: "border-danger-border bg-danger-subtle", text: "text-danger", label: "Riesgo alto", Icon: ShieldAlert },
+  medio: { box: "border-amber-border bg-amber-subtle", text: "text-amber", label: "Precaución", Icon: AlertTriangle },
+  bajo:  { box: "border-success-border bg-success-subtle", text: "text-success", label: "Sin señales claras", Icon: ShieldCheck },
+} as const;
 
 function Avatar() {
   return (
@@ -17,15 +29,57 @@ function Avatar() {
   );
 }
 
-/** Asistente de ayuda con respuestas predeterminadas. Oculto dentro de las misiones para no ayudar a contestar. */
+function AnalysisCard({ a }: { a: Analysis }) {
+  const st = LEVEL_STYLE[a.level];
+  return (
+    <div className="space-y-2">
+      <p className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs font-bold ${st.box} ${st.text}`}>
+        <st.Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        {st.label} · {a.flags.length} {a.flags.length === 1 ? "señal" : "señales"}
+      </p>
+      <p>{a.summary}</p>
+      {a.flags.length > 0 && (
+        <ul className="space-y-1.5">
+          {a.flags.map((f) => (
+            <li key={f.id} className="rounded-lg border border-line bg-surface/60 px-2.5 py-2">
+              <span className="block break-words text-xs font-semibold text-cream">{f.label}</span>
+              <span className="block text-xs text-cream-muted">{f.detail}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="text-xs text-cream-dim">Revisión automática con reglas, en tu navegador. No reemplaza tu criterio.</p>
+    </div>
+  );
+}
+
+function LinkChip({ l, onNavigate }: { l: BotLink; onNavigate: () => void }) {
+  const cls = "inline-flex min-h-[36px] items-center gap-1 rounded-lg border border-line-gold px-2.5 text-xs font-semibold text-gold hover:bg-gold-subtle";
+  return l.href.startsWith("http") ? (
+    <a href={l.href} target="_blank" rel="noopener noreferrer" className={cls}>
+      {l.label} <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+    </a>
+  ) : (
+    <Link href={l.href} onClick={onNavigate} className={cls}>
+      {l.label} <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+    </Link>
+  );
+}
+
+/**
+ * Asistente de ayuda con respuestas predeterminadas y un analizador de mensajes por reglas (sin IA).
+ * Oculto dentro de las misiones para no ayudar a contestar.
+ */
 export function HelpBot() {
   const pathname = usePathname();
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([{ id: 0, from: "bot", text: GREETING }]);
-  const [chips, setChips] = useState<string[]>(GREETING_CHIPS);
+  const [chips, setChips] = useState<string[]>(() => chipsForPath(pathname));
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const [analyzeNext, setAnalyzeNext] = useState(false);
+  const [nudge, setNudge] = useState(false);
   const nextId = useRef(1);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,31 +101,79 @@ export function HelpBot() {
 
   useEffect(() => { if (hidden) setOpen(false); }, [hidden]);
 
+  // Sugerencias según la pantalla, mientras la conversación siga en el saludo.
+  useEffect(() => {
+    if (msgs.length === 1) setChips(chipsForPath(pathname));
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Aviso único la primera vez: "¿Dudas? Pregúntame".
+  useEffect(() => {
+    let seen = true;
+    try { seen = localStorage.getItem(NUDGE_KEY) === "1"; } catch { /* sin storage: no molestar */ }
+    if (seen) return;
+    const t = setTimeout(() => setNudge(true), 5000);
+    return () => clearTimeout(t);
+  }, []);
+
+  function dismissNudge() {
+    setNudge(false);
+    try { localStorage.setItem(NUDGE_KEY, "1"); } catch { /* ignore */ }
+  }
+
   function close() {
     setOpen(false);
     setTimeout(() => buttonRef.current?.focus(), 0);
   }
 
-  function reply(question: string, topicId?: string) {
-    const topic = topicId ? topicById(topicId) : matchTopic(question);
-    setMsgs((m) => [...m, { id: nextId.current++, from: "user", text: question }]);
+  function botSay(msg: Omit<Msg, "id" | "from">, nextChips: string[]) {
     setTyping(true);
     setChips([]);
     setTimeout(() => {
       setTyping(false);
-      if (topic) {
-        setMsgs((m) => [...m, { id: nextId.current++, from: "bot", text: topic.answer, links: topic.links }]);
-        setChips(topic.next ?? GREETING_CHIPS);
-      } else {
-        setMsgs((m) => [...m, { id: nextId.current++, from: "bot", text: FALLBACK }]);
-        setChips(GREETING_CHIPS);
-      }
+      setMsgs((m) => [...m, { id: nextId.current++, from: "bot", ...msg }]);
+      setChips(nextChips);
     }, reduce ? 0 : 450);
+  }
+
+  function sayAnalysis(text: string) {
+    const a = analyzeMessage(text);
+    botSay({ text: "", analysis: a, links: a.practice ? [a.practice] : undefined }, ANALYSIS_CHIPS);
+  }
+
+  function reply(question: string, topicId?: string) {
+    setMsgs((m) => [...m, { id: nextId.current++, from: "user", text: question }]);
+
+    const pasted = !topicId && looksLikeMessage(question);
+    if (topicId === "analizar" || (!topicId && !pasted && matchTopic(question)?.id === "analizar")) {
+      setAnalyzeNext(true);
+      botSay({ text: ANALYZE_PROMPT }, []);
+      return;
+    }
+
+    // Mensaje pegado (o modo análisis activo): se revisa con reglas, en el navegador.
+    if (!topicId && (analyzeNext || pasted)) {
+      setAnalyzeNext(false);
+      sayAnalysis(question);
+      return;
+    }
+
+    const topic = topicId ? topicById(topicId) : matchTopic(question);
+    if (topic) {
+      botSay({ text: topic.answer, links: topic.links }, topic.next ?? chipsForPath(pathname));
+      return;
+    }
+
+    // Sin tema, pero con alguna señal de estafa: mejor analizarlo que responder "no entendí".
+    if (analyzeMessage(question).flags.length > 0) {
+      sayAnalysis(question);
+      return;
+    }
+    botSay({ text: FALLBACK }, chipsForPath(pathname));
   }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    const q = input.trim().slice(0, 300);
+    const q = input.trim().slice(0, 1500);
     if (!q || typing) return;
     setInput("");
     reply(q);
@@ -93,7 +195,7 @@ export function HelpBot() {
             exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: 10, transition: { duration: 0.14 } }}
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
             style={{ transformOrigin: "bottom right", bottom: "calc(var(--safe-bottom) + 84px)" }}
-            className="fixed right-4 z-[60] flex max-h-[min(560px,calc(100dvh-120px))] w-[calc(100vw-32px)] max-w-sm flex-col overflow-hidden rounded-2xl border border-line-strong bg-surface shadow-[var(--shadow-md)]"
+            className="fixed right-4 z-[60] flex max-h-[min(600px,calc(100dvh-120px))] w-[calc(100vw-32px)] max-w-sm flex-col overflow-hidden rounded-2xl border border-line-strong bg-surface shadow-[var(--shadow-md)]"
           >
             <header className="flex items-center gap-3 border-b border-line bg-navy/60 px-4 py-3">
               <Avatar />
@@ -117,24 +219,15 @@ export function HelpBot() {
                 >
                   {m.from === "bot" && <Avatar />}
                   <div
-                    className={`max-w-[82%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                       m.from === "user" ? "rounded-br-md bg-gold text-on-gold" : "rounded-bl-md border border-line bg-navy text-cream"
                     }`}
                   >
-                    <p>{m.text}</p>
+                    {m.text && <p className="line-clamp-[12] whitespace-pre-line break-words">{m.text}</p>}
+                    {m.analysis && <AnalysisCard a={m.analysis} />}
                     {m.links && m.links.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {m.links.map((l) =>
-                          l.href.startsWith("http") ? (
-                            <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[36px] items-center gap-1 rounded-lg border border-line-gold px-2.5 text-xs font-semibold text-gold hover:bg-gold-subtle">
-                              {l.label} <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-                            </a>
-                          ) : (
-                            <Link key={l.href} href={l.href} onClick={close} className="inline-flex min-h-[36px] items-center gap-1 rounded-lg border border-line-gold px-2.5 text-xs font-semibold text-gold hover:bg-gold-subtle">
-                              {l.label} <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-                            </Link>
-                          ),
-                        )}
+                        {m.links.map((l) => <LinkChip key={l.href} l={l} onNavigate={close} />)}
                       </div>
                     )}
                   </div>
@@ -162,7 +255,11 @@ export function HelpBot() {
                       key={id}
                       type="button"
                       onClick={() => reply(t.chip, t.id)}
-                      className="min-h-[40px] shrink-0 whitespace-nowrap rounded-full border border-line-strong bg-navy px-3 text-xs font-medium text-cream transition-colors hover:border-line-gold hover:text-gold"
+                      className={`min-h-[40px] shrink-0 whitespace-nowrap rounded-full border px-3 text-xs font-medium transition-colors ${
+                        id === "analizar"
+                          ? "border-line-gold bg-gold-subtle text-gold hover:border-gold-ring"
+                          : "border-line-strong bg-navy text-cream hover:border-line-gold hover:text-gold"
+                      }`}
                     >
                       {t.chip}
                     </button>
@@ -172,19 +269,19 @@ export function HelpBot() {
             )}
 
             <form onSubmit={submit} className="flex items-center gap-2 border-t border-line px-3 py-2.5">
-              <label htmlFor="helpbot-input" className="sr-only">Escribe tu pregunta</label>
+              <label htmlFor="helpbot-input" className="sr-only">Escribe tu pregunta o pega un mensaje</label>
               <input
                 ref={inputRef}
                 id="helpbot-input"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                maxLength={300}
+                maxLength={1500}
                 autoComplete="off"
                 enterKeyHint="send"
-                placeholder="Escribe tu duda…"
+                placeholder={analyzeNext ? "Pega aquí el mensaje sospechoso…" : "Escribe tu duda o pega un mensaje…"}
                 className="h-11 min-w-0 flex-1 rounded-xl border border-line bg-navy px-3 text-base text-cream placeholder:text-cream-dim focus:border-gold-ring focus:outline-none"
               />
-              <button type="submit" aria-label="Enviar pregunta" disabled={!input.trim() || typing} className="tap flex items-center justify-center rounded-xl bg-gold text-on-gold disabled:opacity-45">
+              <button type="submit" aria-label="Enviar" disabled={!input.trim() || typing} className="tap flex items-center justify-center rounded-xl bg-gold text-on-gold disabled:opacity-45">
                 <Send className="h-4 w-4" aria-hidden />
               </button>
             </form>
@@ -192,10 +289,31 @@ export function HelpBot() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {nudge && !open && (
+          <motion.div
+            key="nudge"
+            initial={reduce ? false : { opacity: 0, x: 12, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 8, transition: { duration: 0.12 } }}
+            transition={{ type: "spring", stiffness: 300, damping: 24 }}
+            style={{ bottom: "calc(var(--safe-bottom) + 22px)" }}
+            className="fixed right-[84px] z-[60] flex max-w-[230px] items-center gap-1 rounded-2xl rounded-br-md border border-line-gold bg-surface py-1.5 pl-3 pr-1 text-sm text-cream shadow-[var(--shadow-md)]"
+          >
+            <button type="button" onClick={() => { dismissNudge(); setOpen(true); }} className="py-1 text-left">
+              ¿Dudas o un mensaje raro? <span className="font-semibold text-gold">Pregúntame</span>
+            </button>
+            <button type="button" onClick={dismissNudge} aria-label="Cerrar aviso" className="tap flex shrink-0 items-center justify-center rounded-lg text-cream-muted hover:text-cream">
+              <X className="h-4 w-4" aria-hidden />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.button
         ref={buttonRef}
         type="button"
-        onClick={() => (open ? close() : setOpen(true))}
+        onClick={() => { dismissNudge(); if (open) close(); else setOpen(true); }}
         aria-label={open ? "Cerrar asistente de ayuda" : "Abrir asistente de ayuda"}
         aria-expanded={open}
         whileHover={reduce ? undefined : { scale: 1.05 }}

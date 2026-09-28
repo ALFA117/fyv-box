@@ -308,3 +308,11 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 
 - `src/components/HelpBot.tsx` + `src/lib/helpBot.ts`: botón flotante con la pantera que abre un chat de **respuestas predeterminadas (no es IA)**. 17 temas (qué es, cómo empezar, login con correo, invitado, dinero real, credencial on-chain, verificar, Stellar, drop de $PUMA, mensajes sospechosos, frase semilla, firmas, preventas, progreso, estadísticas, privacidad, código). Entiende preguntas libres por palabras clave (sin acentos ni mayúsculas) y sugiere preguntas relacionadas; cada respuesta enlaza a la pantalla o misión útil.
 - No aparece dentro de las misiones para que no sirva de ayuda para contestar. Diálogo accesible (Esc cierra y regresa el foco al botón, aria-live), input de 16 px, 44 px de área táctil, animación con spring y sin movimiento con reduced-motion.
+
+### Asistente: analizador de mensajes (2026-09-28)
+
+- **Analizador de mensajes sospechosos (reglas, sin IA):** pegas un DM, correo o link y el asistente marca las señales: pide frase o llave, pide enviar dinero primero, pide conectar o firmar, urgencia, premio o airdrop, ganancias garantizadas, se hace pasar por soporte, te lleva a chat privado, y links peligrosos (acortadores, punycode, IP, dominios que imitan marcas como `lobstr-secure-login.com`). Da un nivel (riesgo alto, precaución o sin señales claras) y enlaza a la misión para practicar ese tipo de estafa. Todo corre en el navegador; el mensaje no se guarda ni se envía. Probado: 4 estafas reales en riesgo alto y 2 mensajes legítimos sin señales.
+- **Detección automática:** si pegas algo largo, con un link o con varias señales, se analiza sin tener que pedirlo.
+- **Sugerencias según la pantalla** (mapa, credenciales, verificador, entrar, estadísticas).
+- **Tolera errores de dedo** ("fraze semiya" encuentra frase semilla) y responde saludos.
+- **Aviso único** la primera visita ("¿Dudas o un mensaje raro? Pregúntame"), guardado en localStorage con try/catch.
