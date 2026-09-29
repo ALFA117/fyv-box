@@ -4,7 +4,7 @@ Simulador gratuito de estafas crypto en español. Las personas enfrentan escenar
 
 **Live:** [fyv-box.vercel.app](https://fyv-box.vercel.app) · **Pitch:** `/pitch` · **Licencia:** MIT
 
-## Qué comprobar en Stellar (para jueces)
+## Qué comprobar en Stellar 
 
 | Qué | Dónde abrirlo |
 |---|---|
