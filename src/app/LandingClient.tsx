@@ -382,7 +382,9 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
             <ol className="relative grid gap-6 sm:grid-cols-3">
               <li aria-hidden className="pointer-events-none absolute bottom-10 left-7 top-10 w-px bg-line-gold sm:bottom-auto sm:left-[16%] sm:right-[16%] sm:top-7 sm:h-px sm:w-auto" />
               {[
-                { icon: Wallet, title: "Entra sin registrarte", desc: "Creamos una billetera de prueba real en Stellar testnet. Sin correo ni contraseña." },
+                pollarEnabled
+                  ? { icon: Wallet, title: "Entra sin contraseña", desc: "Con tu correo y un código de un solo uso, o como invitado. En ambos casos tienes una billetera de prueba real en Stellar testnet." }
+                  : { icon: Wallet, title: "Entra sin registrarte", desc: "Creamos una billetera de prueba real en Stellar testnet. Sin correo ni contraseña." },
                 { icon: FlaskConical, title: "Enfrenta la trampa", desc: "Un correo, un DM, un airdrop o una firma que imitan ataques reales. Tú decides qué hacer." },
                 { icon: GraduationCap, title: "Aprende y certifícate", desc: "Cada respuesta explica la trampa. Completa un módulo y gana su credencial verificable." },
               ].map(({ icon: Icon, title, desc }, i) => (
@@ -408,8 +410,8 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
               <Eyebrow>Comienza ahora</Eyebrow>
               <h2 id="start-title" className="text-title-1 text-cream">¿Listo para entrenar?</h2>
               <p className="mt-3 text-body-sm text-cream-muted">
-                Creamos una billetera de prueba en Stellar testnet para ti, la fondeamos con Friendbot y tu progreso
-                queda ligado a su dirección.
+                Tienes una billetera de prueba en Stellar testnet, fondeada con Friendbot, y cada credencial que ganes
+                queda ligada a su dirección.
               </p>
             </Reveal>
             <Reveal>
@@ -626,7 +628,6 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
                 { href: "#about", label: "Quiénes somos" },
                 { href: "#faucets", label: "Faucets" },
                 { href: "/verify", label: "Verificar" },
-                { href: "/stats", label: "Estadísticas" },
               ].map(({ href, label }) => (
                 <a key={label} href={href} className="flex min-h-[44px] items-center rounded-xl px-3 text-sm text-cream-muted transition-colors hover:text-gold">
                   {label}

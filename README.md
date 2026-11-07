@@ -26,9 +26,15 @@ cp .env.example .env.local   # o crea .env.local con las variables de abajo
 npm run dev                   # http://localhost:3000
 ```
 
-Sin `SUPABASE_SERVICE_ROLE_KEY` la app carga y se puede recorrer, pero no guarda respuestas. Sin `NEXT_PUBLIC_POLLAR_API_KEY` solo existe el modo invitado. Sin `FYV_ATTESTOR_SECRET` las credenciales se guardan pero no se emiten on-chain. Esquema de base: `supabase/migrations/`.
+Sin `SUPABASE_SERVICE_ROLE_KEY` (o sin base de datos) la app funciona en el modo sin base de datos de abajo. Sin `NEXT_PUBLIC_POLLAR_API_KEY` solo existe el modo invitado. Sin `FYV_ATTESTOR_SECRET` las credenciales se guardan pero no se emiten on-chain. Esquema de base: `supabase/migrations/`.
 
-**Modo sin base de datos.** Si Supabase no responde (proyecto pausado, red caída), la app no se rompe: `/api/missions/complete` sigue evaluando y, al acertar, devuelve un recibo HMAC ligado a la dirección y la misión (`src/lib/receipts.ts`, llave derivada de `FYV_ATTESTOR_SECRET`). El navegador guarda los recibos (`src/lib/localProgress.ts`) y los reenvía; al completar un módulo con recibos válidos, la credencial se emite on-chain igual (transacción de la cuenta emisora + contrato Soroban), revisando antes en Horizon que no exista. `/api/verify` y `/graduation` leen entonces las credenciales de la cadena. Solo las estadísticas quedan sin datos.
+**Modo sin base de datos.** Si Supabase no responde (proyecto pausado, red caída), la app no se rompe: `/api/missions/complete` sigue evaluando y, al acertar, devuelve un recibo HMAC ligado a la dirección y la misión (`src/lib/receipts.ts`, llave derivada de `FYV_ATTESTOR_SECRET`). El navegador guarda los recibos (`src/lib/localProgress.ts`) y los reenvía; al completar un módulo con recibos válidos, la credencial se emite on-chain igual (transacción de la cuenta emisora + contrato Soroban), revisando antes en Horizon que no exista. `/api/verify` y `/graduation` leen entonces las credenciales de la cadena.
+
+Lo que se pierde sin base: el avance de cada misión vive solo en el navegador donde se respondió (con correo o como invitado; las credenciales on-chain sí siguen a la dirección en cualquier dispositivo), `/stats` muestra "Estadísticas en pausa" y no hay registro de consultas a `/api/verify`.
+
+Para que eso no vuelva lenta la app, `src/lib/supabase.ts` (solo servidor) desactiva los reintentos de postgrest-js (`db.retry: false`), corta cada consulta a los 5 s y, tras un error de red, da la base por caída 60 s: las consultas siguientes fallan al instante sin salir a la red. El navegador ya no habla con Supabase: el mapa lee el avance del servidor con `GET /api/progress?address=G…` y `/graduation` usa solo `/api/verify`, que consulta registro, Horizon y Soroban en paralelo (máx. 8 s cada uno) y suma las tres fuentes.
+
+La emisión on-chain corre después de responder (`after()`, `src/lib/issuance.ts`): un candado por dirección·módulo evita dos emisiones simultáneas en la misma instancia, cada transacción se reintenta una vez y, si la de memo falla, se libera el candado para que la siguiente respuesta correcta lo intente otra vez. Si Horizon no responde al revisar duplicados, no se emite y la misión pide volver a responder más tarde. `/api/missions/complete` limita por IP (120 respuestas / 10 min, 30 emisiones / hora; en memoria, por instancia). Si la cuenta del usuario no existe, se fondea con Friendbot antes de mandar la transacción (solo si Friendbot falla se usa `createAccount` con 1 XLM de testnet).
 
 ## Uso de IA y código reutilizado
 
@@ -289,11 +295,11 @@ Cada semántico tiene `-subtle` (fondo) y `-border`. Estado deshabilitado: `opac
 
 ### Verificación por correo con Pollar (2026-09-27)
 
-- **Qué hace:** `/entrar` es un flujo de 3 pasos (Correo → Código → Listo). Pollar envía un código de un solo uso, al verificarlo crea una billetera Stellar **custodiada en testnet** ligada a ese correo, y el progreso se recupera desde cualquier dispositivo. Sin contraseñas.
+- **Qué hace:** `/entrar` es un flujo de 3 pasos (Correo → Código → Listo). Pollar envía un código de un solo uso, al verificarlo crea una billetera Stellar **custodiada en testnet** ligada a ese correo: la dirección (y sus credenciales on-chain) se recupera desde cualquier dispositivo. El avance por misión se recupera entre dispositivos solo mientras la base de datos responda. Sin contraseñas.
 - **Firmas:** cada respuesta se sigue firmando con SEP-53; con Pollar la firma la hace su servidor (`client.stellar.sep53.signMessage`) con el mismo esquema, así que `/api/missions/complete` la verifica igual que la de la billetera de prueba. No cambió nada del backend.
 - **Pantalla:** indicador de pasos, código en 6 casillas con `autocomplete="one-time-code"` (el teléfono lo sugiere desde el correo) y envío automático al escribir el último dígito, reenvío con cuenta regresiva de 30 s, "Cambiar correo", errores en español (código incorrecto, expirado, sin conexión), y pantalla final con el correo y la dirección enlazada a Stellar Expert. `?next=` solo acepta rutas internas.
 - **Modo invitado:** "Prefiero entrar sin correo" usa la billetera de prueba local de siempre. Sin `NEXT_PUBLIC_POLLAR_API_KEY` el sitio funciona exactamente como antes y `/entrar` ofrece solo el modo invitado.
-- **Sesión:** mapa, misiones y credenciales mandan a `/entrar?next=…` si el modo es correo y no hay sesión. En el nav aparece la etiqueta "correo" y un botón real de **Cerrar sesión** (también en móvil).
+- **Sesión:** mapa y credenciales mandan a `/entrar?next=…` si el modo es correo y no hay sesión. Una misión se puede leer sin sesión (para compartir el enlace); el login se pide al confirmar la respuesta y, al volver, la opción elegida sigue marcada. En el nav aparece la etiqueta "correo" y un botón real de **Cerrar sesión** (también en móvil).
 - **Activarlo:** en [dashboard.pollar.xyz](https://dashboard.pollar.xyz) → Build → API Keys → Generate → tipo *publishable*, red *testnet* (`pub_testnet_…`, segura en el navegador; límite de 1,000 peticiones/día). Si el dashboard pide dominios permitidos, agregar `https://fyv-box.vercel.app` y `http://localhost:3000`. Luego `NEXT_PUBLIC_POLLAR_API_KEY` en Vercel (Production) y redeploy. **Nunca** usar la llave secreta `sec_…` en el frontend.
 
 ### Misión "El Drop de $PUMA" (2026-09-27)

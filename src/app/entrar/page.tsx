@@ -285,7 +285,7 @@ function EntrarContent() {
             <p className="mb-2 text-eyebrow text-gold">Tu cuenta de entrenamiento</p>
             <h1 className="text-title-1 text-cream">Entra con tu correo</h1>
             <p className="mt-2 text-body-sm text-cream-muted">
-              Te enviamos un código de un solo uso. Sin contraseñas: tu progreso queda ligado a tu correo y lo recuperas desde cualquier dispositivo.
+              Te enviamos un código de un solo uso. Sin contraseñas: tu billetera de prueba queda ligada a tu correo, así que tus credenciales on-chain te siguen a cualquier dispositivo.
             </p>
           </header>
 
@@ -475,7 +475,7 @@ function EntrarContent() {
                 <UserRound className="h-4 w-4" aria-hidden />
                 {guestBusy ? "Creando billetera de prueba…" : "Prefiero entrar sin correo"}
               </button>
-              <p className="mt-1 text-xs text-cream-dim">Sin correo tu progreso vive solo en este navegador.</p>
+              <p className="mt-1 text-xs text-cream-dim">Sin correo, tu billetera y tu progreso viven solo en este navegador.</p>
               {guestError && <p role="alert" className="mt-2 text-sm text-danger">{guestError}</p>}
             </div>
           )}

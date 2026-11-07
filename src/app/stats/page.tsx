@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { TrendingUp, Users, AlertTriangle, BarChart3, Flame, WifiOff, Info } from "lucide-react";
+import { TrendingUp, Users, AlertTriangle, BarChart3, Flame, WifiOff, Info, CirclePause } from "lucide-react";
 import Link from "next/link";
 import { TrackMeta, type Mission } from "@/missions/schema";
 import { TrackIconBadge } from "@/components/TrackIcon";
@@ -30,7 +30,11 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 280, damping: 26 } },
 };
 
-type LoadState = { kind: "loading" } | { kind: "ready"; data: StatsResponse } | { kind: "error"; message: string };
+type LoadState =
+  | { kind: "loading" }
+  | { kind: "ready"; data: StatsResponse }
+  | { kind: "error"; message: string }
+  | { kind: "paused"; message: string };
 
 export default function StatsPage() {
   const reduce = useReducedMotion();
@@ -44,6 +48,10 @@ export default function StatsPage() {
     fetch("/api/stats", { signal: ctrl.signal })
       .then(async (r) => {
         const d = await r.json().catch(() => null);
+        if (r.status === 503 && d?.unavailable) {
+          setState({ kind: "paused", message: d.error });
+          return;
+        }
         if (!r.ok || !d || !Array.isArray(d.stats)) throw new Error(d?.error ?? "No pudimos cargar las estadísticas.");
         setState({ kind: "ready", data: d as StatsResponse });
       })
@@ -87,6 +95,17 @@ export default function StatsPage() {
               </div>
               {[0, 1, 2].map((i) => <Skeleton key={i} className="h-24" rounded="lg" />)}
             </div>
+          ) : state.kind === "paused" ? (
+            <StatePanel
+              icon={CirclePause}
+              title="Estadísticas en pausa"
+              body={state.message}
+              action={
+                <Link href="/dashboard" className="flex min-h-[48px] items-center rounded-xl bg-gold px-5 text-sm font-semibold text-on-gold hover:bg-gold-hover">
+                  Practicar una misión
+                </Link>
+              }
+            />
           ) : state.kind === "error" ? (
             <StatePanel
               tone="danger"

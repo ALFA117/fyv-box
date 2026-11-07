@@ -177,28 +177,25 @@ function buildHtml() {
     `<section class="slide center" aria-label="Hackathon">
       <div class="wrap narrow">
         <p class="eyebrow a1">CriptoUNAM × Semana DIE 2026</p>
-        <h2 class="title a2">Postulando a <em>3 retos</em></h2>
+        <h2 class="title a2">Presentado a <em>3 retos</em></h2>
         <ul class="prizes a3">
           <li class="prize main">
             <span class="prize-ic">${icon("code", 22)}</span>
             <span><strong>Blockchain → Stellar · BAF</strong><span class="muted">Cuentas reales en testnet, firmas SEP-53 y credencial emitida on-chain por módulo.</span></span>
-            <span class="amount">1.º $150</span>
           </li>
           <li class="prize">
             <span class="prize-ic">${icon("wallet", 22)}</span>
-            <span><strong>Blockchain → Pollar</strong><span class="muted">Login con correo, billetera custodiada y firma SEP-53 de cada respuesta con Pollar.</span></span>
-            <span class="amount sm">1.º $125</span>
+            <span><strong>Blockchain → Pollar</strong><span class="muted">Login con correo, billetera de testnet gestionada por Pollar y firma SEP-53 de cada respuesta.</span></span>
           </li>
           <li class="prize">
             <span class="prize-ic">${icon("book", 22)}</span>
             <span><strong>Contenido → Tangem</strong><span class="muted">Educación en español para la comunidad UNAM y LATAM.</span></span>
-            <span class="amount sm">1.º $50</span>
           </li>
         </ul>
         <dl class="totals a4">
           <div><dt>credenciales on-chain</dt><dd class="gold">testnet</dd></div>
           <div><dt>open source</dt><dd>100%</dd></div>
-          <div><dt>fondos custodiados</dt><dd class="ok">0</dd></div>
+          <div><dt>dinero real custodiado</dt><dd class="ok">0</dd></div>
         </dl>
       </div>
     </section>`,
@@ -208,7 +205,7 @@ function buildHtml() {
       <div class="wrap narrow">
         <p class="eyebrow a1">Pruébalo ahora</p>
         <p class="url a2">${host}</p>
-        <p class="muted mono a3">Demo en vivo · Stellar testnet · github.com/ALFA117/fyv-box</p>
+        <p class="muted mono a3">Demo pública · Stellar testnet · github.com/ALFA117/fyv-box</p>
         <div class="ctas a4">
           <a class="btn primary" href="${url}" target="_blank" rel="noopener noreferrer">Abrir demo ${icon("external", 18)}</a>
           <a class="btn ghost" href="https://github.com/ALFA117/fyv-box" target="_blank" rel="noopener noreferrer">Ver código ${icon("code", 18)}</a>
@@ -357,14 +354,11 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
 
 /* prizes */
 .prizes{display:grid;gap:12px;text-align:left}
-.prize{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;border:1px solid var(--line);background:rgba(17,40,77,.7);border-radius:16px;padding:16px}
+.prize{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;border:1px solid var(--line);background:rgba(17,40,77,.7);border-radius:16px;padding:16px}
 .prize.main{border-color:var(--line-gold);background:var(--gold-subtle)}
 .prize strong{display:block;font-weight:600;font-size:16px}
 .prize .muted{display:block;font-size:14px;line-height:1.5;margin-top:2px}
 .prize-ic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--gold);border:1px solid var(--line-gold)}
-.amount{font-family:var(--serif);font-weight:700;font-size:26px;color:var(--gold);white-space:nowrap}
-.amount.sm{font-size:18px}
-@media(max-width:520px){.prize{grid-template-columns:auto 1fr}.amount{grid-column:2;justify-self:start}}
 .totals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
 .totals div{border:1px solid var(--line);border-radius:14px;padding:14px 8px;display:flex;flex-direction:column-reverse;gap:4px}
 .totals dt{font-size:12px;color:var(--muted)}

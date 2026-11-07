@@ -57,7 +57,7 @@ export const BOT_TOPICS: BotTopic[] = [
     chip: "Login con correo",
     keywords: ["correo", "email", "mail", "codigo", "otp", "pollar", "no me llega", "verificar correo", "spam"],
     answer:
-      "El login con correo usa Pollar: te llega un código de un solo uso y se crea una billetera Stellar de testnet ligada a tu correo, así recuperas tu progreso desde cualquier dispositivo. Si no te llega el código, revisa spam o promociones y usa \"Reenviar código\" después de 30 segundos.",
+      "El login con correo usa Pollar: te llega un código de un solo uso y se crea una billetera Stellar de testnet ligada a tu correo, así tus credenciales on-chain te siguen a cualquier dispositivo. El avance de cada misión, por ahora, se guarda en el navegador donde respondes. Si no te llega el código, revisa spam o promociones y usa \"Reenviar código\" después de 30 segundos.",
     links: [{ label: "Ir a entrar", href: "/entrar" }],
     next: ["invitado", "privacidad"],
   },
@@ -66,7 +66,7 @@ export const BOT_TOPICS: BotTopic[] = [
     chip: "Entrar sin correo",
     keywords: ["sin correo", "invitado", "anonimo", "no quiero dar", "guest"],
     answer:
-      "Puedes entrenar como invitado: creamos una billetera de prueba en tu navegador y la fondeamos en testnet. Ojo: si borras los datos del navegador o cambias de dispositivo, pierdes ese progreso. Con correo no pasa.",
+      "Puedes entrenar como invitado: creamos una billetera de prueba en tu navegador y la fondeamos en testnet. Ojo: si borras los datos del navegador o cambias de dispositivo, pierdes esa billetera y su progreso. Con correo, tu billetera (y sus credenciales) se recupera al volver a entrar.",
     links: [{ label: "Elegir cómo entrar", href: "/entrar" }],
     next: ["correo", "dinero-real"],
   },
@@ -160,7 +160,7 @@ export const BOT_TOPICS: BotTopic[] = [
     chip: "Mi progreso",
     keywords: ["progreso", "xp", "nivel", "mapa", "misiones", "cuantas", "perdi mi progreso", "avance", "siguiente"],
     answer:
-      "Tu mapa de misiones muestra tu nivel, tu XP y la siguiente misión. Hay 22 misiones en 6 módulos; al completar todas las de un módulo recibes su credencial. Si entraste como invitado y cambiaste de navegador, tu progreso se quedó en el anterior.",
+      "Tu mapa de misiones muestra tu nivel, tu XP y la siguiente misión. Hay 22 misiones en 6 módulos; al completar todas las de un módulo recibes su credencial. Por ahora el avance de cada misión se guarda en el navegador donde respondes: si cambias de navegador, se queda en el anterior (tus credenciales on-chain no se pierden).",
     links: [{ label: "Abrir mi mapa", href: "/dashboard" }],
     next: ["credencial", "correo"],
   },
@@ -169,8 +169,7 @@ export const BOT_TOPICS: BotTopic[] = [
     chip: "Estadísticas",
     keywords: ["estadisticas", "stats", "datos", "cuanta gente", "porcentaje", "cae mas"],
     answer:
-      "Las estadísticas muestran qué estafas engañan más en el primer intento, con respuestas reales de la app. Todavía es una muestra pequeña, así que tómalas como ilustrativas.",
-    links: [{ label: "Ver estadísticas", href: "/stats" }],
+      "Las estadísticas muestran qué estafas engañan más en el primer intento. Salen de la base de datos de respuestas de la app, que ahora está en pausa, así que por el momento no hay números que mostrar.",
     next: ["que-es"],
   },
   {
@@ -178,7 +177,7 @@ export const BOT_TOPICS: BotTopic[] = [
     chip: "Privacidad",
     keywords: ["privacidad", "datos personales", "guardan", "mi correo", "seguro", "seguridad", "custodia"],
     answer:
-      "Guardamos tu dirección Stellar y tus respuestas para calcular tu progreso y las estadísticas. Tu correo lo maneja Pollar solo para enviarte el código; no lo publicamos ni lo ligamos a tu credencial pública. No custodiamos dinero real.",
+      "Tu avance se guarda con tu dirección Stellar de prueba (por ahora, en tu navegador). Cuando completas un módulo, la credencial es una transacción pública en testnet que solo muestra esa dirección. Tu correo lo maneja Pollar solo para enviarte el código; no lo publicamos ni lo ligamos a tu credencial. No custodiamos dinero real.",
     next: ["correo", "dinero-real"],
   },
   {

@@ -8,7 +8,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${url}/verify`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${url}/stats`, lastModified: now, changeFrequency: "daily", priority: 0.6 },
     ...loadCatalog()
       .filter((m) => !m.comingSoon)
       .map((m) => ({

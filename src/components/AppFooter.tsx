@@ -5,7 +5,6 @@ const LINKS = [
   { href: "/", label: "Inicio" },
   { href: "/dashboard", label: "Misiones" },
   { href: "/verify", label: "Verificar" },
-  { href: "/stats", label: "Estadísticas" },
 ];
 
 /** `clearFixedBar` reserves room for a fixed bottom action bar on phones. */
