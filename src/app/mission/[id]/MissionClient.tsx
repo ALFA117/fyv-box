@@ -21,12 +21,17 @@ interface MissionResult {
   explanation: string;
   xpEarned: number;
   newCertifications: string[];
+  /** Módulo completo cuya credencial no se pudo emitir ahora (Stellar testnet no respondió). */
+  certificationPending?: string | null;
   selectedOptionLabel: string;
   /** "browser": la base no respondió y el avance quedó solo en este navegador. */
   saved?: "server" | "browser";
 }
 
 /* ─── Page ───────────────────────────────────────────────────────────────── */
+
+/** Opción elegida antes de mandar a /entrar, para recuperarla al volver. */
+const PENDING_KEY = "fyv_pending_answer:";
 
 interface NextMission {
   id: string;
@@ -46,9 +51,17 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
   const resultRef = useRef<HTMLDivElement>(null);
 
   // Warm up the wallet (keypair + testnet funding) while the user reads the scenario.
+  // Sin sesión no se redirige aquí: el escenario se puede leer (y compartir) sin entrar;
+  // el login se pide al confirmar la respuesta.
   useEffect(() => {
-    getWallet().catch((err) => { sendToLoginIfNeeded(err, `/mission/${mission.id}`); });
-  }, [mission.id]);
+    getWallet().catch(() => {});
+    // Si volvió del login, recupera la opción que había elegido.
+    try {
+      const saved = sessionStorage.getItem(PENDING_KEY + mission.id);
+      if (saved && mission.options.some((o) => o.id === saved)) setSelected(saved);
+      sessionStorage.removeItem(PENDING_KEY + mission.id);
+    } catch { /* sin storage */ }
+  }, [mission.id, mission.options]);
 
   useEffect(() => {
     if (result) resultRef.current?.focus({ preventScroll: true });
@@ -66,6 +79,9 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
       try {
         wallet = await getWallet();
       } catch (err) {
+        if (err instanceof Error && err.name === "AuthRequiredError") {
+          try { sessionStorage.setItem(PENDING_KEY + mission.id, selected); } catch { /* sin storage */ }
+        }
         if (sendToLoginIfNeeded(err, `/mission/${mission.id}`)) return;
         throw new Error("No pudimos abrir tu billetera de prueba. Revisa que tu navegador permita guardar datos del sitio.");
       }
@@ -103,7 +119,7 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
           "success",
         );
       }
-      if (data.newCertifications?.length) toast("¡Nueva credencial emitida en Stellar testnet!", "success");
+      if (data.newCertifications?.length) toast("Módulo completo: tu credencial se está emitiendo en Stellar testnet", "success");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Algo salió mal. Intenta de nuevo.";
       setError(msg);
@@ -282,6 +298,13 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
                         </p>
                       )}
 
+                      {result.certificationPending && result.newCertifications.length === 0 && (
+                        <p role="status" className="rounded-xl border border-amber-border bg-amber-subtle px-4 py-3 text-sm leading-relaxed text-amber">
+                          Completaste el módulo {TrackMeta[result.certificationPending as keyof typeof TrackMeta]?.label ?? ""}, pero ahora no pudimos
+                          emitir tu credencial en Stellar testnet. Tu avance está guardado: vuelve a responder esta misión en unos minutos y la emitimos.
+                        </p>
+                      )}
+
                       {result.newCertifications.length > 0 && (
                         <motion.div
                           initial={reduce ? false : { opacity: 0, scale: 0.96 }}
@@ -291,11 +314,14 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
                         >
                           <Award className="h-8 w-8 text-gold" strokeWidth={1.5} aria-hidden />
                           <div>
-                            <p className="font-bold text-gold">¡Módulo certificado!</p>
+                            <p className="font-bold text-gold">¡Módulo completado!</p>
                             <p className="mt-0.5 text-sm text-cream-muted">
                               {result.newCertifications
                                 .map((m) => TrackMeta[m as keyof typeof TrackMeta]?.label ?? m)
                                 .join(", ")}
+                            </p>
+                            <p className="mt-2 text-xs leading-relaxed text-cream-muted">
+                              Tu credencial se está emitiendo en Stellar testnet. En unos segundos aparece, con el enlace a su transacción, en tus credenciales.
                             </p>
                           </div>
                           <Link href="/graduation" className="tap inline-flex items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-cream hover:text-gold">

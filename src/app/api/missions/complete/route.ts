@@ -3,9 +3,11 @@ import { z } from "zod";
 import { getMission, evaluateMission, getCertifiableModules } from "@/missions/engine";
 import { after } from "next/server";
 import { getRegistry } from "@/registry";
-import { attestModule, getAttestations, issueOnContract } from "@/lib/attest";
+import { getAttestations } from "@/lib/attest";
+import { claimIssuance, issueCredential } from "@/lib/issuance";
+import { clientIp, rateLimit } from "@/lib/rateLimit";
 import { signReceipt, validReceiptIds } from "@/lib/receipts";
-import { supabaseServer } from "@/lib/supabase";
+import { dbKnownDown, supabaseServer } from "@/lib/supabase";
 import { OWNERSHIP_MAX_AGE_MS, STELLAR_ADDRESS_RE, completionMessage } from "@/lib/ownership";
 
 const BodySchema = z.object({
@@ -34,7 +36,16 @@ async function verifyOwnership(p: z.infer<typeof BodySchema>): Promise<boolean> 
   }
 }
 
+// Una persona responde 22 misiones con algunos reintentos; esto solo frena scripts.
+const ANSWERS_PER_IP = { limit: 120, windowMs: 10 * 60_000 };
+const ISSUANCES_PER_IP = { limit: 30, windowMs: 60 * 60_000 };
+
 export async function POST(req: NextRequest) {
+  const ip = clientIp(req.headers);
+  if (!rateLimit(`answer:${ip}`, ANSWERS_PER_IP.limit, ANSWERS_PER_IP.windowMs)) {
+    return fail(429, "Demasiadas respuestas seguidas desde tu red. Espera unos minutos e intenta de nuevo.");
+  }
+
   let body: unknown;
   try {
     body = await req.json();
@@ -58,6 +69,8 @@ export async function POST(req: NextRequest) {
 
   const { stellarAddress, missionId, selectedOptionId, orgSlug } = input;
   const result = evaluateMission(mission, selectedOptionId);
+  // Si la base falló hace poco, ni se intenta: la respuesta se resuelve al instante sin ella.
+  if (dbKnownDown()) return completeWithoutDatabase(input, mission, result, selectedOption.label, ip);
   const db = supabaseServer();
 
   const { error: progressError } = await db.from("fyv_mission_progress").insert({
@@ -70,7 +83,7 @@ export async function POST(req: NextRequest) {
   });
   if (progressError) {
     console.error("[FYV] progress insert failed:", progressError.message);
-    return completeWithoutDatabase(input, mission, result, selectedOption.label);
+    return completeWithoutDatabase(input, mission, result, selectedOption.label, ip);
   }
 
   const newCertifications: string[] = [];
@@ -100,15 +113,7 @@ export async function POST(req: NextRequest) {
           await registry.recordCompletion({ stellarAddress, module, orgSlug });
           newCertifications.push(module);
           // On-chain proof after the response is sent; /api/verify reads it back from Horizon.
-          // En serie: ambas transacciones salen de la misma cuenta emisora (misma secuencia).
-          after(async () => {
-            await attestModule(stellarAddress, module).catch((err) =>
-              console.error("[FYV] on-chain attestation failed:", err instanceof Error ? err.message : err),
-            );
-            await issueOnContract(stellarAddress, module).catch((err) =>
-              console.error("[FYV] soroban issue failed:", err instanceof Error ? err.message : err),
-            );
-          });
+          if (claimIssuance(stellarAddress, module)) after(() => issueCredential(stellarAddress, module));
         }
       }
     } catch (err) {
@@ -129,13 +134,15 @@ export async function POST(req: NextRequest) {
 /**
  * Modo sin base de datos: la respuesta se evalúa igual, el avance vive en el navegador
  * (recibos firmados) y, al completar un módulo, la credencial se emite on-chain.
- * Para no duplicarla, primero se revisa en Horizon si la cuenta emisora ya la envió.
+ * Para no duplicarla, primero se revisa en Horizon si la cuenta emisora ya la envió;
+ * si Horizon no responde, no se emite (tampoco podría) y se avisa para reintentar.
  */
 async function completeWithoutDatabase(
   input: z.infer<typeof BodySchema>,
   mission: NonNullable<ReturnType<typeof getMission>>,
   result: ReturnType<typeof evaluateMission>,
   selectedOptionLabel: string,
+  ip: string,
 ) {
   const { stellarAddress } = input;
   const receipt = result.isCorrect ? signReceipt(stellarAddress, mission.id) : null;
@@ -143,31 +150,33 @@ async function completeWithoutDatabase(
   if (receipt) completedIds.add(mission.id);
 
   const newCertifications: string[] = [];
+  let certificationPending: string | null = null;
+  const module = mission.track;
   const certifiable = getCertifiableModules([...completedIds]);
-  if (result.isCorrect && certifiable.includes(mission.track)) {
-    let already: string[] = [];
+  if (result.isCorrect && certifiable.includes(module)) {
+    let already: string[] | null = null;
     try {
       already = (await getAttestations(stellarAddress)).map((a) => a.module);
     } catch (err) {
       console.error("[FYV] horizon read failed (offline mode):", err instanceof Error ? err.message : err);
     }
-    if (!already.includes(mission.track)) {
-      const module = mission.track;
-      newCertifications.push(module);
-      after(async () => {
-        await attestModule(stellarAddress, module).catch((err) =>
-          console.error("[FYV] on-chain attestation failed:", err instanceof Error ? err.message : err),
-        );
-        await issueOnContract(stellarAddress, module).catch((err) =>
-          console.error("[FYV] soroban issue failed:", err instanceof Error ? err.message : err),
-        );
-      });
+    if (already === null) {
+      certificationPending = module;
+    } else if (!already.includes(module)) {
+      if (!rateLimit(`issue:${ip}`, ISSUANCES_PER_IP.limit, ISSUANCES_PER_IP.windowMs)) {
+        certificationPending = module;
+      } else if (claimIssuance(stellarAddress, module)) {
+        newCertifications.push(module);
+        after(() => issueCredential(stellarAddress, module));
+      }
+      // Si ya había una emisión en curso para este módulo, esa misma la entrega.
     }
   }
 
   return NextResponse.json({
     ...result,
     newCertifications,
+    certificationPending,
     selectedOptionLabel,
     saved: "browser",
     receipt,

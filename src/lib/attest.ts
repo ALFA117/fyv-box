@@ -8,6 +8,17 @@
  */
 const HORIZON = "https://horizon-testnet.stellar.org";
 const MEMO_PREFIX = "FYV cert ";
+const FRIENDBOT = "https://friendbot.stellar.org";
+/** Lecturas a Horizon/Soroban: si tardan más, se reportan como caídas en vez de colgar la respuesta. */
+const READ_TIMEOUT_MS = 8000;
+
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  let t: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    t = setTimeout(() => reject(new Error(`${label}: sin respuesta en ${ms} ms`)), ms);
+  });
+  return Promise.race([p, timeout]).finally(() => clearTimeout(t));
+}
 
 export const ATTESTOR_PUBLIC = process.env.NEXT_PUBLIC_FYV_ATTESTOR ?? "";
 
@@ -23,7 +34,10 @@ function memoFor(module: string): string {
 }
 
 async function accountExists(address: string): Promise<boolean> {
-  const res = await fetch(`${HORIZON}/accounts/${encodeURIComponent(address)}`, { cache: "no-store" });
+  const res = await fetch(`${HORIZON}/accounts/${encodeURIComponent(address)}`, {
+    cache: "no-store",
+    signal: AbortSignal.timeout(READ_TIMEOUT_MS),
+  });
   if (res.ok) return true;
   if (res.status === 404) return false;
   throw new Error(`Horizon ${res.status}`);
@@ -40,7 +54,18 @@ export async function attestModule(stellarAddress: string, module: string): Prom
   const server = new Horizon.Server(HORIZON);
   const source = await server.loadAccount(signer.publicKey());
 
-  const op = (await accountExists(stellarAddress))
+  // Si la cuenta aún no existe, primero se intenta fondearla con Friendbot (gratis); solo si no
+  // responde, la cuenta emisora la crea con el mínimo (1 XLM de testnet).
+  let exists = await accountExists(stellarAddress);
+  if (!exists) {
+    try {
+      await fetch(`${FRIENDBOT}?addr=${encodeURIComponent(stellarAddress)}`, { signal: AbortSignal.timeout(15000) });
+      exists = await accountExists(stellarAddress);
+    } catch {
+      /* Friendbot caído: se usa createAccount */
+    }
+  }
+  const op = exists
     ? Operation.payment({ destination: stellarAddress, asset: Asset.native(), amount: "0.0000001" })
     : Operation.createAccount({ destination: stellarAddress, startingBalance: "1" });
 
@@ -106,8 +131,12 @@ export async function issueOnContract(stellarAddress: string, module: string): P
 /** Módulos (ids de la app) que el contrato tiene registrados para la dirección. Solo lectura (simulación). */
 export async function getContractModules(stellarAddress: string): Promise<string[]> {
   if (!CREDENTIAL_CONTRACT || !ATTESTOR_PUBLIC) return [];
+  return withTimeout(readContractModules(stellarAddress), READ_TIMEOUT_MS, "soroban");
+}
+
+async function readContractModules(stellarAddress: string): Promise<string[]> {
   const { Address, BASE_FEE, Contract, Networks, TransactionBuilder, rpc, scValToNative } = await import("@stellar/stellar-sdk");
-  const server = new rpc.Server(SOROBAN_RPC);
+  const server = new rpc.Server(SOROBAN_RPC, { timeout: READ_TIMEOUT_MS });
   const source = await server.getAccount(ATTESTOR_PUBLIC);
   const tx = new TransactionBuilder(source, { fee: BASE_FEE, networkPassphrase: Networks.TESTNET })
     .addOperation(new Contract(CREDENTIAL_CONTRACT).call("modules", new Address(stellarAddress).toScVal()))
@@ -124,7 +153,7 @@ export async function getAttestations(stellarAddress: string): Promise<Attestati
   if (!ATTESTOR_PUBLIC) return [];
   const res = await fetch(
     `${HORIZON}/accounts/${encodeURIComponent(stellarAddress)}/transactions?order=desc&limit=200`,
-    { cache: "no-store" },
+    { cache: "no-store", signal: AbortSignal.timeout(READ_TIMEOUT_MS) },
   );
   if (res.status === 404) return [];
   if (!res.ok) throw new Error(`Horizon ${res.status}`);
