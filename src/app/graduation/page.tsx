@@ -12,6 +12,8 @@ import { Skeleton } from "@/components/Skeleton";
 import { TRACK_ORDER } from "@/components/trackStyle";
 import { supabase } from "@/lib/supabase";
 import { midTruncate } from "@/lib/ownership";
+import { localCompleted } from "@/lib/localProgress";
+import type { PublicMission } from "@/missions/engine";
 import { TrackMeta, type Mission } from "@/missions/schema";
 import { AppNav } from "@/components/AppNav";
 import { AppFooter } from "@/components/AppFooter";
@@ -55,9 +57,25 @@ export default function GraduationPage() {
         .from("fyv_module_completions")
         .select("module_id, completed_at")
         .eq("stellar_address", w.publicKey);
-      if (error) throw new Error("No pudimos leer tus credenciales. Intenta de nuevo en unos segundos.");
+      let source = (data ?? []) as ModuleCompletion[];
+      if (error) {
+        // Sin base de datos: las credenciales se leen de la cadena (cuenta emisora + contrato) vía /api/verify.
+        const res = await fetch(`/api/verify?address=${w.publicKey}`).catch(() => null);
+        const d = res?.ok ? ((await res.json()) as { modules?: { module: string; completedAt: string }[] }) : null;
+        if (!d?.modules) throw new Error("No pudimos leer tus credenciales. Intenta de nuevo en unos segundos.");
+        source = d.modules.map((m) => ({ module_id: m.module as Mission["track"], completed_at: m.completedAt }));
+        // Módulos completos según este navegador cuya transacción aún no se confirma.
+        const missions = await fetch("/api/missions/list").then((r) => (r.ok ? (r.json() as Promise<PublicMission[]>) : [])).catch(() => [] as PublicMission[]);
+        const done = localCompleted(w.publicKey);
+        for (const track of TRACK_ORDER) {
+          const ms = missions.filter((m) => m.track === track && !m.comingSoon);
+          if (ms.length && ms.every((m) => done.has(m.id)) && !source.some((r) => r.module_id === track)) {
+            source.push({ module_id: track, completed_at: "" });
+          }
+        }
+      }
       if (cancelled) return;
-      const rows = ((data ?? []) as ModuleCompletion[])
+      const rows = source
         .filter((r) => r.module_id in TrackMeta)
         .sort((a, b) => TRACK_ORDER.indexOf(a.module_id) - TRACK_ORDER.indexOf(b.module_id));
       setCompletions(rows);

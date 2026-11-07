@@ -28,6 +28,8 @@ npm run dev                   # http://localhost:3000
 
 Sin `SUPABASE_SERVICE_ROLE_KEY` la app carga y se puede recorrer, pero no guarda respuestas. Sin `NEXT_PUBLIC_POLLAR_API_KEY` solo existe el modo invitado. Sin `FYV_ATTESTOR_SECRET` las credenciales se guardan pero no se emiten on-chain. Esquema de base: `supabase/migrations/`.
 
+**Modo sin base de datos.** Si Supabase no responde (proyecto pausado, red caída), la app no se rompe: `/api/missions/complete` sigue evaluando y, al acertar, devuelve un recibo HMAC ligado a la dirección y la misión (`src/lib/receipts.ts`, llave derivada de `FYV_ATTESTOR_SECRET`). El navegador guarda los recibos (`src/lib/localProgress.ts`) y los reenvía; al completar un módulo con recibos válidos, la credencial se emite on-chain igual (transacción de la cuenta emisora + contrato Soroban), revisando antes en Horizon que no exista. `/api/verify` y `/graduation` leen entonces las credenciales de la cadena. Solo las estadísticas quedan sin datos.
+
 ## Uso de IA y código reutilizado
 
 - **IA:** el proyecto se desarrolló con asistencia de IA (Claude, de Anthropic, vía Claude Code) para escribir y revisar código, textos de las misiones, diseño y documentación. Las decisiones de producto, las pruebas con usuarios y la revisión final son del equipo.

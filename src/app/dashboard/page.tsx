@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Star, Award, WifiOff, Trophy, Flame, ChevronRight } from "lucide-react";
+import { Star, Award, WifiOff, Trophy, Flame, ChevronRight, HardDrive } from "lucide-react";
 import Link from "next/link";
 import { getWallet, sendToLoginIfNeeded, type WalletIdentity } from "@/identity";
 import { ProgressBar } from "@/components/ProgressBar";
@@ -13,6 +13,7 @@ import { TRACK_ORDER } from "@/components/trackStyle";
 import type { Mission } from "@/missions/schema";
 import type { PublicMission } from "@/missions/engine";
 import { supabase } from "@/lib/supabase";
+import { localCompleted } from "@/lib/localProgress";
 import { AppNav } from "@/components/AppNav";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -82,6 +83,8 @@ export default function DashboardPage() {
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [retryKey, setRetryKey] = useState(0);
+  // true cuando la base no respondió y el avance viene de este navegador.
+  const [localOnly, setLocalOnly] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -103,10 +106,13 @@ export default function DashboardPage() {
         }),
         supabase.from("fyv_completed_missions").select("mission_id").eq("stellar_address", w.publicKey),
       ]);
-      if (progress.error) throw new Error("No pudimos leer tu progreso. Intenta de nuevo en unos segundos.");
+      // Si la base no responde, el mapa sigue funcionando con el avance guardado en este navegador.
+      const local = localCompleted(w.publicKey);
+      const server = progress.error ? [] : (progress.data ?? []).map((r: { mission_id: string }) => r.mission_id);
 
       if (cancelled) return;
-      setCompleted(new Set((progress.data ?? []).map((r: { mission_id: string }) => r.mission_id)));
+      setLocalOnly(Boolean(progress.error));
+      setCompleted(new Set([...server, ...local]));
       setGroups(TRACK_ORDER.map((track) => ({ track, missions: missions.filter((m) => m.track === track && !m.comingSoon) })));
       setState({ kind: "ready" });
     })().catch((err: Error) => {
@@ -143,6 +149,16 @@ export default function DashboardPage() {
         ) : (
           <div className="mx-auto max-w-2xl space-y-8">
             <h1 className="sr-only">Mapa de misiones</h1>
+
+            {localOnly && (
+              <p role="status" className="flex items-start gap-2.5 rounded-2xl border border-line bg-surface/60 px-4 py-3 text-xs leading-relaxed text-cream-muted">
+                <HardDrive className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden />
+                <span>
+                  El servidor de progreso no está disponible, así que tu avance se guarda en este navegador.
+                  Las misiones funcionan igual y, al completar un módulo, la credencial se emite en Stellar testnet.
+                </span>
+              </p>
+            )}
 
             <motion.section
               aria-label="Tu progreso"

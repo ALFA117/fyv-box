@@ -3,7 +3,8 @@ import { z } from "zod";
 import { getMission, evaluateMission, getCertifiableModules } from "@/missions/engine";
 import { after } from "next/server";
 import { getRegistry } from "@/registry";
-import { attestModule, issueOnContract } from "@/lib/attest";
+import { attestModule, getAttestations, issueOnContract } from "@/lib/attest";
+import { signReceipt, validReceiptIds } from "@/lib/receipts";
 import { supabaseServer } from "@/lib/supabase";
 import { OWNERSHIP_MAX_AGE_MS, STELLAR_ADDRESS_RE, completionMessage } from "@/lib/ownership";
 
@@ -14,6 +15,8 @@ const BodySchema = z.object({
   issuedAt: z.number().int().positive(),
   signature: z.string().min(40).max(200),
   orgSlug: z.string().regex(/^[a-z0-9-]{1,40}$/).default("criptounam"),
+  // Recibos de misiones ya acertadas (ver lib/receipts.ts); solo se usan si la base no responde.
+  receipts: z.record(z.string(), z.string().max(100)).optional(),
 });
 
 function fail(status: number, error: string) {
@@ -67,7 +70,7 @@ export async function POST(req: NextRequest) {
   });
   if (progressError) {
     console.error("[FYV] progress insert failed:", progressError.message);
-    return fail(503, "No pudimos guardar tu respuesta. Revisa tu conexión e intenta de nuevo.");
+    return completeWithoutDatabase(input, mission, result, selectedOption.label);
   }
 
   const newCertifications: string[] = [];
@@ -118,5 +121,55 @@ export async function POST(req: NextRequest) {
     ...result,
     newCertifications,
     selectedOptionLabel: selectedOption.label,
+    saved: "server",
+    receipt: result.isCorrect ? signReceipt(stellarAddress, missionId) : null,
+  });
+}
+
+/**
+ * Modo sin base de datos: la respuesta se evalúa igual, el avance vive en el navegador
+ * (recibos firmados) y, al completar un módulo, la credencial se emite on-chain.
+ * Para no duplicarla, primero se revisa en Horizon si la cuenta emisora ya la envió.
+ */
+async function completeWithoutDatabase(
+  input: z.infer<typeof BodySchema>,
+  mission: NonNullable<ReturnType<typeof getMission>>,
+  result: ReturnType<typeof evaluateMission>,
+  selectedOptionLabel: string,
+) {
+  const { stellarAddress } = input;
+  const receipt = result.isCorrect ? signReceipt(stellarAddress, mission.id) : null;
+  const completedIds = new Set(validReceiptIds(stellarAddress, input.receipts));
+  if (receipt) completedIds.add(mission.id);
+
+  const newCertifications: string[] = [];
+  const certifiable = getCertifiableModules([...completedIds]);
+  if (result.isCorrect && certifiable.includes(mission.track)) {
+    let already: string[] = [];
+    try {
+      already = (await getAttestations(stellarAddress)).map((a) => a.module);
+    } catch (err) {
+      console.error("[FYV] horizon read failed (offline mode):", err instanceof Error ? err.message : err);
+    }
+    if (!already.includes(mission.track)) {
+      const module = mission.track;
+      newCertifications.push(module);
+      after(async () => {
+        await attestModule(stellarAddress, module).catch((err) =>
+          console.error("[FYV] on-chain attestation failed:", err instanceof Error ? err.message : err),
+        );
+        await issueOnContract(stellarAddress, module).catch((err) =>
+          console.error("[FYV] soroban issue failed:", err instanceof Error ? err.message : err),
+        );
+      });
+    }
+  }
+
+  return NextResponse.json({
+    ...result,
+    newCertifications,
+    selectedOptionLabel,
+    saved: "browser",
+    receipt,
   });
 }

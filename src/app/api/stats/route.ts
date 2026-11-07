@@ -35,7 +35,7 @@ export async function GET() {
   if (error) {
     console.error("[FYV] stats failed:", error.message);
     return NextResponse.json(
-      { error: "No pudimos cargar las estadísticas. Intenta en unos segundos." },
+      { error: "Las estadísticas no están disponibles: la base de datos de FYV Box no responde. Las misiones y las credenciales on-chain siguen funcionando." },
       { status: 503, headers: CORS },
     );
   }

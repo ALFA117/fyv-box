@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRegistry } from "@/registry";
+import { getRegistry, type ReadinessRecord } from "@/registry";
+import { makeRecord } from "@/registry/interface";
 import { supabaseServer } from "@/lib/supabase";
 import { isStellarAddress } from "@/lib/ownership";
 import { TrackMeta } from "@/missions/schema";
@@ -37,22 +38,23 @@ export async function GET(req: NextRequest) {
   }
   if (module && !(module in TrackMeta)) return fail(400, "Módulo desconocido.");
 
-  let readiness;
+  let readiness: ReadinessRecord | null = null;
   try {
     readiness = await getRegistry().getReadiness(address);
   } catch (err) {
     console.error("[FYV] verify failed:", err instanceof Error ? err.message : err);
-    return fail(503, "El registro de credenciales no respondió. Intenta en unos segundos.");
   }
 
   // On-chain proof lives in Horizon; if Horizon is down the registry answer still stands.
   let onchain: Attestation[] = [];
+  let horizonOk = true;
   try {
     onchain = await getAttestations(address);
   } catch (err) {
+    horizonOk = false;
     console.error("[FYV] horizon attestations failed:", err instanceof Error ? err.message : err);
   }
-  const txFor = (m: string) => onchain.find((a) => a.module === m)?.txHash ?? null;
+  const txFor = (m: string): string | null => onchain.find((a) => a.module === m)?.txHash ?? null;
 
   // Registro en el contrato Soroban (lectura por simulación); si el RPC falla, se informa null.
   let contractModules: string[] | null = null;
@@ -60,6 +62,23 @@ export async function GET(req: NextRequest) {
     contractModules = await getContractModules(address);
   } catch (err) {
     console.error("[FYV] soroban read failed:", err instanceof Error ? err.message : err);
+  }
+
+  // Sin base de datos, la fuente es la cadena: transacciones de la cuenta emisora + contrato.
+  let backend = process.env.REGISTRY_BACKEND ?? "supabase";
+  if (!readiness) {
+    if (!horizonOk && contractModules === null) {
+      return fail(503, "Ni el registro ni Stellar testnet respondieron. Intenta en unos segundos.");
+    }
+    backend = "onchain";
+    const known = new Set(Object.keys(TrackMeta));
+    const byModule = new Map<string, string>();
+    for (const a of onchain) if (known.has(a.module)) byModule.set(a.module, a.createdAt);
+    for (const m of contractModules ?? []) if (known.has(m) && !byModule.has(m)) byModule.set(m, "");
+    readiness = makeRecord(
+      address,
+      [...byModule].map(([module, completedAt]) => ({ module, completedAt, stellarAddress: address, orgSlug: "criptounam" })),
+    );
   }
 
   // Best-effort audit log: a missing table or a failed insert must never break verification.
@@ -82,7 +101,7 @@ export async function GET(req: NextRequest) {
       contract: CREDENTIAL_CONTRACT || null,
       attestor: ATTESTOR_PUBLIC || null,
       network: "testnet",
-      backend: process.env.REGISTRY_BACKEND ?? "supabase",
+      backend,
     },
     { headers: { ...CORS, "Cache-Control": "no-store" } },
   );

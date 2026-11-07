@@ -12,6 +12,7 @@ import { TRACK_STYLE, DIFFICULTY } from "@/components/trackStyle";
 import { TrackMeta } from "@/missions/schema";
 import type { PublicMission } from "@/missions/engine";
 import { completionMessage } from "@/lib/ownership";
+import { localReceipts, saveLocalCompletion } from "@/lib/localProgress";
 import { ScenarioFrame } from "./ScenarioFrames";
 import { MascotGuide, type MascotMood } from "./MascotGuide";
 
@@ -21,6 +22,8 @@ interface MissionResult {
   xpEarned: number;
   newCertifications: string[];
   selectedOptionLabel: string;
+  /** "browser": la base no respondió y el avance quedó solo en este navegador. */
+  saved?: "server" | "browser";
 }
 
 /* ─── Page ───────────────────────────────────────────────────────────────── */
@@ -78,7 +81,7 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
         res = await fetch("/api/missions/complete", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...payload, signature }),
+          body: JSON.stringify({ ...payload, signature, receipts: localReceipts(wallet.publicKey) }),
           signal: ctrl.signal,
         });
       } catch {
@@ -92,9 +95,15 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
         throw new Error(data?.error ?? "Algo salió mal al guardar tu respuesta. Intenta de nuevo.");
       }
 
+      if (data.isCorrect) saveLocalCompletion(wallet.publicKey, mission.id, data.receipt);
       setResult({ ...data, newCertifications: Array.isArray(data.newCertifications) ? data.newCertifications : [] });
-      if (data.isCorrect) toast(`+${data.xpEarned} XP guardados en tu progreso`, "success");
-      if (data.newCertifications?.length) toast("¡Nueva credencial emitida!", "success");
+      if (data.isCorrect) {
+        toast(
+          data.saved === "browser" ? `+${data.xpEarned} XP guardados en este navegador` : `+${data.xpEarned} XP guardados en tu progreso`,
+          "success",
+        );
+      }
+      if (data.newCertifications?.length) toast("¡Nueva credencial emitida en Stellar testnet!", "success");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Algo salió mal. Intenta de nuevo.";
       setError(msg);
@@ -265,6 +274,13 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
                           </div>
                         </div>
                       </div>
+
+                      {result.saved === "browser" && result.isCorrect && (
+                        <p className="rounded-xl border border-line bg-surface/60 px-4 py-3 text-xs leading-relaxed text-cream-muted">
+                          El servidor de progreso no está disponible: tu avance quedó guardado en este navegador.
+                          Al completar un módulo, la credencial se emite igual en Stellar testnet.
+                        </p>
+                      )}
 
                       {result.newCertifications.length > 0 && (
                         <motion.div

@@ -206,9 +206,11 @@ function VerifyContent() {
                                 <CheckCircle className="h-4 w-4 shrink-0 text-success" strokeWidth={2} aria-hidden />
                                 <span className="truncate">{TrackMeta[m.module as keyof typeof TrackMeta]?.label ?? m.module}</span>
                               </span>
-                              <time dateTime={m.completedAt} className="shrink-0 text-xs tabular-nums text-cream-muted">
-                                {new Date(m.completedAt).toLocaleDateString("es-MX")}
-                              </time>
+                              {m.completedAt && (
+                                <time dateTime={m.completedAt} className="shrink-0 text-xs tabular-nums text-cream-muted">
+                                  {new Date(m.completedAt).toLocaleDateString("es-MX")}
+                                </time>
+                              )}
                             </div>
                             {m.txHash ? (
                               <a
