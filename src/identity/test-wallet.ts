@@ -34,18 +34,37 @@ export async function getAccountStatus(publicKey: string): Promise<AccountStatus
 // One in-flight funding per tab so re-renders can't fire duplicate Friendbot calls.
 let fundingPromise: Promise<AccountStatus> | null = null;
 
-export function ensureFunded(publicKey: string): Promise<AccountStatus> {
+// Una cuenta fondeada ya no se vuelve a consultar en cada carga (evita peticiones y 404 en consola).
+const FUNDED_PREFIX = "fyv_funded:";
+
+function rememberedFunded(publicKey: string): boolean {
+  try { return localStorage.getItem(FUNDED_PREFIX + publicKey) === "1"; } catch { return false; }
+}
+
+function rememberFunded(publicKey: string, status: AccountStatus): AccountStatus {
+  if (status === "funded") {
+    try { localStorage.setItem(FUNDED_PREFIX + publicKey, "1"); } catch { /* ignore */ }
+  }
+  return status;
+}
+
+/** `fresh`: llave recién generada; se sabe que no existe y se va directo a Friendbot. */
+export function ensureFunded(publicKey: string, fresh = false): Promise<AccountStatus> {
+  if (rememberedFunded(publicKey)) return Promise.resolve("funded");
   if (fundingPromise) return fundingPromise;
   fundingPromise = (async () => {
-    const status = await getAccountStatus(publicKey);
-    if (status !== "unfunded") return status;
+    if (!fresh) {
+      const status = await getAccountStatus(publicKey);
+      if (status !== "unfunded") return rememberFunded(publicKey, status);
+    }
     try {
       // Friendbot answers 400 if the account already exists, which is fine.
-      await fetchWithTimeout(`${FRIENDBOT}?addr=${encodeURIComponent(publicKey)}`, 20000);
+      const res = await fetchWithTimeout(`${FRIENDBOT}?addr=${encodeURIComponent(publicKey)}`, 20000);
+      if (res.ok) return rememberFunded(publicKey, "funded");
     } catch {
       /* network error: reported through the status below */
     }
-    return getAccountStatus(publicKey);
+    return rememberFunded(publicKey, await getAccountStatus(publicKey));
   })().finally(() => {
     setTimeout(() => { fundingPromise = null; }, 0);
   });
@@ -74,7 +93,8 @@ export async function getTestWallet(): Promise<WalletIdentity> {
   } catch {
     keypair = Keypair.random();
   }
-  if (!secret || keypair.secret() !== secret) {
+  const fresh = !secret || keypair.secret() !== secret;
+  if (fresh) {
     try {
       localStorage.setItem(STORAGE_KEY, keypair.secret());
     } catch {
@@ -82,7 +102,7 @@ export async function getTestWallet(): Promise<WalletIdentity> {
     }
   }
 
-  void ensureFunded(keypair.publicKey());
+  void ensureFunded(keypair.publicKey(), fresh);
 
   return {
     publicKey: keypair.publicKey(),

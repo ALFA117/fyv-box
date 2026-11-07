@@ -116,6 +116,15 @@ export function HelpBot() {
     return () => clearTimeout(t);
   }, []);
 
+  // En el teléfono el aviso tapa contenido: se va solo a los 8 s o en cuanto la persona hace scroll.
+  useEffect(() => {
+    if (!nudge) return;
+    const hide = () => dismissNudge();
+    const t = setTimeout(hide, 8000);
+    window.addEventListener("scroll", hide, { passive: true, once: true });
+    return () => { clearTimeout(t); window.removeEventListener("scroll", hide); };
+  }, [nudge]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function dismissNudge() {
     setNudge(false);
     try { localStorage.setItem(NUDGE_KEY, "1"); } catch { /* ignore */ }
