@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase";
+import { dbKnownDown, supabaseServer } from "@/lib/supabase";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -25,7 +25,14 @@ interface Row {
  * GET /api/stats
  * Per track: % of users who fell for the trap on their first attempt at any mission of that track.
  */
+const UNAVAILABLE =
+  "Las estadísticas están en pausa: salen de la base de datos de respuestas de FYV Box, que ahora no está disponible. Las misiones y las credenciales on-chain siguen funcionando.";
+
 export async function GET() {
+  if (dbKnownDown()) {
+    return NextResponse.json({ error: UNAVAILABLE, unavailable: true }, { status: 503, headers: CORS });
+  }
+
   const { data, error } = await supabaseServer()
     .from("fyv_mission_progress")
     .select("track, fell_for_trap, mission_id, stellar_address, created_at")
@@ -34,10 +41,7 @@ export async function GET() {
 
   if (error) {
     console.error("[FYV] stats failed:", error.message);
-    return NextResponse.json(
-      { error: "Las estadísticas no están disponibles: la base de datos de FYV Box no responde. Las misiones y las credenciales on-chain siguen funcionando." },
-      { status: 503, headers: CORS },
-    );
+    return NextResponse.json({ error: UNAVAILABLE, unavailable: true }, { status: 503, headers: CORS });
   }
 
   // Rows are ordered oldest-first, so the first one per user·mission is the first attempt.

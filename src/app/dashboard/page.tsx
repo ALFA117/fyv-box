@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/Button";
 import { TRACK_ORDER } from "@/components/trackStyle";
 import type { Mission } from "@/missions/schema";
 import type { PublicMission } from "@/missions/engine";
-import { supabase } from "@/lib/supabase";
 import { localCompleted } from "@/lib/localProgress";
 import { AppNav } from "@/components/AppNav";
 import { AppFooter } from "@/components/AppFooter";
@@ -104,14 +103,15 @@ export default function DashboardPage() {
         fetchJson<PublicMission[]>("/api/missions/list").catch(() => {
           throw new Error("No pudimos cargar las misiones. Revisa tu conexión.");
         }),
-        supabase.from("fyv_completed_missions").select("mission_id").eq("stellar_address", w.publicKey),
+        fetchJson<{ missions: string[]; db: "ok" | "down" }>(`/api/progress?address=${w.publicKey}`, 8000).catch(() => null),
       ]);
       // Si la base no responde, el mapa sigue funcionando con el avance guardado en este navegador.
       const local = localCompleted(w.publicKey);
-      const server = progress.error ? [] : (progress.data ?? []).map((r: { mission_id: string }) => r.mission_id);
+      const serverOk = progress?.db === "ok";
+      const server = serverOk ? progress.missions : [];
 
       if (cancelled) return;
-      setLocalOnly(Boolean(progress.error));
+      setLocalOnly(!serverOk);
       setCompleted(new Set([...server, ...local]));
       setGroups(TRACK_ORDER.map((track) => ({ track, missions: missions.filter((m) => m.track === track && !m.comingSoon) })));
       setState({ kind: "ready" });
@@ -132,7 +132,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-dvh">
-      <AppNav wallet={wallet} showStats showLogout />
+      <AppNav wallet={wallet} showLogout />
 
       <main id="main" tabIndex={-1} className="outline-none px-gutter pb-safe pt-6">
         {state.kind === "loading" ? (

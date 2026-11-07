@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRegistry, type ReadinessRecord } from "@/registry";
 import { makeRecord } from "@/registry/interface";
-import { supabaseServer } from "@/lib/supabase";
+import { dbKnownDown, supabaseServer } from "@/lib/supabase";
 import { isStellarAddress } from "@/lib/ownership";
 import { TrackMeta } from "@/missions/schema";
 import { ATTESTOR_PUBLIC, CREDENTIAL_CONTRACT, getAttestations, getContractModules, type Attestation } from "@/lib/attest";
@@ -16,6 +16,10 @@ export const dynamic = "force-dynamic";
 
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS });
+}
+
+function errMsg(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
 }
 
 function fail(status: number, error: string) {
@@ -38,59 +42,59 @@ export async function GET(req: NextRequest) {
   }
   if (module && !(module in TrackMeta)) return fail(400, "Módulo desconocido.");
 
-  let readiness: ReadinessRecord | null = null;
-  try {
-    readiness = await getRegistry().getReadiness(address);
-  } catch (err) {
-    console.error("[FYV] verify failed:", err instanceof Error ? err.message : err);
-  }
+  // Las tres fuentes se consultan en paralelo: el registro (base de datos), las transacciones de la
+  // cuenta emisora en Horizon y el contrato Soroban. Ninguna bloquea a las otras.
+  const configured = process.env.REGISTRY_BACKEND ?? "supabase";
+  const registrySkipped = configured === "supabase" && dbKnownDown();
+  const [registryRes, horizonRes, contractRes] = await Promise.allSettled([
+    registrySkipped ? Promise.reject(new Error("base de datos no disponible")) : getRegistry().getReadiness(address),
+    getAttestations(address),
+    getContractModules(address),
+  ]);
+
+  const registry: ReadinessRecord | null = registryRes.status === "fulfilled" ? registryRes.value : null;
+  if (registryRes.status === "rejected" && !registrySkipped) console.error("[FYV] verify failed:", errMsg(registryRes.reason));
 
   // On-chain proof lives in Horizon; if Horizon is down the registry answer still stands.
-  let onchain: Attestation[] = [];
-  let horizonOk = true;
-  try {
-    onchain = await getAttestations(address);
-  } catch (err) {
-    horizonOk = false;
-    console.error("[FYV] horizon attestations failed:", err instanceof Error ? err.message : err);
-  }
+  const onchain: Attestation[] = horizonRes.status === "fulfilled" ? horizonRes.value : [];
+  const horizonOk = horizonRes.status === "fulfilled";
+  if (horizonRes.status === "rejected") console.error("[FYV] horizon attestations failed:", errMsg(horizonRes.reason));
   const txFor = (m: string): string | null => onchain.find((a) => a.module === m)?.txHash ?? null;
 
   // Registro en el contrato Soroban (lectura por simulación); si el RPC falla, se informa null.
-  let contractModules: string[] | null = null;
-  try {
-    contractModules = await getContractModules(address);
-  } catch (err) {
-    console.error("[FYV] soroban read failed:", err instanceof Error ? err.message : err);
+  const contractModules: string[] | null = contractRes.status === "fulfilled" ? contractRes.value : null;
+  if (contractRes.status === "rejected") console.error("[FYV] soroban read failed:", errMsg(contractRes.reason));
+
+  if (!registry && !horizonOk && contractModules === null) {
+    return fail(503, "Ni el registro ni Stellar testnet respondieron. Intenta en unos segundos.");
   }
 
-  // Sin base de datos, la fuente es la cadena: transacciones de la cuenta emisora + contrato.
-  let backend = process.env.REGISTRY_BACKEND ?? "supabase";
-  if (!readiness) {
-    if (!horizonOk && contractModules === null) {
-      return fail(503, "Ni el registro ni Stellar testnet respondieron. Intenta en unos segundos.");
-    }
-    backend = "onchain";
-    const known = new Set(Object.keys(TrackMeta));
-    const byModule = new Map<string, string>();
-    for (const a of onchain) if (known.has(a.module)) byModule.set(a.module, a.createdAt);
-    for (const m of contractModules ?? []) if (known.has(m) && !byModule.has(m)) byModule.set(m, "");
-    readiness = makeRecord(
-      address,
-      [...byModule].map(([module, completedAt]) => ({ module, completedAt, stellarAddress: address, orgSlug: "criptounam" })),
-    );
-  }
+  // Se suman las tres fuentes: una credencial emitida on-chain mientras la base estaba caída
+  // sigue contando aunque el registro no la tenga.
+  const known = new Set(Object.keys(TrackMeta));
+  const byModule = new Map<string, string>();
+  for (const m of registry?.modules ?? []) byModule.set(m.module, m.completedAt);
+  for (const a of onchain) if (known.has(a.module) && !byModule.has(a.module)) byModule.set(a.module, a.createdAt);
+  for (const m of contractModules ?? []) if (known.has(m) && !byModule.has(m)) byModule.set(m, "");
+  const readiness = makeRecord(
+    address,
+    [...byModule].map(([module, completedAt]) => ({ module, completedAt, stellarAddress: address, orgSlug: "criptounam" })),
+  );
+  // Sin registro, la fuente es la cadena: transacciones de la cuenta emisora + contrato.
+  const backend = registry ? configured : "onchain";
 
   // Best-effort audit log: a missing table or a failed insert must never break verification.
-  try {
-    const requesterIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-    await supabaseServer().from("fyv_verify_log").insert({
-      querier_ip: requesterIp,
-      queried_address: address,
-      module_id: module ?? null,
-    });
-  } catch {
-    /* ignore */
+  if (backend !== "onchain" && !dbKnownDown()) {
+    try {
+      const requesterIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+      await supabaseServer().from("fyv_verify_log").insert({
+        querier_ip: requesterIp,
+        queried_address: address,
+        module_id: module ?? null,
+      });
+    } catch {
+      /* ignore */
+    }
   }
 
   return NextResponse.json(

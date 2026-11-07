@@ -10,7 +10,6 @@ import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/Skeleton";
 import { TRACK_ORDER } from "@/components/trackStyle";
-import { supabase } from "@/lib/supabase";
 import { midTruncate } from "@/lib/ownership";
 import { localCompleted } from "@/lib/localProgress";
 import type { PublicMission } from "@/missions/engine";
@@ -38,6 +37,8 @@ export default function GraduationPage() {
   // Hash on-chain por módulo (leído de Horizon vía /api/verify); ausente = aún consultando.
   const [txByModule, setTxByModule] = useState<Record<string, string | null> | null>(null);
   const [contractByModule, setContractByModule] = useState<Record<string, string>>({});
+  // true si Stellar testnet no respondió y lo que se ve sale solo de este navegador.
+  const [chainUnavailable, setChainUnavailable] = useState(false);
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [retryKey, setRetryKey] = useState(0);
 
@@ -53,46 +54,49 @@ export default function GraduationPage() {
         throw new Error("No pudimos abrir tu billetera de prueba.");
       }
       if (!cancelled) setWallet(w);
-      const { data, error } = await supabase
-        .from("fyv_module_completions")
-        .select("module_id, completed_at")
-        .eq("stellar_address", w.publicKey);
-      let source = (data ?? []) as ModuleCompletion[];
-      if (error) {
-        // Sin base de datos: las credenciales se leen de la cadena (cuenta emisora + contrato) vía /api/verify.
-        const res = await fetch(`/api/verify?address=${w.publicKey}`).catch(() => null);
-        const d = res?.ok ? ((await res.json()) as { modules?: { module: string; completedAt: string }[] }) : null;
-        if (!d?.modules) throw new Error("No pudimos leer tus credenciales. Intenta de nuevo en unos segundos.");
-        source = d.modules.map((m) => ({ module_id: m.module as Mission["track"], completed_at: m.completedAt }));
-        // Módulos completos según este navegador cuya transacción aún no se confirma.
-        const missions = await fetch("/api/missions/list").then((r) => (r.ok ? (r.json() as Promise<PublicMission[]>) : [])).catch(() => [] as PublicMission[]);
-        const done = localCompleted(w.publicKey);
-        for (const track of TRACK_ORDER) {
-          const ms = missions.filter((m) => m.track === track && !m.comingSoon);
-          if (ms.length && ms.every((m) => done.has(m.id)) && !source.some((r) => r.module_id === track)) {
-            source.push({ module_id: track, completed_at: "" });
-          }
+
+      // Una sola consulta: /api/verify junta el registro (si la base responde), las transacciones
+      // de la cuenta emisora en Horizon y el contrato Soroban.
+      type VerifyModule = { module: string; completedAt: string; txHash: string | null; onContract?: boolean | null };
+      const [verify, missions] = await Promise.all([
+        fetch(`/api/verify?address=${w.publicKey}`, { signal: AbortSignal.timeout(20000) })
+          .then((r) => (r.ok ? (r.json() as Promise<{ modules?: VerifyModule[]; contract?: string | null }>) : null))
+          .catch(() => null),
+        fetch("/api/missions/list")
+          .then((r) => (r.ok ? (r.json() as Promise<PublicMission[]>) : []))
+          .catch(() => [] as PublicMission[]),
+      ]);
+
+      const source: ModuleCompletion[] = (verify?.modules ?? []).map((m) => ({
+        module_id: m.module as Mission["track"],
+        completed_at: m.completedAt,
+      }));
+      // Módulos completos según este navegador cuya transacción aún no se ve (recién emitida o sin red).
+      const done = localCompleted(w.publicKey);
+      for (const track of TRACK_ORDER) {
+        const ms = missions.filter((m) => m.track === track && !m.comingSoon);
+        if (ms.length && ms.every((m) => done.has(m.id)) && !source.some((r) => r.module_id === track)) {
+          source.push({ module_id: track, completed_at: "" });
         }
       }
+      if (!verify?.modules && source.length === 0) {
+        throw new Error("No pudimos consultar tus credenciales en Stellar testnet. Intenta de nuevo en unos segundos.");
+      }
+
       if (cancelled) return;
       const rows = source
         .filter((r) => r.module_id in TrackMeta)
         .sort((a, b) => TRACK_ORDER.indexOf(a.module_id) - TRACK_ORDER.indexOf(b.module_id));
       setCompletions(rows);
-      setState({ kind: "ready" });
-      if (rows.length) {
-        // Prueba on-chain: no bloquea la pantalla; si Horizon falla, las credenciales se ven igual.
-        fetch(`/api/verify?address=${w.publicKey}`)
-          .then((r) => (r.ok ? r.json() : null))
-          .then((d: { modules?: { module: string; txHash: string | null; onContract?: boolean | null }[]; contract?: string | null } | null) => {
-            if (cancelled || !d?.modules) return;
-            setTxByModule(Object.fromEntries(d.modules.map((m) => [m.module, m.txHash])));
-            if (d.contract) {
-              setContractByModule(Object.fromEntries(d.modules.filter((m) => m.onContract).map((m) => [m.module, d.contract as string])));
-            }
-          })
-          .catch(() => {});
+      setChainUnavailable(!verify?.modules);
+      if (verify?.modules) {
+        setTxByModule(Object.fromEntries(verify.modules.map((m) => [m.module, m.txHash])));
+        const contract = verify.contract;
+        if (contract) {
+          setContractByModule(Object.fromEntries(verify.modules.filter((m) => m.onContract).map((m) => [m.module, contract])));
+        }
       }
+      setState({ kind: "ready" });
     })().catch((err: Error) => {
       if (!cancelled) setState({ kind: "error", message: err.message });
     });
@@ -148,6 +152,19 @@ export default function GraduationPage() {
                     : "Completa todas las misiones de un módulo para obtener su credencial verificable."}
                 </p>
               </motion.header>
+
+              {chainUnavailable && (
+                <p role="status" className="mb-6 flex items-start gap-2.5 rounded-2xl border border-amber-border bg-amber-subtle px-4 py-3 text-sm leading-relaxed text-amber">
+                  <WifiOff className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                  <span>
+                    Stellar testnet no respondió ahora. Te mostramos los módulos que completaste en este navegador;
+                    el enlace a cada transacción aparece cuando la red vuelva a responder.{" "}
+                    <button type="button" onClick={() => setRetryKey((k) => k + 1)} className="font-semibold underline underline-offset-2 hover:text-cream">
+                      Volver a consultar
+                    </button>
+                  </span>
+                </p>
+              )}
 
               <section aria-labelledby="why-cred" className="mb-8 rounded-2xl border border-line bg-surface p-4 sm:p-5">
                 <h2 id="why-cred" className="text-title-3 text-cream">¿Para qué sirve una credencial?</h2>
