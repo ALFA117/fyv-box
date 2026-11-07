@@ -135,9 +135,10 @@ export async function getContractModules(stellarAddress: string): Promise<string
 }
 
 async function readContractModules(stellarAddress: string): Promise<string[]> {
-  const { Address, BASE_FEE, Contract, Networks, TransactionBuilder, rpc, scValToNative } = await import("@stellar/stellar-sdk");
+  const { Account, Address, BASE_FEE, Contract, Networks, TransactionBuilder, rpc, scValToNative } = await import("@stellar/stellar-sdk");
   const server = new rpc.Server(SOROBAN_RPC, { timeout: READ_TIMEOUT_MS });
-  const source = await server.getAccount(ATTESTOR_PUBLIC);
+  // Una simulación no revisa la secuencia: no hace falta pedir la cuenta al RPC (una llamada menos).
+  const source = new Account(ATTESTOR_PUBLIC, "0");
   const tx = new TransactionBuilder(source, { fee: BASE_FEE, networkPassphrase: Networks.TESTNET })
     .addOperation(new Contract(CREDENTIAL_CONTRACT).call("modules", new Address(stellarAddress).toScVal()))
     .setTimeout(30)
