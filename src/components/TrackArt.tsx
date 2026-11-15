@@ -85,7 +85,7 @@ export function TrackArt({ track, size = 56, className = "" }: { track: Mission[
       strokeWidth="2.25"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={`shrink-0 text-cream ${className}`}
+      className={`shrink-0 text-cream [&_[fill]]:opacity-70 ${className}`}
       aria-hidden="true"
     >
       <Art track={track} />

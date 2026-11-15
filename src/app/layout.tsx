@@ -1,18 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Inter, Playfair_Display, IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Sans, Source_Serif_4, IBM_Plex_Mono } from "next/font/google";
 import { ToastProvider } from "@/components/Toast";
-import { AmbientBackground } from "@/components/AmbientBackground";
 import { HelpBot } from "@/components/HelpBot";
 import { BRAND, siteUrl } from "@/lib/brand";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-
-// Serif elegante para títulos y wordmark.
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", weight: ["600", "700", "800"], display: "swap" });
-
-const plexMono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-mono", weight: ["400", "500"], display: "swap" });
+// Sans técnica y legible para el cuerpo; serif sobria para títulos; mono para direcciones y hashes.
+const plexSans = IBM_Plex_Sans({ subsets: ["latin"], variable: "--font-plex", weight: ["400", "500", "600", "700"], display: "swap" });
+const sourceSerif = Source_Serif_4({ subsets: ["latin"], variable: "--font-serif", weight: ["500", "600", "700"], style: ["normal", "italic"], display: "swap" });
+const plexMono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-plexmono", weight: ["400", "500"], display: "swap" });
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -69,15 +66,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="es"
       data-theme="dark"
-      className={`${inter.variable} ${playfair.variable} ${plexMono.variable}`}
+      className={`${plexSans.variable} ${sourceSerif.variable} ${plexMono.variable}`}
       suppressHydrationWarning
     >
       <body>
         <Script id="fyv-theme" strategy="beforeInteractive">{THEME_SCRIPT}</Script>
-        <AmbientBackground />
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[2000] focus:rounded-xl focus:bg-gold focus:px-4 focus:py-3 focus:text-on-gold"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[2000] focus:rounded-md focus:bg-gold focus:px-4 focus:py-3 focus:text-on-gold"
         >
           Saltar al contenido
         </a>
