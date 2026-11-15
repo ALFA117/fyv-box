@@ -9,7 +9,8 @@ import { DashboardSkeleton } from "@/components/Skeleton";
 import { ModulePath } from "./ModulePath";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/Button";
-import { TRACK_ORDER } from "@/components/trackStyle";
+import { TRACK_ORDER, TRACK_STYLE } from "@/components/trackStyle";
+import { TrackMeta } from "@/missions/schema";
 import type { Mission } from "@/missions/schema";
 import type { PublicMission } from "@/missions/engine";
 import { localCompleted } from "@/lib/localProgress";
@@ -165,12 +166,13 @@ export default function DashboardPage() {
             )}
 
             <div className="grid items-start gap-6 lg:grid-cols-12">
+            <div className="space-y-5 lg:sticky lg:top-[calc(var(--header-h)+24px)] lg:col-span-4">
             <motion.section
               aria-label="Tu progreso"
               initial={reduce ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={reduce ? { duration: 0 } : { duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="relative overflow-hidden rounded-lg border border-line-strong bg-surface p-5 shadow-[var(--shadow-md)] sm:p-6 lg:sticky lg:top-[calc(var(--header-h)+24px)] lg:col-span-4"
+              className="relative overflow-hidden rounded-lg border border-line-strong bg-surface p-5 shadow-[var(--shadow-md)] sm:p-6"
             >
               <div className="relative mb-4 flex flex-wrap items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
@@ -251,14 +253,34 @@ export default function DashboardPage() {
               )}
             </motion.section>
 
+            <nav aria-label="Módulos" className="hidden rounded-lg border border-line bg-surface lg:block">
+              <p className="border-b border-line px-5 py-3 font-mono text-xs text-cream-muted">Módulos</p>
+              <ul className="py-1">
+                {groups.filter((g) => g.missions.length > 0).map((g) => {
+                  const d = g.missions.filter((m) => completed.has(m.id)).length;
+                  const t = g.missions.length;
+                  return (
+                    <li key={g.track}>
+                      <a href={`#module-${g.track}`} className="flex min-h-[40px] items-center gap-3 px-5 text-sm text-cream-muted transition-colors hover:bg-surface-2 hover:text-cream">
+                        <span aria-hidden className={`h-2 w-2 shrink-0 rounded-[1px] ${d === t ? "bg-success" : TRACK_STYLE[g.track].bar}`} />
+                        <span className="min-w-0 flex-1 truncate">{TrackMeta[g.track].label}</span>
+                        <span className={`font-mono text-xs tabular-nums ${d === t ? "text-success" : d > 0 ? "text-gold" : "text-cream-dim"}`}>{d}/{t}</span>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+            </div>
+
             <motion.div
               variants={reduce ? undefined : containerVariants}
               initial={reduce ? false : "hidden"}
               animate={reduce ? undefined : "show"}
-              className="grid items-start gap-5 md:grid-cols-2 lg:col-span-8"
+              className="space-y-5 lg:col-span-8"
             >
               {groups.filter((g) => g.missions.length > 0).map((group) => (
-                <motion.div key={group.track} variants={reduce ? undefined : itemVariants}>
+                <motion.div key={group.track} id={`module-${group.track}`} className="scroll-mt-[calc(var(--header-h)+24px)]" variants={reduce ? undefined : itemVariants}>
                   <ModulePath track={group.track} missions={group.missions} completed={completed} nextId={nextMission?.id ?? null} />
                 </motion.div>
               ))}
