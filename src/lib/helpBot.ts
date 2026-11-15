@@ -40,7 +40,7 @@ export const BOT_TOPICS: BotTopic[] = [
     keywords: ["que es fyv", "que es esto", "que es esta", "fyv", "box", "para que sirve", "de que trata", "proyecto", "app"],
     answer:
       "FYV Box es un simulador de estafas crypto. Practicas con 22 situaciones reales (correos falsos, airdrops, DMs, firmas peligrosas, preventas) sin arriesgar dinero, y al aprobar cada módulo recibes una credencial registrada en Stellar testnet.",
-    links: [{ label: "Ver los módulos", href: "/#tracks" }],
+    links: [{ label: "Ver los módulos", href: "/#modulos" }],
     next: ["empezar", "dinero-real", "credencial"],
   },
   {

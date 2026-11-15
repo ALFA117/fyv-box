@@ -2,8 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, useInView, useReducedMotion, useAnimationControls } from "framer-motion";
 import {
-  ArrowRight, CheckCircle, Zap, Users, BookOpen, GraduationCap, Wallet,
-  ExternalLink, ChevronDown, AlertTriangle, Globe, Code2, Sparkles, Shield, FlaskConical,
+  ArrowRight, ArrowUpRight, AlertTriangle, BookOpen, Clock, Code2, FlaskConical, Globe,
+  GraduationCap, HandCoins, ShieldCheck, Users, Wallet,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,50 +26,7 @@ export interface LandingProps {
 }
 
 const LEVEL_LABEL = ["Básico", "Intermedio", "Avanzado"];
-
-/* ─── Scroll progress ────────────────────────────────────────────────────── */
-function ScrollProgress() {
-  const bar = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const el = document.documentElement;
-        const max = el.scrollHeight - el.clientHeight;
-        if (bar.current) bar.current.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
-      });
-    };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    return () => { cancelAnimationFrame(frame); window.removeEventListener("scroll", update); };
-  }, []);
-  return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[2px]" aria-hidden>
-      <div ref={bar} className="h-full origin-left bg-gold" style={{ transform: "scaleX(0)" }} />
-    </div>
-  );
-}
-
-/* ─── Logo pantera (desktop) ─────────────────────────────────────────────── */
-function HologramLogo() {
-  return (
-    <div className="relative flex w-full items-center justify-center px-8">
-      <div aria-hidden className="logo-halo pointer-events-none absolute inset-0 -z-10" />
-      <div className="relative z-10 w-full max-w-[420px]">
-        <Image
-          src="/logo-panther.webp"
-          alt=""
-          width={420}
-          height={164}
-          sizes="420px"
-          className="logo-panther h-auto w-full"
-          priority
-        />
-      </div>
-    </div>
-  );
-}
+const GITHUB = "https://github.com/ALFA117/fyv-box";
 
 /* ─── Scroll reveal (content stays visible without JS / reduced motion) ──── */
 function Reveal({ children, delay = 0, className = "", as = "div" }: { children: React.ReactNode; delay?: number; className?: string; as?: "div" | "li" }) {
@@ -86,48 +43,25 @@ function Reveal({ children, delay = 0, className = "", as = "div" }: { children:
     if (reduce || !el) return;
     if (el.getBoundingClientRect().top > window.innerHeight) {
       hidden.current = true;
-      controls.set({ opacity: 0, y: 24 });
+      controls.set({ opacity: 0, y: 12 });
     }
   }, [controls, reduce]);
 
   useEffect(() => {
     if (inView && hidden.current) {
-      controls.start({ opacity: 1, y: 0, transition: { delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] } });
+      controls.start({ opacity: 1, y: 0, transition: { delay, duration: 0.45, ease: [0.16, 1, 0.3, 1] } });
     }
   }, [inView, controls, delay]);
 
   return (
-    <Tag
-      ref={ref}
-      initial={false}
-      animate={controls}
-      className={className}
-    >
+    <Tag ref={ref} initial={false} animate={controls} className={className}>
       {children}
     </Tag>
   );
 }
 
-function GlassCard({ children, className = "", gold = false }: { children: React.ReactNode; className?: string; gold?: boolean }) {
-  return (
-    <div
-      className={[
-        "rounded-2xl border backdrop-blur-sm transition-colors duration-200",
-        gold ? "border-line-gold bg-gold-subtle" : "border-line-strong bg-surface/70",
-        className,
-      ].join(" ")}
-    >
-      {children}
-    </div>
-  );
-}
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <p className="mb-3 text-eyebrow text-gold">{children}</p>;
-}
-
 /* ─── Start training: creates a real testnet wallet, then opens the dashboard ─ */
-function StartTraining() {
+function StartTraining({ layout = "block", secondary }: { layout?: "hero" | "block"; secondary?: React.ReactNode }) {
   const router = useRouter();
   const { toast } = useToast();
   const [phase, setPhase] = useState<"idle" | "working" | "done" | "error">("idle");
@@ -145,7 +79,7 @@ function StartTraining() {
       try {
         await getWallet();
         setPhase("done");
-        setMessage("¡Listo! Abriendo tu mapa de misiones…");
+        setMessage("Listo. Abriendo tu mapa de misiones…");
         router.push("/dashboard");
       } catch {
         router.push("/entrar");
@@ -159,7 +93,7 @@ function StartTraining() {
       if (status === "funded") toast("Billetera de prueba lista y fondeada en testnet", "success");
       else toast("Tu billetera está lista. Friendbot no respondió; puedes entrenar igual.", "warning");
       setPhase("done");
-      setMessage("¡Listo! Abriendo tu mapa de misiones…");
+      setMessage("Listo. Abriendo tu mapa de misiones…");
       router.push("/dashboard");
     } catch {
       setPhase("error");
@@ -167,23 +101,29 @@ function StartTraining() {
     }
   }
 
+  const busy = phase === "working" || phase === "done";
+  const hint = pollarEnabled
+    ? "Entras con tu correo y un código · sin contraseñas"
+    : "Sin correo ni contraseña · la llave de prueba vive solo en este navegador";
+
   return (
     <div className="space-y-3">
-      <Button className="w-full" size="lg" loading={phase === "working" || phase === "done"} onClick={start}>
-        {phase === "working" ? "Preparando…" : phase === "done" ? "Abriendo…" : "Comenzar entrenamiento"}
-        {phase === "idle" || phase === "error" ? <ArrowRight className="h-4 w-4" aria-hidden /> : null}
-      </Button>
+      <div className={layout === "hero" ? "flex flex-col gap-3 sm:flex-row" : ""}>
+        <Button className={layout === "hero" ? "w-full sm:w-auto" : "w-full"} size="lg" loading={busy} onClick={start}>
+          {phase === "working" ? "Preparando…" : phase === "done" ? "Abriendo…" : "Comenzar entrenamiento"}
+          {phase === "idle" || phase === "error" ? <ArrowRight className="h-4 w-4" aria-hidden /> : null}
+        </Button>
+        {secondary}
+      </div>
       <p
         role={phase === "error" ? "alert" : "status"}
-        className={`min-h-[1.25rem] text-center text-sm ${phase === "error" ? "text-danger" : "text-cream-muted"}`}
+        className={`min-h-[1.25rem] text-sm ${layout === "block" ? "text-center" : ""} ${phase === "error" ? "text-danger" : "text-cream-muted"}`}
       >
-        {message || (pollarEnabled
-          ? "Entras con tu correo y un código · sin contraseñas"
-          : "Sin correo ni contraseña · la llave de prueba vive solo en este navegador")}
+        {message || hint}
       </p>
       {guestWithEmailOption && phase !== "working" && (
-        <p className="text-center text-sm">
-          <Link href="/entrar" className="tap inline-flex items-center rounded-xl px-2 font-semibold text-gold hover:text-gold-hover">
+        <p className={`text-sm ${layout === "block" ? "text-center" : ""}`}>
+          <Link href="/entrar" className="tap inline-flex items-center rounded-md px-2 font-semibold text-gold underline-offset-4 hover:underline">
             Entrar con mi correo
           </Link>
         </p>
@@ -192,463 +132,358 @@ function StartTraining() {
   );
 }
 
+/* ─── Section shell: index + title on the left, content on the right ──────── */
+function Section({
+  id, index, label, title, intro, children, className = "",
+}: {
+  id: string; index: string; label: string; title: React.ReactNode; intro?: React.ReactNode; children: React.ReactNode; className?: string;
+}) {
+  return (
+    <section id={id} aria-labelledby={`${id}-title`} className={`px-gutter border-t border-line py-16 sm:py-24 ${className}`}>
+      <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-12 lg:gap-12">
+        <Reveal className="lg:col-span-4">
+          <div className="lg:sticky lg:top-[calc(var(--header-h)+40px)]">
+            <p className="text-eyebrow text-gold">
+              <span className="text-cream-dim">{index}</span> — {label}
+            </p>
+            <h2 id={`${id}-title`} className="mt-4 text-title-1 text-cream">{title}</h2>
+            {intro && <p className="mt-4 text-body text-cream-muted">{intro}</p>}
+          </div>
+        </Reveal>
+        <div className="min-w-0 lg:col-span-8">{children}</div>
+      </div>
+    </section>
+  );
+}
+
 /* ─── Data ───────────────────────────────────────────────────────────────── */
 const TOOLS = [
-  {
-    name: "Friendbot (Stellar Lab)",
-    desc: "Fondea cualquier cuenta de testnet con 10,000 XLM de prueba. Tu billetera de FYV Box ya se fondea sola al empezar.",
-    href: "https://lab.stellar.org/account/fund",
-    icon: Wallet,
-    badge: "Faucet",
-    badgeCls: "text-gold bg-gold-subtle border-line-gold",
-  },
-  {
-    name: "Stellar Lab",
-    desc: "Crea cuentas de testnet, arma y firma transacciones desde el navegador, sin instalar nada.",
-    href: "https://lab.stellar.org/account/create",
-    icon: Code2,
-    badge: "Testnet",
-    badgeCls: "text-info bg-info-subtle border-info-border",
-  },
-  {
-    name: "Stellar Expert",
-    desc: "Explorador de bloques de testnet. Revisa balances y operaciones de tu billetera de prueba.",
-    href: "https://stellar.expert/explorer/testnet",
-    icon: Globe,
-    badge: "Explorador",
-    badgeCls: "text-success bg-success-subtle border-success-border",
-  },
-  {
-    name: "Freighter",
-    desc: "Wallet de Stellar que permite cambiar a Testnet para practicar firmas sin dinero real.",
-    href: "https://freighter.app",
-    icon: Shield,
-    badge: "Wallet",
-    badgeCls: "text-violet bg-violet-subtle border-violet-border",
-  },
+  { name: "Friendbot", by: "Stellar Lab", desc: "Fondea cualquier cuenta de testnet con 10,000 XLM de prueba. Tu billetera de FYV Box ya se fondea sola al empezar.", href: "https://lab.stellar.org/account/fund", badge: "Faucet" },
+  { name: "Stellar Lab", by: "Stellar", desc: "Crea cuentas de testnet, arma y firma transacciones desde el navegador, sin instalar nada.", href: "https://lab.stellar.org/account/create", badge: "Testnet" },
+  { name: "Stellar Expert", by: "Explorador", desc: "Explorador de bloques de testnet. Revisa balances y operaciones de tu billetera de prueba.", href: "https://stellar.expert/explorer/testnet", badge: "Explorador" },
+  { name: "Freighter", by: "Wallet", desc: "Wallet de Stellar que permite cambiar a Testnet para practicar firmas sin dinero real.", href: "https://freighter.app", badge: "Wallet" },
 ];
 
-const WHY_NOT = [
-  { icon: Zap, title: "Sin horarios ni tareas", desc: "Una misión toma menos de 5 minutos. Cuando quieras, al ritmo que puedas.", tone: "text-gold border-line-gold bg-gold-subtle" },
-  { icon: FlaskConical, title: "Escenarios realistas, cero riesgo", desc: "Correos, DMs, wallets y firmas que imitan ataques reales. Equivocarte aquí no cuesta nada.", tone: "text-info border-info-border bg-info-subtle" },
-  { icon: Shield, title: "Credencial verificable", desc: "Al completar un módulo obtienes una prueba pública de que sabes detectar esa estafa. Una wallet, exchange o comunidad puede consultarla antes de darte acceso, sin pedirte nombre ni correo.", tone: "text-success border-success-border bg-success-subtle" },
-  { icon: Sparkles, title: "100% gratis", desc: "Sin inscripción ni mensualidad. Un bien público para Web3 en LATAM.", tone: "text-violet border-violet-border bg-violet-subtle" },
+const METHOD = [
+  { icon: FlaskConical, title: "Escenarios realistas, cero riesgo", desc: "Correos, DMs, wallets y firmas que imitan ataques reales. Equivocarte aquí no cuesta nada: cada respuesta explica la trampa.", wide: true },
+  { icon: Clock, title: "Sin horarios ni tareas", desc: "Una misión toma menos de 5 minutos, al ritmo que puedas." },
+  { icon: HandCoins, title: "100% gratis", desc: "Sin inscripción ni mensualidad. Un bien público para Web3 en LATAM." },
+  { icon: ShieldCheck, title: "Credencial verificable", desc: "Al completar un módulo obtienes una prueba pública de que sabes detectar esa estafa. Una wallet, exchange o comunidad puede consultarla antes de darte acceso, sin pedirte nombre ni correo.", wide: true },
 ];
 
 const WHO = [
-  { icon: Users, tone: "text-info bg-info-subtle", label: "Personas nuevas en crypto", desc: "Acabas de crear tu primera wallet y quieres entender los riesgos antes de mover dinero." },
-  { icon: GraduationCap, tone: "text-gold bg-gold-subtle", label: "Estudiantes universitarios", desc: "Eres de una comunidad blockchain estudiantil y quieres una credencial verificable." },
-  { icon: Globe, tone: "text-success bg-success-subtle", label: "dApps y exchanges", desc: "Consultas /api/verify para saber si un usuario ya entrenó antes de darle acceso." },
-  { icon: BookOpen, tone: "text-violet bg-violet-subtle", label: "Educadores y ONGs", desc: "Das talleres de educación financiera y necesitas simulacros sin riesgo." },
+  { icon: Users, label: "Personas nuevas en crypto", desc: "Acabas de crear tu primera wallet y quieres entender los riesgos antes de mover dinero." },
+  { icon: GraduationCap, label: "Estudiantes universitarios", desc: "Eres de una comunidad blockchain estudiantil y quieres una credencial verificable." },
+  { icon: Globe, label: "dApps y exchanges", desc: "Consultas /api/verify para saber si un usuario ya entrenó antes de darle acceso." },
+  { icon: BookOpen, label: "Educadores y ONGs", desc: "Das talleres de educación financiera y necesitas simulacros sin riesgo." },
 ];
 
 const NAV_LINKS = [
-  { href: "#about", label: "Nosotros" },
-  { href: "#tracks", label: "Módulos" },
-  { href: "#faucets", label: "Faucets" },
+  { href: "#como-funciona", label: "Cómo funciona" },
+  { href: "#modulos", label: "Módulos" },
+  { href: "#para-quien", label: "Para quién" },
 ];
 
 /* ══════════════════════════════════════════════════════════════════════════ */
 export function LandingClient({ missionCount, trackCounts, trackLevels, preview }: LandingProps) {
   const trackTotal = TRACK_ORDER.length;
 
+  const steps = [
+    pollarEnabled
+      ? { icon: Wallet, title: "Entra sin contraseña", desc: "Con tu correo y un código de un solo uso, o como invitado. En ambos casos tienes una billetera de prueba real en Stellar testnet." }
+      : { icon: Wallet, title: "Entra sin registrarte", desc: "Creamos una billetera de prueba real en Stellar testnet. Sin correo ni contraseña." },
+    { icon: FlaskConical, title: "Enfrenta la trampa", desc: "Un correo, un DM, un airdrop o una firma que imitan ataques reales. Tú decides qué hacer." },
+    { icon: GraduationCap, title: "Aprende y certifícate", desc: "Cada respuesta explica la trampa. Completa un módulo y gana su credencial verificable." },
+  ];
+
   return (
     <div className="relative min-h-dvh overflow-x-clip">
-      <ScrollProgress />
-
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
-      <header
-        className="pt-safe fixed inset-x-0 top-0 z-50 border-b border-line bg-navy/85 backdrop-blur-lg"
-      >
+      <header className="pt-safe sticky top-0 z-50 border-b border-line bg-navy">
         <div className="px-gutter mx-auto flex h-[var(--header-h)] max-w-6xl items-center justify-between gap-3">
-          <Link href="/" aria-label="FYV Box — inicio" className="tap flex shrink-0 items-center rounded-xl">
+          <Link href="/" aria-label="FYV Box — inicio" className="tap flex shrink-0 items-center rounded-md">
             <Wordmark size="md" />
           </Link>
-          <nav aria-label="Principal" className="flex items-center gap-1.5 sm:gap-2">
+          <nav aria-label="Principal" className="flex items-center gap-1 sm:gap-2">
             {NAV_LINKS.map(({ href, label }) => (
-              <a key={href} href={href} className="hidden min-h-[44px] items-center rounded-xl px-3 text-sm font-medium text-cream-muted transition-colors hover:text-cream md:flex">
+              <a key={href} href={href} className="hidden min-h-[44px] items-center rounded-md px-3 text-sm font-medium text-cream-muted transition-colors hover:text-cream md:flex">
                 {label}
               </a>
             ))}
+            <Link href="/verify" className="hidden min-h-[44px] items-center rounded-md px-3 text-sm font-medium text-cream-muted transition-colors hover:text-cream md:flex">
+              Verificar
+            </Link>
+            <ThemeToggle />
             <Link
               href="/dashboard"
-              className="flex min-h-[44px] items-center gap-1.5 rounded-xl border border-line-gold bg-gold-subtle px-3.5 text-sm font-bold text-gold transition-colors hover:bg-gold/20"
+              className="press flex min-h-[44px] items-center gap-1.5 rounded-md border border-gold-active bg-gold px-3.5 text-sm font-semibold text-on-gold hover:bg-gold-hover"
             >
               Entrenar
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
-            <ThemeToggle />
           </nav>
         </div>
       </header>
 
       <main id="main" tabIndex={-1} className="outline-none">
         {/* ══ HERO ══════════════════════════════════════════════════════ */}
-        <section className="relative flex flex-col pt-[calc(var(--header-h)+var(--safe-top))] lg:min-h-dvh lg:flex-row">
-          <div className="px-gutter flex w-full flex-col pb-10 pt-10 lg:w-1/2 lg:items-center lg:justify-center lg:px-16 lg:py-0">
-            <div className="mx-auto w-full max-w-lg">
-              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-border bg-amber-subtle px-3.5 py-1.5 text-xs font-semibold text-amber">
-                <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden />
-                Stellar testnet · sin dinero real
+        <section className="bg-grid px-gutter relative">
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-navy" />
+          <div className="relative mx-auto grid max-w-6xl items-center gap-12 pb-16 pt-12 sm:pt-16 lg:grid-cols-12 lg:gap-10 lg:pb-24 lg:pt-24">
+            <div className="lg:col-span-7">
+              <p className="inline-flex items-center gap-2 rounded-sm border border-amber-border bg-amber-subtle px-2.5 py-1 font-mono text-[0.8125rem] text-amber">
+                <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+                <span className="hidden sm:inline">Simulador ·</span> Stellar testnet · sin dinero real
               </p>
 
-              <h1 className="text-display text-cream">
-                No caigas en <span className="text-gold-gradient">estafas crypto</span>
+              <h1 className="mt-6 max-w-[14ch] text-display text-cream">
+                No caigas en <em className="font-medium italic text-gold">estafas crypto</em>.
               </h1>
 
-              <p className="mt-5 text-body text-cream-muted sm:text-lg">
+              <p className="mt-6 max-w-xl text-body text-cream-muted sm:text-lg sm:leading-relaxed">
                 Practica con {missionCount} simulacros de las estafas más comunes en Web3 —phishing, airdrops falsos,
                 ingeniería social y firmas peligrosas— y obtén una credencial verificable ligada a tu dirección Stellar.
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a
-                  href="#start"
-                  className="group flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-gold px-6 text-base font-bold text-on-gold shadow-[var(--shadow-gold)] transition-colors hover:bg-gold-hover active:bg-gold-active"
-                >
-                  Comenzar gratis
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-                </a>
-                <a
-                  href="#who"
-                  className="flex min-h-[52px] items-center justify-center gap-1.5 rounded-xl border border-line-strong px-5 text-base text-cream-muted transition-colors hover:border-line-gold hover:text-cream"
-                >
-                  ¿Esto es para mí?
-                  <ChevronDown className="h-4 w-4" aria-hidden />
-                </a>
+              <div className="mt-8">
+                <StartTraining
+                  layout="hero"
+                  secondary={
+                    <Link
+                      href={`/mission/${preview.id}`}
+                      className="flex min-h-[52px] items-center justify-center gap-2 rounded-md border border-line-strong px-5 text-base font-medium text-cream transition-colors hover:border-line-gold hover:bg-gold-subtle"
+                    >
+                      Ver una misión de ejemplo
+                    </Link>
+                  }
+                />
               </div>
 
-              <dl className="mt-8 grid grid-cols-3 gap-4 border-t border-line pt-5">
+              <dl className="mt-10 grid max-w-xl grid-cols-3 border-y border-line">
                 {[
                   { n: String(missionCount), label: "simulacros" },
-                  { n: String(trackTotal), label: "módulos" },
-                  { n: "0 XLM", label: "de riesgo" },
-                ].map(({ n, label }) => (
-                  <div key={label} className="flex flex-col-reverse">
-                    <dt className="text-sm text-cream-muted">{label}</dt>
-                    <dd className="font-display text-2xl font-bold tabular-nums text-gold">{n}</dd>
+                  { n: String(trackTotal), label: "módulos con credencial" },
+                  { n: "0 XLM", label: "de riesgo real" },
+                ].map(({ n, label }, i) => (
+                  <div key={label} className={`flex flex-col-reverse justify-end gap-1 py-4 ${i > 0 ? "border-l border-line pl-4" : "pr-4"}`}>
+                    <dt className="text-sm leading-snug text-cream-muted">{label}</dt>
+                    <dd className="font-mono text-xl font-medium tabular-nums text-cream sm:text-2xl">{n}</dd>
                   </div>
                 ))}
               </dl>
-
-              <div className="mt-12 lg:hidden">
-                <div className="relative z-10 mx-auto mb-2 w-36" aria-hidden>
-                  <div className="logo-halo pointer-events-none absolute -inset-4 -z-10 rounded-full blur-lg" />
-                  <Image src="/logo-panther.webp" alt="" width={176} height={69} sizes="160px" className="logo-panther-sm h-auto w-full" priority />
-                </div>
-                <HeroPreview data={preview} />
-              </div>
             </div>
-          </div>
 
-          <div aria-hidden className="pointer-events-none absolute bottom-0 left-1/2 top-16 hidden w-px bg-gradient-to-b from-transparent via-line-gold to-transparent lg:block" />
-
-          <div className="hidden flex-col items-center justify-center px-12 py-16 lg:flex lg:w-1/2">
-            <div className="relative z-10 mb-4 w-full max-w-[280px]">
-              <HologramLogo />
+            <div className="lg:col-span-5">
+              <HeroPreview data={preview} />
             </div>
-            <HeroPreview data={preview} />
           </div>
         </section>
 
-        {/* ══ TRUST BAR ═════════════════════════════════════════════════ */}
-        <div className="px-gutter">
-          <Reveal className="mx-auto max-w-3xl">
-            <ul className="grid gap-4 rounded-2xl border border-line bg-surface/60 px-5 py-4 backdrop-blur-sm sm:grid-cols-3">
-              {[
-                { icon: Wallet, text: "Cuenta real en testnet", sub: "Verificable en el explorador" },
-                { icon: CheckCircle, text: "Open source", sub: "Código abierto en GitHub" },
-                { icon: Globe, text: "Hecho en LATAM", sub: "Por la comunidad CriptoUNAM" },
-              ].map(({ icon: Icon, text, sub }) => (
-                <li key={text} className="flex items-center gap-3">
-                  <Icon className="h-5 w-5 shrink-0 text-gold" strokeWidth={2} aria-hidden />
-                  <div>
-                    <p className="text-sm font-semibold text-cream">{text}</p>
-                    <p className="text-xs text-cream-muted">{sub}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </Reveal>
-        </div>
+        {/* ══ 01 CÓMO FUNCIONA ══════════════════════════════════════════ */}
+        <Section
+          id="como-funciona"
+          index="01"
+          label="Cómo funciona"
+          title="Tres pasos, cinco minutos por misión"
+          intro="Sin videos ni exámenes. Cada misión recrea una situación de fraude y tú decides cómo reaccionar."
+        >
+          <ol className="border-b border-line">
+            {steps.map(({ icon: Icon, title, desc }, i) => (
+              <Reveal as="li" key={title} delay={i * 0.06} className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-1 border-t border-line py-6 sm:grid-cols-[4rem_1fr_auto] sm:items-start">
+                <span className="font-mono text-sm text-gold sm:pt-1">{String(i + 1).padStart(2, "0")}</span>
+                <div>
+                  <h3 className="text-title-3 text-cream">{title}</h3>
+                  <p className="mt-1.5 max-w-xl text-body text-cream-muted">{desc}</p>
+                </div>
+                <span className="hidden h-11 w-11 items-center justify-center rounded-md border border-line-strong text-cream-muted sm:flex">
+                  <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+                </span>
+              </Reveal>
+            ))}
+          </ol>
+        </Section>
 
-        {/* ══ CÓMO FUNCIONA ═════════════════════════════════════════════ */}
-        <section aria-labelledby="how-title" className="px-gutter pt-16 sm:pt-24">
-          <div className="mx-auto max-w-5xl">
-            <Reveal className="mb-10 text-center">
-              <Eyebrow>Cómo funciona</Eyebrow>
-              <h2 id="how-title" className="text-title-1 text-cream">Tres pasos, cinco minutos por misión</h2>
-            </Reveal>
-            <ol className="relative grid gap-6 sm:grid-cols-3">
-              <li aria-hidden className="pointer-events-none absolute bottom-10 left-7 top-10 w-px bg-line-gold sm:bottom-auto sm:left-[16%] sm:right-[16%] sm:top-7 sm:h-px sm:w-auto" />
-              {[
-                pollarEnabled
-                  ? { icon: Wallet, title: "Entra sin contraseña", desc: "Con tu correo y un código de un solo uso, o como invitado. En ambos casos tienes una billetera de prueba real en Stellar testnet." }
-                  : { icon: Wallet, title: "Entra sin registrarte", desc: "Creamos una billetera de prueba real en Stellar testnet. Sin correo ni contraseña." },
-                { icon: FlaskConical, title: "Enfrenta la trampa", desc: "Un correo, un DM, un airdrop o una firma que imitan ataques reales. Tú decides qué hacer." },
-                { icon: GraduationCap, title: "Aprende y certifícate", desc: "Cada respuesta explica la trampa. Completa un módulo y gana su credencial verificable." },
-              ].map(({ icon: Icon, title, desc }, i) => (
-                <Reveal as="li" key={title} delay={i * 0.08} className="relative flex gap-4 sm:flex-col sm:items-center sm:text-center">
-                  <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-line-gold bg-navy text-gold shadow-[var(--shadow-gold)]">
-                    <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden />
-                    <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-xs font-bold text-on-gold">{i + 1}</span>
-                  </span>
-                  <div className="pt-1 sm:pt-0">
-                    <h3 className="text-title-3 text-cream">{title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-cream-muted">{desc}</p>
-                  </div>
+        {/* ══ 02 MÓDULOS ════════════════════════════════════════════════ */}
+        <Section
+          id="modulos"
+          index="02"
+          label="Contenido"
+          title={<><span className="whitespace-nowrap">{missionCount} simulacros,</span>{" "}<span className="whitespace-nowrap">{trackTotal} módulos</span></>}
+          intro="Cada módulo termina con una credencial verificable. Hazlos en el orden que quieras."
+        >
+          <ul className="overflow-hidden rounded-lg border border-line-strong bg-surface shadow-[var(--shadow-md)]">
+            {TRACK_ORDER.map((track, i) => {
+              const s = TRACK_STYLE[track];
+              const [lo, hi] = trackLevels[track];
+              return (
+                <Reveal as="li" key={track} delay={i * 0.04} className={i > 0 ? "border-t border-line" : ""}>
+                  <Link href="/dashboard" className="group relative flex items-start gap-4 p-5 transition-colors hover:bg-surface-2 sm:items-center sm:gap-5 sm:px-6">
+                    <span aria-hidden className={`absolute inset-y-0 left-0 w-[3px] ${s.bar} opacity-80`} />
+                    <TrackArt track={track} size={44} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <h3 className="text-title-3 text-cream">{TrackMeta[track].label}</h3>
+                        <span className="font-mono text-xs text-cream-muted">
+                          {trackCounts[track]} {trackCounts[track] === 1 ? "misión" : "misiones"} · {lo === hi ? LEVEL_LABEL[lo] : `${LEVEL_LABEL[lo]} → ${LEVEL_LABEL[hi]}`}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm leading-relaxed text-cream-muted sm:text-[0.9375rem]">{TrackMeta[track].description}</p>
+                    </div>
+                    <ArrowRight className="mt-1 h-5 w-5 shrink-0 text-cream-dim transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-gold sm:mt-0" aria-hidden />
+                  </Link>
                 </Reveal>
-              ))}
-            </ol>
-          </div>
+              );
+            })}
+          </ul>
+        </Section>
+
+        {/* ══ 03 MÉTODO ═════════════════════════════════════════════════ */}
+        <Section
+          id="metodo"
+          index="03"
+          label="Método"
+          title={<>Las escuelas enseñan teoría. <span className="text-gold">Aquí entras a la trampa.</span></>}
+        >
+          <ul className="grid gap-px overflow-hidden rounded-lg border border-line-strong bg-line-strong sm:grid-cols-2 lg:grid-cols-3">
+            {METHOD.map(({ icon: Icon, title, desc, wide }, i) => (
+              <Reveal as="li" key={title} delay={i * 0.05} className={`bg-navy p-6 sm:p-7 ${wide ? "lg:col-span-2" : ""}`}>
+                <Icon className="h-6 w-6 text-gold" strokeWidth={1.75} aria-hidden />
+                <h3 className="mt-5 text-title-3 text-cream">{title}</h3>
+                <p className="mt-2 text-body-sm text-cream-muted sm:text-base">{desc}</p>
+              </Reveal>
+            ))}
+          </ul>
+        </Section>
+
+        {/* ══ 04 PARA QUIÉN ═════════════════════════════════════════════ */}
+        <Section id="para-quien" index="04" label="Para quién" title="Para personas y para código">
+          <dl className="grid gap-x-10 sm:grid-cols-2">
+            {WHO.map(({ icon: Icon, label, desc }, i) => (
+              <Reveal key={label} delay={i * 0.05} className="flex gap-4 border-t border-line py-6">
+                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-gold" strokeWidth={1.75} aria-hidden />
+                <div>
+                  <dt className="font-semibold text-cream">{label}</dt>
+                  <dd className="mt-1 text-body-sm text-cream-muted sm:text-base">{desc}</dd>
+                </div>
+              </Reveal>
+            ))}
+          </dl>
+
+          <Reveal className="mt-8">
+            <div className="overflow-hidden rounded-lg border border-line-strong bg-surface shadow-[var(--shadow-md)]">
+              <div className="flex items-center gap-2 border-b border-line px-5 py-3">
+                <Code2 className="h-4 w-4 text-cream-muted" aria-hidden />
+                <h3 className="text-sm font-semibold text-cream">Integra la verificación en tu dApp</h3>
+                <span className="ml-auto rounded-sm border border-line px-1.5 py-0.5 font-mono text-xs text-cream-muted">público · CORS abierto</span>
+              </div>
+              <pre className="scroll-x bg-navy-deep px-5 py-4 text-[0.8125rem] leading-relaxed text-cream-muted">
+<span className="text-gold">GET</span> /api/verify?address=<span className="text-cream">G…</span>{"\n"}<span className="text-cream-dim">→</span> {"{"} &quot;certified&quot;: <span className="text-success">true</span>, &quot;modules&quot;: [<span className="text-cream">…</span>] {"}"}
+              </pre>
+              <div className="border-t border-line px-5 py-2">
+                <Link href="/verify" className="tap -ml-2 inline-flex items-center gap-1.5 rounded-md px-2 text-sm font-semibold text-gold underline-offset-4 hover:underline">
+                  Probar el verificador <ArrowRight className="h-4 w-4" aria-hidden />
+                </Link>
+              </div>
+            </div>
+          </Reveal>
+        </Section>
+
+        {/* ══ 05 HERRAMIENTAS ═══════════════════════════════════════════ */}
+        <Section
+          id="herramientas"
+          index="05"
+          label="Faucets y herramientas"
+          title="Explora Stellar testnet"
+          intro="Herramientas oficiales y del ecosistema para practicar. Ningún fondo de testnet tiene valor real."
+        >
+          <ul className="border-b border-line">
+            {TOOLS.map(({ name, by, desc, href, badge }, i) => (
+              <Reveal as="li" key={name} delay={i * 0.04} className="border-t border-line">
+                <a href={href} target="_blank" rel="noopener noreferrer" className="group grid gap-1 py-5 sm:grid-cols-[12rem_1fr_auto] sm:items-baseline sm:gap-6">
+                  <span className="flex items-baseline gap-2">
+                    <span className="font-semibold text-cream group-hover:text-gold">{name}</span>
+                    <span className="font-mono text-xs text-cream-dim">{badge}</span>
+                  </span>
+                  <span className="text-body-sm text-cream-muted sm:text-base">
+                    <span className="sr-only">{by}. </span>{desc}
+                  </span>
+                  <ArrowUpRight className="hidden h-4 w-4 text-cream-dim transition-colors group-hover:text-gold sm:block" aria-label="(abre en otra pestaña)" />
+                </a>
+              </Reveal>
+            ))}
+          </ul>
+        </Section>
+
+        {/* ══ QUIÉNES SOMOS ═════════════════════════════════════════════ */}
+        <section id="nosotros" aria-labelledby="nosotros-title" className="px-gutter border-t border-line bg-surface py-16 sm:py-20">
+          <Reveal className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <Image src="/logo-panther.webp" alt="Logo de FYV Box: pantera en un circuito" width={320} height={125} sizes="320px" className="logo-panther h-auto w-56 sm:w-72" />
+            </div>
+            <div className="lg:col-span-8">
+              <p className="text-eyebrow text-gold">Quiénes somos</p>
+              <h2 id="nosotros-title" className="mt-3 text-title-2 text-cream sm:text-[1.75rem]">Un proyecto de la comunidad, para la comunidad</h2>
+              <p className="mt-4 max-w-2xl text-body text-cream-muted">
+                FYV Box nació en <strong className="font-semibold text-cream">CriptoUNAM</strong>, la comunidad blockchain de
+                estudiantes de la UNAM. Vimos a personas nuevas perder fondos en estafas básicas que se evitan con práctica, así
+                que hicimos un simulador donde equivocarse cuesta cero. El código es abierto.
+              </p>
+              <a href={GITHUB} target="_blank" rel="noopener noreferrer" className="tap -ml-2 mt-3 inline-flex items-center gap-1.5 rounded-md px-2 text-sm font-semibold text-gold underline-offset-4 hover:underline">
+                Ver el código en GitHub <ArrowUpRight className="h-4 w-4" aria-hidden />
+              </a>
+            </div>
+          </Reveal>
         </section>
 
         {/* ══ START ═════════════════════════════════════════════════════ */}
-        <section id="start" aria-labelledby="start-title" className="px-gutter py-14 sm:py-20">
-          <div className="mx-auto max-w-md">
-            <Reveal className="mb-8 text-center">
-              <Eyebrow>Comienza ahora</Eyebrow>
-              <h2 id="start-title" className="text-title-1 text-cream">¿Listo para entrenar?</h2>
-              <p className="mt-3 text-body-sm text-cream-muted">
-                Tienes una billetera de prueba en Stellar testnet, fondeada con Friendbot, y cada credencial que ganes
-                queda ligada a su dirección.
+        <section id="start" aria-labelledby="start-title" className="px-gutter border-t border-line py-16 sm:py-24">
+          <Reveal className="mx-auto grid max-w-6xl gap-8 rounded-lg border border-line-strong bg-surface p-6 shadow-[var(--shadow-lg)] sm:p-10 lg:grid-cols-12 lg:items-center">
+            <div className="lg:col-span-7">
+              <h2 id="start-title" className="text-title-1 text-cream">Empieza tu primera misión</h2>
+              <p className="mt-3 max-w-xl text-body text-cream-muted">
+                Tienes una billetera de prueba en Stellar testnet, fondeada con Friendbot, y cada credencial que ganes queda
+                ligada a su dirección.
               </p>
-            </Reveal>
-            <Reveal>
-              <GlassCard className="p-5 shadow-[var(--shadow-lg)] sm:p-6" gold>
-                <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-border bg-amber-subtle px-3.5 py-3">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber" strokeWidth={2.5} aria-hidden />
-                  <p className="text-sm text-amber">
-                    <strong>Entorno de práctica.</strong> Nunca uses aquí una wallet ni una frase semilla reales.
-                  </p>
-                </div>
-                <StartTraining />
-              </GlassCard>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* ══ QUIÉNES SOMOS ═════════════════════════════════════════════ */}
-        <section id="about" aria-labelledby="about-title" className="px-gutter border-y border-line bg-surface/35 py-14 sm:py-20">
-          <div className="mx-auto max-w-5xl">
-            <Reveal className="mb-10 text-center">
-              <Eyebrow>Quiénes somos</Eyebrow>
-              <h2 id="about-title" className="text-title-1 text-cream">Un proyecto de la comunidad, para la comunidad</h2>
-              <p className="mx-auto mt-4 max-w-2xl text-body text-cream-muted">
-                FYV Box nació en <strong className="text-cream">CriptoUNAM</strong>, la comunidad blockchain de estudiantes
-                de la UNAM. Vimos a personas nuevas perder fondos en estafas básicas que se evitan con práctica, así que
-                hicimos un simulador donde equivocarse cuesta cero.
+              <p className="mt-5 flex max-w-xl items-start gap-2.5 border-l-2 border-amber pl-3 text-sm text-cream">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber" strokeWidth={2.25} aria-hidden />
+                <span><strong className="font-semibold">Entorno de práctica.</strong> Nunca uses aquí una wallet ni una frase semilla reales.</span>
               </p>
-            </Reveal>
-
-            <dl className="grid grid-cols-3 gap-3 sm:gap-5">
-              {[
-                { value: String(missionCount), desc: "simulacros de estafas reales", icon: Shield },
-                { value: String(trackTotal), desc: "módulos con credencial", icon: Sparkles },
-                { value: "0 XLM", desc: "de riesgo al entrenar", icon: CheckCircle },
-              ].map(({ value, desc, icon: Icon }, i) => (
-                <Reveal key={desc} delay={i * 0.08}>
-                  <div className="flex h-full flex-col items-center gap-2 rounded-2xl border border-line-strong bg-navy/60 px-2 py-5 text-center sm:p-6">
-                    <Icon className="h-5 w-5 text-gold sm:h-6 sm:w-6" strokeWidth={1.75} aria-hidden />
-                    <dd className="font-display text-2xl font-bold tabular-nums text-cream sm:text-4xl">{value}</dd>
-                    <dt className="text-xs leading-snug text-cream-muted sm:text-sm">{desc}</dt>
-                  </div>
-                </Reveal>
-              ))}
-            </dl>
-          </div>
-        </section>
-
-        {/* ══ TRACKS ════════════════════════════════════════════════════ */}
-        <section id="tracks" aria-labelledby="tracks-title" className="px-gutter py-14 sm:py-20">
-          <div className="mx-auto max-w-5xl">
-            <Reveal className="mb-10 text-center">
-              <Eyebrow>Contenido</Eyebrow>
-              <h2 id="tracks-title" className="text-title-1 text-cream">
-                <span className="whitespace-nowrap">{missionCount} simulacros ·</span>{" "}
-                <span className="whitespace-nowrap">{trackTotal} módulos</span>
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-body text-cream-muted">
-                Cada módulo termina con una credencial verificable. Hazlos en el orden que quieras.
-              </p>
-            </Reveal>
-
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {TRACK_ORDER.map((track, i) => {
-                const s = TRACK_STYLE[track];
-                return (
-                  <Reveal as="li" key={track} delay={i * 0.05} className="h-full">
-                      <Link href="/dashboard" className="group block h-full rounded-2xl">
-                        <GlassCard className="relative flex h-full flex-col overflow-hidden p-5 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:border-line-gold motion-reduce:group-hover:translate-y-0">
-                          <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${s.bar}`} />
-                          <div className="mb-4 flex items-center justify-between gap-3">
-                            <TrackArt track={track} size={52} />
-                            <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${s.chip}`}>
-                              {trackCounts[track]} {trackCounts[track] === 1 ? "misión" : "misiones"}
-                            </span>
-                          </div>
-                          <h3 className={`text-title-3 ${s.text}`}>{TrackMeta[track].label}</h3>
-                          <p className="mt-1.5 flex-1 text-sm leading-relaxed text-cream-muted">{TrackMeta[track].description}</p>
-                          <p className="mt-3 text-xs font-medium text-cream-dim">
-                            Nivel:{" "}
-                            {trackLevels[track][0] === trackLevels[track][1]
-                              ? LEVEL_LABEL[trackLevels[track][0]]
-                              : `${LEVEL_LABEL[trackLevels[track][0]]} → ${LEVEL_LABEL[trackLevels[track][1]]}`}
-                          </p>
-                          <span className="mt-4 flex items-center gap-1 text-sm font-semibold text-cream-muted transition-colors group-hover:text-gold">
-                            Empezar módulo
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-                          </span>
-                        </GlassCard>
-                      </Link>
-                    </Reveal>
-                );
-              })}
-            </ul>
-          </div>
-        </section>
-
-        {/* ══ POR QUÉ ═══════════════════════════════════════════════════ */}
-        <section id="why" aria-labelledby="why-title" className="px-gutter py-14 sm:py-20">
-          <div className="mx-auto max-w-5xl">
-            <Reveal className="mb-10 text-center">
-              <Eyebrow>Por qué no somos una escuela</Eyebrow>
-              <h2 id="why-title" className="text-title-1 text-cream">
-                Las escuelas enseñan teoría. <span className="text-gold">Nosotros te ponemos en la trampa.</span>
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-body text-cream-muted">
-                Sin videos ni exámenes. Cada misión recrea una situación de fraude y tú decides cómo reaccionar.
-              </p>
-            </Reveal>
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {WHY_NOT.map(({ icon: Icon, title, desc, tone }, i) => (
-                <Reveal as="li" key={title} delay={i * 0.06}>
-                    <GlassCard className="flex gap-4 p-5">
-                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border ${tone}`}>
-                        <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-semibold text-cream">{title}</h3>
-                        <p className="mt-1 text-sm leading-relaxed text-cream-muted">{desc}</p>
-                      </div>
-                    </GlassCard>
-                  </Reveal>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* ══ A QUIÉN ═══════════════════════════════════════════════════ */}
-        <section id="who" aria-labelledby="who-title" className="px-gutter border-y border-line bg-surface/35 py-14 sm:py-20">
-          <div className="mx-auto max-w-5xl">
-            <Reveal className="mb-10 text-center">
-              <Eyebrow>¿A quién le sirve?</Eyebrow>
-              <h2 id="who-title" className="text-title-1 text-cream">Para personas y para código</h2>
-            </Reveal>
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {WHO.map(({ icon: Icon, tone, label, desc }, i) => (
-                <Reveal as="li" key={label} delay={i * 0.06}>
-                    <GlassCard className="flex gap-4 p-5">
-                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${tone}`}>
-                        <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-semibold text-cream">{label}</h3>
-                        <p className="mt-1 text-sm leading-relaxed text-cream-muted">{desc}</p>
-                      </div>
-                    </GlassCard>
-                  </Reveal>
-              ))}
-            </ul>
-
-            <Reveal className="mt-5">
-              <div className="rounded-2xl border border-info-border bg-info-subtle p-5">
-                <div className="flex items-start gap-3">
-                  <Code2 className="mt-0.5 h-5 w-5 shrink-0 text-info" strokeWidth={1.75} aria-hidden />
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-base font-semibold text-info">Integra la verificación en tu dApp</h3>
-                    <p className="mt-0.5 text-sm text-cream-muted">Un endpoint público, sin auth, con CORS abierto:</p>
-                    <pre className="scroll-x mt-3 rounded-xl bg-navy p-4 text-[0.8125rem] leading-relaxed text-cream-muted">
-<span className="text-info">GET</span> /api/verify?<span className="text-gold">address</span>=<span className="text-success">G…</span>{"\n"}→ {"{"} <span className="text-info">&quot;certified&quot;</span>: <span className="text-success">true</span>, <span className="text-info">&quot;modules&quot;</span>: [<span className="text-amber">…</span>] {"}"}
-                    </pre>
-                    <Link href="/verify" className="tap -ml-2 mt-2 inline-flex items-center gap-1.5 rounded-xl px-2 text-sm font-semibold text-info hover:underline">
-                      Probar el verificador <ArrowRight className="h-4 w-4" aria-hidden />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* ══ FAUCETS ═══════════════════════════════════════════════════ */}
-        <section id="faucets" aria-labelledby="faucets-title" className="px-gutter py-14 sm:py-20">
-          <div className="mx-auto max-w-5xl">
-            <Reveal className="mb-10 text-center">
-              <Eyebrow>Faucets y herramientas</Eyebrow>
-              <h2 id="faucets-title" className="text-title-1 text-cream">Explora Stellar testnet</h2>
-              <p className="mx-auto mt-4 max-w-xl text-body text-cream-muted">
-                Herramientas oficiales y del ecosistema para practicar. Ningún fondo de testnet tiene valor real.
-              </p>
-            </Reveal>
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {TOOLS.map(({ name, desc, href, icon: Icon, badge, badgeCls }, i) => (
-                <Reveal as="li" key={name} delay={i * 0.06}>
-                    <a href={href} target="_blank" rel="noopener noreferrer" className="group block rounded-2xl">
-                      <GlassCard className="flex items-start gap-4 p-5 group-hover:border-line-gold">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-line-gold bg-gold-subtle">
-                          <Icon className="h-5 w-5 text-gold" strokeWidth={1.75} aria-hidden />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-base font-semibold text-cream">{name}</h3>
-                            <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${badgeCls}`}>{badge}</span>
-                            <ExternalLink className="ml-auto h-4 w-4 shrink-0 text-cream-muted transition-colors group-hover:text-gold" aria-label="(abre en otra pestaña)" />
-                          </div>
-                          <p className="mt-1 text-sm leading-relaxed text-cream-muted">{desc}</p>
-                        </div>
-                      </GlassCard>
-                    </a>
-                  </Reveal>
-              ))}
-            </ul>
-          </div>
+            </div>
+            <div className="lg:col-span-5">
+              <StartTraining />
+            </div>
+          </Reveal>
         </section>
       </main>
 
-      <footer className="px-gutter pb-safe border-t border-line pt-10 backdrop-blur-sm">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-            <div className="text-center sm:text-left">
+      <footer className="px-gutter pb-safe border-t border-line pt-10">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div>
               <Wordmark size="sm" />
-              <p className="text-xs text-cream-muted">Entrenamiento anti-fraude · Web3 LATAM</p>
+              <p className="mt-1 text-sm text-cream-muted">Entrenamiento anti-estafas · Stellar testnet</p>
             </div>
-            <nav aria-label="Pie de página" className="flex flex-wrap items-center justify-center gap-1">
+            <nav aria-label="Pie de página" className="-ml-3 flex flex-wrap items-center gap-1 sm:ml-0">
               {[
-                { href: "#about", label: "Quiénes somos" },
-                { href: "#faucets", label: "Faucets" },
+                { href: "#modulos", label: "Módulos" },
+                { href: "#herramientas", label: "Faucets" },
                 { href: "/verify", label: "Verificar" },
-              ].map(({ href, label }) => (
-                <a key={label} href={href} className="flex min-h-[44px] items-center rounded-xl px-3 text-sm text-cream-muted transition-colors hover:text-gold">
+                { href: GITHUB, label: "GitHub", external: true },
+              ].map(({ href, label, external }) => (
+                <a
+                  key={label}
+                  href={href}
+                  {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  className="flex min-h-[44px] items-center rounded-md px-3 text-sm text-cream-muted transition-colors hover:text-cream"
+                >
                   {label}
                 </a>
               ))}
-              <a
-                href="https://github.com/ALFA117/fyv-box"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Código en GitHub"
-                className="tap flex items-center justify-center rounded-xl border border-line text-cream-muted transition-colors hover:border-line-gold hover:text-gold"
-              >
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>
-                  <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                </svg>
-              </a>
             </nav>
           </div>
-          <div className="flex flex-col items-center justify-between gap-1 border-t border-line pt-5 text-center text-xs text-cream-muted sm:flex-row sm:text-left">
-            <p>© 2026 FYV Box · Hecho por la comunidad <strong className="text-cream">CriptoUNAM</strong></p>
-            <p>Corre en <span className="text-gold">Stellar testnet</span> · cero riesgo financiero</p>
+          <div className="mt-6 flex flex-col gap-1 border-t border-line pt-5 text-sm text-cream-muted sm:flex-row sm:justify-between">
+            <p>© 2026 FYV Box · Comunidad CriptoUNAM</p>
+            <p className="font-mono text-xs leading-5">Stellar testnet · sin riesgo financiero</p>
           </div>
         </div>
       </footer>
