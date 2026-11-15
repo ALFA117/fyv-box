@@ -87,6 +87,19 @@ export function HelpBot() {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const hidden = pathname?.startsWith("/mission/");
+  // En pantallas angostas el botón flotante tapaba la misión de ejemplo del hero (portada) y el CTA
+  // «Empieza aquí» (mapa): ahí aparece hasta que la persona baja un poco.
+  const scrollGated = pathname === "/" || pathname === "/dashboard";
+  const [pastHero, setPastHero] = useState(false);
+  useEffect(() => {
+    if (!scrollGated) return;
+    const limit = pathname === "/" ? 640 : 360;
+    const check = () => setPastHero(window.scrollY > limit);
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    return () => window.removeEventListener("scroll", check);
+  }, [pathname, scrollGated]);
+  const waitForScroll = scrollGated && !pastHero && !open;
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: reduce ? "auto" : "smooth" });
@@ -249,15 +262,15 @@ export function HelpBot() {
             exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: 10, transition: { duration: 0.14 } }}
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
             style={{ transformOrigin: "bottom right", bottom: "calc(var(--safe-bottom) + 84px)" }}
-            className="fixed right-4 z-[60] flex max-h-[min(600px,calc(100dvh-120px))] w-[calc(100vw-32px)] max-w-sm flex-col overflow-hidden rounded-2xl border border-line-strong bg-surface shadow-[var(--shadow-md)]"
+            className="fixed right-4 z-[60] flex max-h-[min(600px,calc(100dvh-120px))] w-[calc(100vw-32px)] max-w-sm flex-col overflow-hidden rounded-lg border border-line-strong bg-surface shadow-[var(--shadow-lg)]"
           >
-            <header className="flex items-center gap-3 border-b border-line bg-navy/60 px-4 py-3">
+            <header className="flex items-center gap-3 border-b border-line bg-navy px-4 py-3">
               <Avatar />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-cream">Asistente FYV</p>
                 <p className="text-xs text-cream-muted">Respuestas guiadas + IA gratuita (Gemini)</p>
               </div>
-              <button type="button" onClick={close} aria-label="Cerrar asistente" className="tap flex items-center justify-center rounded-xl text-cream-muted hover:text-cream">
+              <button type="button" onClick={close} aria-label="Cerrar asistente" className="tap flex items-center justify-center rounded-md text-cream-muted hover:text-cream">
                 <X className="h-5 w-5" aria-hidden />
               </button>
             </header>
@@ -273,8 +286,8 @@ export function HelpBot() {
                 >
                   {m.from === "bot" && <Avatar />}
                   <div
-                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                      m.from === "user" ? "rounded-br-md bg-gold text-on-gold" : "rounded-bl-md border border-line bg-navy text-cream"
+                    className={`max-w-[85%] rounded-md px-3.5 py-2.5 text-sm leading-relaxed ${
+                      m.from === "user" ? "bg-gold text-on-gold" : "border border-line bg-navy text-cream"
                     }`}
                   >
                     {m.ai && (
@@ -295,7 +308,7 @@ export function HelpBot() {
               {typing && (
                 <div className="flex items-end gap-2" role="status" aria-label="Escribiendo">
                   <Avatar />
-                  <div className="flex gap-1 rounded-2xl rounded-bl-md border border-line bg-navy px-3.5 py-3">
+                  <div className="flex gap-1 rounded-md border border-line bg-navy px-3.5 py-3">
                     {[0, 1, 2].map((i) => (
                       <span key={i} className="h-1.5 w-1.5 animate-bounce rounded-full bg-cream-muted" style={{ animationDelay: `${i * 120}ms` }} />
                     ))}
@@ -338,9 +351,9 @@ export function HelpBot() {
                 autoComplete="off"
                 enterKeyHint="send"
                 placeholder={analyzeNext ? "Pega aquí el mensaje sospechoso…" : "Escribe tu duda o pega un mensaje…"}
-                className="h-11 min-w-0 flex-1 rounded-xl border border-line bg-navy px-3 text-base text-cream placeholder:text-cream-dim focus:border-gold-ring focus:outline-none"
+                className="h-11 min-w-0 flex-1 rounded-md border border-line bg-navy px-3 text-base text-cream placeholder:text-cream-dim focus:border-gold-ring focus:outline-none"
               />
-              <button type="submit" aria-label="Enviar" disabled={!input.trim() || typing} className="tap flex items-center justify-center rounded-xl bg-gold text-on-gold disabled:opacity-45">
+              <button type="submit" aria-label="Enviar" disabled={!input.trim() || typing} className="tap flex items-center justify-center rounded-md bg-gold text-on-gold disabled:opacity-45">
                 <Send className="h-4 w-4" aria-hidden />
               </button>
             </form>
@@ -357,7 +370,7 @@ export function HelpBot() {
             exit={{ opacity: 0, x: 8, transition: { duration: 0.12 } }}
             transition={{ type: "spring", stiffness: 300, damping: 24 }}
             style={{ bottom: "calc(var(--safe-bottom) + 22px)" }}
-            className="fixed right-[84px] z-[60] flex max-w-[230px] items-center gap-1 rounded-2xl rounded-br-md border border-line-gold bg-surface py-1.5 pl-3 pr-1 text-sm text-cream shadow-[var(--shadow-md)]"
+            className="fixed right-[84px] z-[60] hidden max-w-[230px] items-center gap-1 rounded-md sm:flex border border-line-gold bg-surface py-1.5 pl-3 pr-1 text-sm text-cream shadow-[var(--shadow-md)]"
           >
             <button type="button" onClick={() => { dismissNudge(); setOpen(true); }} className="py-1 text-left">
               ¿Dudas o un mensaje raro? <span className="font-semibold text-gold">Pregúntame</span>
@@ -379,7 +392,7 @@ export function HelpBot() {
         whileTap={reduce ? undefined : { scale: 0.94 }}
         transition={{ type: "spring", stiffness: 400, damping: 20 }}
         style={{ bottom: "calc(var(--safe-bottom) + 16px)" }}
-        className="fixed right-4 z-[60] flex h-14 w-14 items-center justify-center rounded-full border border-line-gold bg-surface shadow-[var(--shadow-md)]"
+        className={`fixed right-4 z-[60] h-14 w-14 items-center justify-center rounded-full border border-line-gold bg-surface shadow-[var(--shadow-md)] ${waitForScroll ? "hidden lg:flex" : "flex"}`}
       >
         <AnimatePresence mode="wait" initial={false}>
           {open ? (
