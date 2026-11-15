@@ -140,17 +140,17 @@ function Section({
 }) {
   return (
     <section id={id} aria-labelledby={`${id}-title`} className={`px-gutter border-t border-line py-16 sm:py-24 ${className}`}>
-      <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-12 lg:gap-12">
-        <Reveal className="lg:col-span-4">
-          <div className="lg:sticky lg:top-[calc(var(--header-h)+40px)]">
+      <div className="mx-auto max-w-6xl">
+        <Reveal className="grid gap-4 lg:grid-cols-12 lg:items-end lg:gap-12">
+          <div className="lg:col-span-7">
             <p className="text-eyebrow text-gold">
               <span className="text-cream-dim">{index}</span> — {label}
             </p>
-            <h2 id={`${id}-title`} className="mt-4 text-title-1 text-cream">{title}</h2>
-            {intro && <p className="mt-4 text-body text-cream-muted">{intro}</p>}
+            <h2 id={`${id}-title`} className={`mt-4 text-title-1 text-cream ${intro ? "max-w-[22ch]" : "max-w-[30ch]"}`}>{title}</h2>
           </div>
+          {intro && <p className="max-w-xl text-body text-cream-muted lg:col-span-5 lg:pb-1">{intro}</p>}
         </Reveal>
-        <div className="min-w-0 lg:col-span-8">{children}</div>
+        <div className="mt-10 min-w-0 sm:mt-12">{children}</div>
       </div>
     </section>
   );
@@ -165,10 +165,10 @@ const TOOLS = [
 ];
 
 const METHOD = [
-  { icon: FlaskConical, title: "Escenarios realistas, cero riesgo", desc: "Correos, DMs, wallets y firmas que imitan ataques reales. Equivocarte aquí no cuesta nada: cada respuesta explica la trampa.", wide: true },
+  { icon: FlaskConical, title: "Escenarios realistas, cero riesgo", desc: "Correos, DMs, wallets y firmas que imitan ataques reales. Equivocarte aquí no cuesta nada: cada respuesta explica la trampa." },
   { icon: Clock, title: "Sin horarios ni tareas", desc: "Una misión toma menos de 5 minutos, al ritmo que puedas." },
   { icon: HandCoins, title: "100% gratis", desc: "Sin inscripción ni mensualidad. Un bien público para Web3 en LATAM." },
-  { icon: ShieldCheck, title: "Credencial verificable", desc: "Al completar un módulo obtienes una prueba pública de que sabes detectar esa estafa. Una wallet, exchange o comunidad puede consultarla antes de darte acceso, sin pedirte nombre ni correo.", wide: true },
+  { icon: ShieldCheck, title: "Credencial verificable", desc: "Al completar un módulo obtienes una prueba pública de que sabes detectar esa estafa. Una wallet, exchange o comunidad puede consultarla antes de darte acceso, sin pedirte nombre ni correo." },
 ];
 
 const WHO = [
@@ -228,7 +228,6 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
       <main id="main" tabIndex={-1} className="outline-none">
         {/* ══ HERO ══════════════════════════════════════════════════════ */}
         <section className="bg-grid px-gutter relative">
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-navy" />
           <div className="relative mx-auto grid max-w-6xl items-center gap-12 pb-16 pt-12 sm:pt-16 lg:grid-cols-12 lg:gap-10 lg:pb-24 lg:pt-24">
             <div className="lg:col-span-7">
               <p className="inline-flex items-center gap-2 rounded-sm border border-amber-border bg-amber-subtle px-2.5 py-1 font-mono text-[0.8125rem] text-amber">
@@ -287,17 +286,22 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
           title="Tres pasos, cinco minutos por misión"
           intro="Sin videos ni exámenes. Cada misión recrea una situación de fraude y tú decides cómo reaccionar."
         >
-          <ol className="border-b border-line">
+          <ol className="grid border-b border-line lg:grid-cols-3 lg:border-b-0">
             {steps.map(({ icon: Icon, title, desc }, i) => (
-              <Reveal as="li" key={title} delay={i * 0.06} className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-1 border-t border-line py-6 sm:grid-cols-[4rem_1fr_auto] sm:items-start">
-                <span className="font-mono text-sm text-gold sm:pt-1">{String(i + 1).padStart(2, "0")}</span>
+              <Reveal
+                as="li"
+                key={title}
+                delay={i * 0.06}
+                className={`grid grid-cols-[2.5rem_1fr] items-start gap-x-4 border-t border-line py-6 lg:block lg:border-t-2 lg:py-0 lg:pt-6 ${i === 0 ? "lg:border-t-gold" : "lg:border-t-line-strong"} ${i > 0 ? "lg:pl-8" : ""} ${i < 2 ? "lg:pr-8" : ""}`}
+              >
+                <div className="flex items-center justify-between gap-4 pt-1 lg:mb-6 lg:pt-0">
+                  <span className="font-mono text-sm text-gold">{String(i + 1).padStart(2, "0")}</span>
+                  <Icon className="hidden h-5 w-5 text-cream-muted lg:block" strokeWidth={1.75} aria-hidden />
+                </div>
                 <div>
                   <h3 className="text-title-3 text-cream">{title}</h3>
                   <p className="mt-1.5 max-w-xl text-body text-cream-muted">{desc}</p>
                 </div>
-                <span className="hidden h-11 w-11 items-center justify-center rounded-md border border-line-strong text-cream-muted sm:flex">
-                  <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
-                </span>
               </Reveal>
             ))}
           </ol>
@@ -311,25 +315,25 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
           title={<><span className="whitespace-nowrap">{missionCount} simulacros,</span>{" "}<span className="whitespace-nowrap">{trackTotal} módulos</span></>}
           intro="Cada módulo termina con una credencial verificable. Hazlos en el orden que quieras."
         >
-          <ul className="overflow-hidden rounded-lg border border-line-strong bg-surface shadow-[var(--shadow-md)]">
+          <ul className="grid gap-px overflow-hidden rounded-lg border border-line-strong bg-line-strong shadow-[var(--shadow-md)] lg:grid-cols-2">
             {TRACK_ORDER.map((track, i) => {
               const s = TRACK_STYLE[track];
               const [lo, hi] = trackLevels[track];
               return (
-                <Reveal as="li" key={track} delay={i * 0.04} className={i > 0 ? "border-t border-line" : ""}>
-                  <Link href="/dashboard" className="group relative flex items-start gap-4 p-5 transition-colors hover:bg-surface-2 sm:items-center sm:gap-5 sm:px-6">
+                <Reveal as="li" key={track} delay={i * 0.04} className="bg-surface">
+                  <Link href="/dashboard" className="group relative flex h-full items-start gap-4 p-5 transition-colors hover:bg-surface-2 sm:gap-5 sm:p-6">
                     <span aria-hidden className={`absolute inset-y-0 left-0 w-[3px] ${s.bar} opacity-80`} />
-                    <TrackArt track={track} size={44} />
+                    <span className="shrink-0"><TrackArt track={track} size={40} /></span>
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                        <h3 className="text-title-3 text-cream">{TrackMeta[track].label}</h3>
-                        <span className="font-mono text-xs text-cream-muted">
-                          {trackCounts[track]} {trackCounts[track] === 1 ? "misión" : "misiones"} · {lo === hi ? LEVEL_LABEL[lo] : `${LEVEL_LABEL[lo]} → ${LEVEL_LABEL[hi]}`}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-sm leading-relaxed text-cream-muted sm:text-[0.9375rem]">{TrackMeta[track].description}</p>
+                      <h3 className="text-title-3 text-cream">{TrackMeta[track].label}</h3>
+                      <p className="mt-1 font-mono text-xs text-cream-muted">
+                        <span className="whitespace-nowrap">{trackCounts[track]} {trackCounts[track] === 1 ? "misión" : "misiones"}</span>
+                        {" · "}
+                        <span className="whitespace-nowrap">{lo === hi ? LEVEL_LABEL[lo] : `${LEVEL_LABEL[lo]} a ${LEVEL_LABEL[hi]}`}</span>
+                      </p>
+                      <p className="mt-2 text-[0.9375rem] leading-relaxed text-cream-muted">{TrackMeta[track].description}</p>
                     </div>
-                    <ArrowRight className="mt-1 h-5 w-5 shrink-0 text-cream-dim transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-gold sm:mt-0" aria-hidden />
+                    <ArrowRight className="mt-1 hidden h-5 w-5 shrink-0 text-cream-dim transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-gold sm:block" aria-hidden />
                   </Link>
                 </Reveal>
               );
@@ -344,12 +348,16 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
           label="Método"
           title={<>Las escuelas enseñan teoría. <span className="text-gold">Aquí entras a la trampa.</span></>}
         >
-          <ul className="grid gap-px overflow-hidden rounded-lg border border-line-strong bg-line-strong sm:grid-cols-2 lg:grid-cols-3">
-            {METHOD.map(({ icon: Icon, title, desc, wide }, i) => (
-              <Reveal as="li" key={title} delay={i * 0.05} className={`bg-navy p-6 sm:p-7 ${wide ? "lg:col-span-2" : ""}`}>
-                <Icon className="h-6 w-6 text-gold" strokeWidth={1.75} aria-hidden />
-                <h3 className="mt-5 text-title-3 text-cream">{title}</h3>
-                <p className="mt-2 text-body-sm text-cream-muted sm:text-base">{desc}</p>
+          <ul className="grid gap-px overflow-hidden rounded-lg border border-line-strong bg-line-strong md:grid-cols-2">
+            {METHOD.map(({ icon: Icon, title, desc }, i) => (
+              <Reveal as="li" key={title} delay={i * 0.05} className="flex flex-col gap-4 bg-navy p-6 sm:flex-row sm:gap-5 sm:p-8">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-line-strong text-gold">
+                  <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-title-3 text-cream">{title}</h3>
+                  <p className="mt-2 max-w-md text-base text-cream-muted">{desc}</p>
+                </div>
               </Reveal>
             ))}
           </ul>
@@ -357,24 +365,25 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
 
         {/* ══ 04 PARA QUIÉN ═════════════════════════════════════════════ */}
         <Section id="para-quien" index="04" label="Para quién" title="Para personas y para código">
-          <dl className="grid gap-x-10 sm:grid-cols-2">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <dl className="grid gap-x-10 border-b border-line sm:grid-cols-2 lg:col-span-7 lg:grid-cols-1">
             {WHO.map(({ icon: Icon, label, desc }, i) => (
               <Reveal key={label} delay={i * 0.05} className="flex gap-4 border-t border-line py-6">
                 <Icon className="mt-0.5 h-5 w-5 shrink-0 text-gold" strokeWidth={1.75} aria-hidden />
                 <div>
                   <dt className="font-semibold text-cream">{label}</dt>
-                  <dd className="mt-1 text-body-sm text-cream-muted sm:text-base">{desc}</dd>
+                  <dd className="mt-1 text-base text-cream-muted">{desc}</dd>
                 </div>
               </Reveal>
             ))}
           </dl>
 
-          <Reveal className="mt-8">
+          <Reveal className="lg:col-span-5">
             <div className="overflow-hidden rounded-lg border border-line-strong bg-surface shadow-[var(--shadow-md)]">
               <div className="flex items-center gap-2 border-b border-line px-5 py-3">
                 <Code2 className="h-4 w-4 text-cream-muted" aria-hidden />
                 <h3 className="text-sm font-semibold text-cream">Integra la verificación en tu dApp</h3>
-                <span className="ml-auto rounded-sm border border-line px-1.5 py-0.5 font-mono text-xs text-cream-muted">público · CORS abierto</span>
+                <span className="ml-auto whitespace-nowrap rounded-sm border border-line px-1.5 py-0.5 font-mono text-xs text-cream-muted">público · CORS abierto</span>
               </div>
               <pre className="scroll-x bg-navy-deep px-5 py-4 text-[0.8125rem] leading-relaxed text-cream-muted">
 <span className="text-gold">GET</span> /api/verify?address=<span className="text-cream">G…</span>{"\n"}<span className="text-cream-dim">→</span> {"{"} &quot;certified&quot;: <span className="text-success">true</span>, &quot;modules&quot;: [<span className="text-cream">…</span>] {"}"}
@@ -386,6 +395,7 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
               </div>
             </div>
           </Reveal>
+          </div>
         </Section>
 
         {/* ══ 05 HERRAMIENTAS ═══════════════════════════════════════════ */}
@@ -404,7 +414,7 @@ export function LandingClient({ missionCount, trackCounts, trackLevels, preview 
                     <span className="font-semibold text-cream group-hover:text-gold">{name}</span>
                     <span className="font-mono text-xs text-cream-dim">{badge}</span>
                   </span>
-                  <span className="text-body-sm text-cream-muted sm:text-base">
+                  <span className="text-base text-cream-muted">
                     <span className="sr-only">{by}. </span>{desc}
                   </span>
                   <ArrowUpRight className="hidden h-4 w-4 text-cream-dim transition-colors group-hover:text-gold sm:block" aria-label="(abre en otra pestaña)" />
