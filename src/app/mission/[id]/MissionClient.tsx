@@ -160,11 +160,6 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
 
   return (
     <div className="relative min-h-dvh">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96"
-        style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${style.glow} 0%, transparent 70%)` }}
-      />
       <AppNav back={{ href: "/dashboard", label: "Mapa" }} />
 
       <div
@@ -177,7 +172,7 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
             <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
             <span className={`truncate font-semibold ${style.text}`}>{trackName}</span>
           </nav>
-          <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-line-gold bg-gold-subtle px-2.5 py-1 text-xs font-bold text-gold">
+          <span className="flex shrink-0 items-center gap-1.5 rounded-sm border border-line-gold px-2 py-0.5 font-mono text-xs font-medium text-gold">
             <Star className="h-3.5 w-3.5" fill="currentColor" aria-hidden />
             {mission.xp} XP
           </span>
@@ -188,8 +183,13 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
         <div className="mx-auto max-w-5xl">
           <header className="mb-6">
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <span className={`rounded-sm border px-2.5 py-0.5 text-xs font-semibold ${style.chip}`}>{trackName}</span>
-              <span className={`rounded-sm border px-2.5 py-0.5 text-xs font-semibold ${diff.chip}`}>{diff.label}</span>
+              <span className="inline-flex items-center gap-2 rounded-sm border border-line-strong px-2 py-0.5 font-mono text-xs text-cream-muted">
+                <span aria-hidden className={`h-2 w-2 rounded-[1px] ${style.bar}`} />
+                {trackName}
+              </span>
+              <span className="rounded-sm border border-line-strong px-2 py-0.5 font-mono text-xs text-cream-muted">
+                Nivel · {diff.label}
+              </span>
             </div>
             <h1 className="text-title-1 text-cream">{mission.title}</h1>
           </header>

@@ -60,7 +60,7 @@ const clock = (sec: number) => {
 
 export function SimBadge() {
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-border bg-amber-subtle px-2 py-0.5 text-xs font-semibold text-amber">
+    <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-amber-border bg-amber-subtle px-2 py-0.5 font-mono text-xs text-amber">
       <FlaskConical className="h-3 w-3" aria-hidden />
       Simulación
     </span>
@@ -70,12 +70,7 @@ export function SimBadge() {
 function WindowChrome({ title, className = "" }: { title: string; className?: string }) {
   return (
     <div className={`flex items-center gap-2 border-b border-line px-4 py-2.5 ${className}`}>
-      <div className="flex gap-1.5" aria-hidden>
-        <span className="h-2.5 w-2.5 rounded-full bg-sim-red" />
-        <span className="h-2.5 w-2.5 rounded-full bg-sim-yellow" />
-        <span className="h-2.5 w-2.5 rounded-full bg-sim-green" />
-      </div>
-      <span className="min-w-0 flex-1 truncate text-center text-xs font-medium text-cream-muted">{title}</span>
+      <span className="min-w-0 flex-1 truncate font-mono text-xs text-cream-muted">{title}</span>
       <SimBadge />
     </div>
   );
@@ -221,7 +216,7 @@ function WalletFrame({ mission, p }: { mission: PublicMission; p: Params }) {
           <div className="min-w-0">
             <div className="mb-1 flex flex-wrap items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-amber">Token recibido</span>
-              <span className="rounded-full border border-amber-border bg-amber-subtle px-2 py-0.5 text-xs font-semibold text-amber">Sin verificar</span>
+              <span className="rounded-sm border border-amber-border bg-amber-subtle px-2 py-0.5 text-xs font-semibold text-amber">Sin verificar</span>
             </div>
             {Number.isFinite(amount) && (
               <p className="font-mono text-3xl font-bold leading-none tabular-nums text-cream">{amount.toLocaleString("es-MX")}</p>
@@ -331,7 +326,7 @@ function PresaleFrame({ mission, p }: { mission: PublicMission; p: Params }) {
         <span className="min-w-[10rem] flex-1 text-sm font-bold text-cream">{token} — {fee ? "Whitelist exclusiva" : "Preventa privada"}</span>
         <div className="flex shrink-0 flex-wrap items-center gap-1.5">
           {badge && (
-            <span className="rounded-full border border-danger-border bg-danger-subtle px-2 py-0.5 text-xs font-bold tabular-nums text-danger" aria-live="off">
+            <span className="rounded-sm border border-danger-border bg-danger-subtle px-2 py-0.5 font-mono text-xs font-medium tabular-nums text-danger" aria-live="off">
               {badge}
             </span>
           )}
@@ -366,12 +361,7 @@ function DiscordFrame({ mission, p }: { mission: PublicMission; p: Params }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-line-strong shadow-[var(--shadow-lg)]">
       <div className="flex items-center gap-2 bg-sim-discord-chrome px-4 py-2.5">
-        <div className="flex gap-1.5" aria-hidden>
-          <span className="h-2.5 w-2.5 rounded-full bg-sim-red" />
-          <span className="h-2.5 w-2.5 rounded-full bg-sim-yellow" />
-          <span className="h-2.5 w-2.5 rounded-full bg-sim-green" />
-        </div>
-        <span className="min-w-0 flex-1 truncate text-center text-xs text-sim-discord-muted">Discord — Mensajes directos</span>
+        <span className="min-w-0 flex-1 truncate text-xs text-sim-discord-muted">Discord — Mensajes directos</span>
         <SimBadge />
       </div>
       {contextLine && <p className="bg-sim-discord-panel px-4 py-2.5 text-xs italic text-sim-discord-muted">{contextLine}</p>}
