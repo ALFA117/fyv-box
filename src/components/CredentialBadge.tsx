@@ -25,7 +25,7 @@ export function CredentialBadge({ module, stellarAddress, completedAt, txHash, c
       initial={reduce ? false : { opacity: 0, y: 12, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 280, damping: 24 }}
-      className="relative overflow-hidden rounded-3xl border border-line-gold bg-gradient-to-br from-surface via-surface-card to-surface-2 shadow-[var(--shadow-gold)]"
+      className="relative overflow-hidden rounded-3xl border border-line-gold bg-surface shadow-[var(--shadow-gold)]"
     >
       <div aria-hidden className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gold/15 blur-3xl" />
 

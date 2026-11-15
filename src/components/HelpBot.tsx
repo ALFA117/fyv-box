@@ -314,7 +314,7 @@ export function HelpBot() {
                       key={id}
                       type="button"
                       onClick={() => reply(t.chip, t.id)}
-                      className={`min-h-[40px] shrink-0 whitespace-nowrap rounded-full border px-3 text-xs font-medium transition-colors ${
+                      className={`min-h-[40px] shrink-0 whitespace-nowrap rounded-sm border px-3 text-xs font-medium transition-colors ${
                         id === "analizar"
                           ? "border-line-gold bg-gold-subtle text-gold hover:border-gold-ring"
                           : "border-line-strong bg-navy text-cream hover:border-line-gold hover:text-gold"

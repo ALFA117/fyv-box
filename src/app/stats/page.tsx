@@ -204,7 +204,7 @@ export default function StatsPage() {
                           {known && <TrackIconBadge track={track} size={36} />}
                           <span className="text-sm font-semibold text-cream">{known ? TrackMeta[track].label : stat.track}</span>
                         </div>
-                        <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-bold ${chip}`}>{stat.trapRate}% falló</span>
+                        <span className={`shrink-0 rounded-sm border px-2.5 py-0.5 text-xs font-bold ${chip}`}>{stat.trapRate}% falló</span>
                       </div>
                       <div
                         className="h-2 w-full overflow-hidden rounded-full bg-line"

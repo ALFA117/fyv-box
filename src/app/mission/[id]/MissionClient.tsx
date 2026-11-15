@@ -168,7 +168,7 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
       <AppNav back={{ href: "/dashboard", label: "Mapa" }} />
 
       <div
-        className="px-gutter sticky z-30 border-b border-line bg-navy/90 backdrop-blur-md"
+        className="px-gutter sticky z-30 border-b border-line bg-navy"
         style={{ top: "calc(var(--header-h) + var(--safe-top))" }}
       >
         <div className="mx-auto flex h-11 max-w-5xl items-center justify-between gap-3">
@@ -188,8 +188,8 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
         <div className="mx-auto max-w-5xl">
           <header className="mb-6">
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${style.chip}`}>{trackName}</span>
-              <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${diff.chip}`}>{diff.label}</span>
+              <span className={`rounded-sm border px-2.5 py-0.5 text-xs font-semibold ${style.chip}`}>{trackName}</span>
+              <span className={`rounded-sm border px-2.5 py-0.5 text-xs font-semibold ${diff.chip}`}>{diff.label}</span>
             </div>
             <h1 className="text-title-1 text-cream">{mission.title}</h1>
           </header>
@@ -370,7 +370,7 @@ export function MissionClient({ mission, next }: { mission: PublicMission; next:
 
       {/* Thumb-reachable confirm bar on phones (outside animated/transformed ancestors so `fixed` works) */}
       {!result && (
-        <div className="px-gutter pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-navy/95 pt-3 backdrop-blur-md lg:hidden">
+        <div className="px-gutter pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-navy pt-3 lg:hidden">
           <div className="mx-auto max-w-lg">{confirm}</div>
         </div>
       )}

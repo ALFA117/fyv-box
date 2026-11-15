@@ -40,7 +40,7 @@ export function AppNav({ back, wallet, showStats = false, showLogout = false }: 
   }
 
   return (
-    <header className="pt-safe sticky top-0 z-40 border-b border-line bg-navy/90 backdrop-blur-md">
+    <header className="pt-safe sticky top-0 z-40 border-b border-line bg-navy">
       <div className="px-gutter mx-auto flex h-[var(--header-h)] max-w-5xl items-center justify-between gap-2">
         {backHref ? (
           <Link
