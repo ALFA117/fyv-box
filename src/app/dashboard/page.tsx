@@ -54,7 +54,7 @@ function LevelRing({ level, pct }: { level: number; pct: number }) {
           className="transition-[stroke-dashoffset] duration-700 ease-out motion-reduce:transition-none"
         />
       </svg>
-      <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold text-gold" aria-hidden>
+      <span className="absolute inset-0 flex items-center justify-center font-mono text-lg font-medium text-gold" aria-hidden>
         {level}
       </span>
     </div>
@@ -147,12 +147,16 @@ export default function DashboardPage() {
             action={<Button variant="secondary" onClick={() => setRetryKey((k) => k + 1)}>Reintentar</Button>}
           />
         ) : (
-          <div className="mx-auto max-w-2xl space-y-8">
-            <h1 className="sr-only">Mapa de misiones</h1>
+          <div className="mx-auto max-w-5xl space-y-6">
+            <div>
+              <p className="text-eyebrow text-gold">Tu entrenamiento</p>
+              <h1 className="mt-2 text-title-1 text-cream">Mapa de misiones</h1>
+              <p className="mt-2 max-w-2xl text-body text-cream-muted">Elige cualquier misión o sigue la que te sugerimos. Completa un módulo para ganar su credencial.</p>
+            </div>
 
             {localOnly && (
-              <p role="status" className="flex items-start gap-2.5 rounded-2xl border border-line bg-surface/60 px-4 py-3 text-xs leading-relaxed text-cream-muted">
-                <HardDrive className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-hidden />
+              <p role="status" className="flex items-start gap-2.5 rounded-md border border-line-strong border-l-2 border-l-amber bg-surface px-4 py-3 text-sm leading-relaxed text-cream-muted">
+                <HardDrive className="mt-0.5 h-4 w-4 shrink-0 text-amber" aria-hidden />
                 <span>
                   El servidor de progreso no está disponible, así que tu avance se guarda en este navegador.
                   Las misiones funcionan igual y, al completar un módulo, la credencial se emite en Stellar testnet.
@@ -160,32 +164,31 @@ export default function DashboardPage() {
               </p>
             )}
 
+            <div className="grid items-start gap-6 lg:grid-cols-12">
             <motion.section
               aria-label="Tu progreso"
               initial={reduce ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={reduce ? { duration: 0 } : { duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="relative overflow-hidden rounded-3xl border border-line-gold bg-gradient-to-br from-surface to-surface-card p-5 shadow-[var(--shadow-gold)] sm:p-6"
+              className="relative overflow-hidden rounded-lg border border-line-strong bg-surface p-5 shadow-[var(--shadow-md)] sm:p-6 lg:sticky lg:top-[calc(var(--header-h)+24px)] lg:col-span-4"
             >
-              <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gold/10 blur-[60px]" aria-hidden />
-
-              <div className="relative mb-4 flex items-start justify-between gap-3">
+              <div className="relative mb-4 flex flex-wrap items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
                   <LevelRing
                     level={lvl.level}
                     pct={lvl.next ? (totalXP - lvl.min) / (lvl.next.min - lvl.min) : 1}
                   />
                   <div className="min-w-0">
-                    <p className={`text-label uppercase tracking-wider ${lvl.color}`}>Nivel {lvl.level} · {lvl.title}</p>
+                    <p className={`font-mono text-xs ${lvl.color}`}>Nivel {lvl.level} · {lvl.title}</p>
                     <p className="text-sm text-cream-muted">
                       <span className="tabular-nums">{completedCount}</span> de <span className="tabular-nums">{totalMissions}</span> misiones completadas
                     </p>
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
-                  <div className="flex items-center gap-1.5 rounded-2xl border border-line-gold bg-gold-subtle px-3 py-1.5">
+                  <div className="flex items-center gap-1.5 rounded-md border border-line-gold bg-gold-subtle px-2.5 py-1">
                     <Star className="h-4 w-4 text-gold" fill="currentColor" aria-hidden />
-                    <span className="font-display text-xl font-bold tabular-nums text-gold">{totalXP}</span>
+                    <span className="font-mono text-lg font-medium tabular-nums text-gold">{totalXP}</span>
                     <span className="text-xs font-bold text-gold">XP</span>
                   </div>
                   {progressPct > 0 && (
@@ -210,7 +213,7 @@ export default function DashboardPage() {
               {progressPct === 100 ? (
                 <Link
                   href="/graduation"
-                  className="relative mt-5 flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-success px-4 text-sm font-bold text-on-gold transition-opacity hover:opacity-90"
+                  className="relative mt-5 flex min-h-[48px] items-center justify-center gap-2 rounded-md bg-success px-4 text-sm font-bold text-on-gold transition-opacity hover:opacity-90"
                 >
                   <Trophy className="h-4 w-4" aria-hidden />
                   Ver mis credenciales
@@ -237,7 +240,7 @@ export default function DashboardPage() {
               {nextMission && (
                 <Link
                   href={`/mission/${nextMission.id}`}
-                  className="relative mt-4 flex min-h-[52px] items-center justify-between gap-3 rounded-xl bg-gold px-4 text-on-gold transition-colors hover:bg-gold-hover active:bg-gold-active"
+                  className="press relative mt-4 flex min-h-[52px] items-center justify-between gap-3 rounded-md border border-gold-active bg-gold px-4 text-on-gold hover:bg-gold-hover active:bg-gold-active"
                 >
                   <span className="min-w-0">
                     <span className="block text-xs font-semibold opacity-80">{completedCount === 0 ? "Empieza aquí" : "Tu siguiente misión"}</span>
@@ -252,7 +255,7 @@ export default function DashboardPage() {
               variants={reduce ? undefined : containerVariants}
               initial={reduce ? false : "hidden"}
               animate={reduce ? undefined : "show"}
-              className="space-y-10"
+              className="grid items-start gap-5 md:grid-cols-2 lg:col-span-8"
             >
               {groups.filter((g) => g.missions.length > 0).map((group) => (
                 <motion.div key={group.track} variants={reduce ? undefined : itemVariants}>
@@ -260,6 +263,7 @@ export default function DashboardPage() {
                 </motion.div>
               ))}
             </motion.div>
+            </div>
           </div>
         )}
       </main>
