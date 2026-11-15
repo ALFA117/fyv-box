@@ -1,21 +1,20 @@
 import { ImageResponse } from "next/og";
 import { BRAND } from "@/lib/brand";
-import { ogFonts } from "@/lib/ogFonts";
+import { ogFonts, OG_MONO, OG_SANS, OG_SERIF } from "@/lib/ogFonts";
 
 export const alt = `${BRAND.name} — ${BRAND.tagline}. Simulacros gratuitos en Stellar testnet.`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const PILLS = [
-  { label: "Phishing", color: BRAND.danger },
-  { label: "Airdrops falsos", color: BRAND.amber },
-  { label: "Ingeniería social", color: BRAND.info },
-  { label: "Credencial verificable", color: BRAND.success },
-];
+const TOPICS = ["Phishing", "Airdrops falsos", "Ingeniería social", "Firmas peligrosas"];
+const LINE = "rgba(236,233,225,0.14)";
 
 export default async function OGImage() {
   const fonts = await ogFonts();
-  const display = fonts.some((f) => f.name === "Playfair Display") ? "Playfair Display" : undefined;
+  const has = (n: string) => fonts.some((f) => f.name === n);
+  const serif = has(OG_SERIF) ? OG_SERIF : undefined;
+  const sans = has(OG_SANS) ? OG_SANS : undefined;
+  const mono = has(OG_MONO) ? OG_MONO : undefined;
 
   return new ImageResponse(
     (
@@ -26,67 +25,59 @@ export default async function OGImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "64px 80px",
-          background: `linear-gradient(135deg, ${BRAND.navy} 0%, ${BRAND.surface} 62%, ${BRAND.surface2} 100%)`,
+          padding: "60px 80px",
+          background: BRAND.navy,
           color: BRAND.cream,
-          fontFamily: "Inter",
-          position: "relative",
+          fontFamily: sans,
+          borderTop: `8px solid ${BRAND.gold}`,
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            right: -180,
-            top: -180,
-            width: 620,
-            height: 620,
-            borderRadius: 9999,
-            background: "radial-gradient(circle, rgba(201,162,39,0.22) 0%, rgba(201,162,39,0) 70%)",
-          }}
-        />
-
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", fontFamily: display, fontSize: 46, fontWeight: 700, letterSpacing: "-0.01em" }}>
+          <div style={{ display: "flex", fontFamily: serif, fontSize: 44, fontWeight: 600 }}>
             <span>FYV</span>
-            <span style={{ color: BRAND.gold, marginLeft: 12 }}>Box</span>
+            <span style={{ color: BRAND.gold, marginLeft: 10 }}>Box</span>
           </div>
-          <div style={{ display: "flex", fontSize: 24, color: BRAND.creamMuted }}>fyv-box.vercel.app</div>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
           <div
             style={{
               display: "flex",
-              flexWrap: "wrap",
-              fontFamily: display,
-              fontSize: 84,
-              fontWeight: 700,
-              lineHeight: 1.02,
-              letterSpacing: "-0.015em",
+              fontFamily: mono,
+              fontSize: 22,
+              color: BRAND.amber,
+              border: `2px solid ${BRAND.amber}`,
+              borderRadius: 4,
+              padding: "6px 14px",
             }}
           >
-            <span>No caigas en&nbsp;</span>
-            <span style={{ color: BRAND.gold }}>estafas crypto</span>
-          </div>
-          <div style={{ display: "flex", marginTop: 24, fontSize: 32, color: BRAND.creamMuted, lineHeight: 1.35 }}>
-            Simulacros gratis en español sobre Stellar testnet. Practica sin arriesgar dinero.
+            Simulador · Stellar testnet · sin dinero real
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 14 }}>
-          {PILLS.map((p) => (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", fontFamily: serif, fontSize: 88, fontWeight: 600, lineHeight: 1.04 }}>
+            <span>No caigas en&nbsp;</span>
+            <span style={{ color: BRAND.gold }}>estafas crypto.</span>
+          </div>
+          <div style={{ display: "flex", marginTop: 24, fontSize: 30, color: BRAND.creamMuted, lineHeight: 1.4, maxWidth: 900 }}>
+            Simulacros gratis en español. Practica sin arriesgar dinero y obtén una credencial verificable.
+          </div>
+        </div>
+
+        <div style={{ display: "flex", borderTop: `1px solid ${LINE}`, paddingTop: 24 }}>
+          {TOPICS.map((t, i) => (
             <div
-              key={p.label}
+              key={t}
               style={{
                 display: "flex",
-                padding: "10px 22px",
-                borderRadius: 999,
-                border: `2px solid ${p.color}`,
-                color: p.color,
-                fontSize: 24,
+                fontFamily: mono,
+                fontSize: 22,
+                color: BRAND.creamMuted,
+                paddingLeft: i === 0 ? 0 : 24,
+                paddingRight: 24,
+                borderLeft: i === 0 ? "none" : `1px solid ${LINE}`,
               }}
             >
-              {p.label}
+              <span style={{ color: BRAND.gold }}>{String(i + 1).padStart(2, "0")}</span>
+              <span style={{ marginLeft: 12 }}>{t}</span>
             </div>
           ))}
         </div>

@@ -1,12 +1,12 @@
 import { ImageResponse } from "next/og";
 import { BRAND } from "@/lib/brand";
-import { ogFonts } from "@/lib/ogFonts";
+import { ogFonts, OG_SERIF } from "@/lib/ogFonts";
 
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
 export default async function AppleIcon() {
-  const fonts = (await ogFonts()).filter((f) => f.name === "Playfair Display");
+  const fonts = (await ogFonts()).filter((f) => f.name === OG_SERIF);
   return new ImageResponse(
     (
       <div
@@ -17,9 +17,9 @@ export default async function AppleIcon() {
           alignItems: "center",
           justifyContent: "center",
           background: BRAND.navy,
-          fontFamily: fonts.length ? "Playfair Display" : undefined,
+          fontFamily: fonts.length ? OG_SERIF : undefined,
           fontSize: 64,
-          fontWeight: 700,
+          fontWeight: 600,
           letterSpacing: "0",
           color: BRAND.cream,
         }}

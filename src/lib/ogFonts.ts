@@ -15,10 +15,20 @@ async function loadGoogleFont(family: string, weight: number): Promise<ArrayBuff
   }
 }
 
+/** Same families as the site: Source Serif 4 (display), IBM Plex Sans (body), IBM Plex Mono (labels). */
+export const OG_SERIF = "Source Serif 4";
+export const OG_SANS = "IBM Plex Sans";
+export const OG_MONO = "IBM Plex Mono";
+
 export async function ogFonts() {
-  const [serif, inter] = await Promise.all([loadGoogleFont("Playfair+Display", 700), loadGoogleFont("Inter", 500)]);
-  const fonts: { name: string; data: ArrayBuffer; weight: 500 | 700; style: "normal" }[] = [];
-  if (serif) fonts.push({ name: "Playfair Display", data: serif, weight: 700, style: "normal" });
-  if (inter) fonts.push({ name: "Inter", data: inter, weight: 500, style: "normal" });
+  const [serif, sans, mono] = await Promise.all([
+    loadGoogleFont("Source+Serif+4", 600),
+    loadGoogleFont("IBM+Plex+Sans", 500),
+    loadGoogleFont("IBM+Plex+Mono", 500),
+  ]);
+  const fonts: { name: string; data: ArrayBuffer; weight: 500 | 600; style: "normal" }[] = [];
+  if (serif) fonts.push({ name: OG_SERIF, data: serif, weight: 600, style: "normal" });
+  if (sans) fonts.push({ name: OG_SANS, data: sans, weight: 500, style: "normal" });
+  if (mono) fonts.push({ name: OG_MONO, data: mono, weight: 500, style: "normal" });
   return fonts;
 }
